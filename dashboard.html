@@ -346,9 +346,11 @@ function renderMonthBar() {
 
 function renderMain() {
   const mIdx = getMonthIdx(curMonth);
-  const latestMonth = getLatestMonth();
-  const latestLabel = latestMonth ? formatMonthLabel(latestMonth) : '最新';
-  const content = document.getElementById('mainContent');
+  const latestMonth = getLatestMonth() || '202603';
+  const latestLabel = formatMonthLabel(latestMonth);
+  const mainEl = document.getElementById('mainContent');
+  const content = mainEl;
+  console.log('[DEBUG] latestMonth:', latestMonth, 'latestLabel:', latestLabel);
 
   // Traffic lights
   let lightsHTML = '<div class="section"><div class="section-title">各分會紅綠燈</div><div class="lights-grid">';
