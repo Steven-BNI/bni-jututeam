@@ -239,26 +239,33 @@ function parsePalmsSheet(rows) {
 
 async function loadAll() {
   setSyncStatus('loading','載入資料中...');
-  try {
-    // Load branch data
-    for (const b of BRANCHES) {
-      try {
-        const rows = await fetchCSV(b.sheet);
-        sheetData[b.id] = parseBranchSheet(rows);
-      } catch(e) { sheetData[b.id] = {}; }
-    }
-    // Load PALMS
+  document.getElementById('mainContent').innerHTML = '<div class="loading">載入中...</div>';
+  
+  // Load all in parallel with timeout
+  const loadBranch = async (b) => {
+    try {
+      const rows = await fetchCSV(b.sheet);
+      sheetData[b.id] = parseBranchSheet(rows);
+    } catch(e) { sheetData[b.id] = {}; }
+  };
+  
+  const loadPalms = async () => {
     try {
       const rows = await fetchCSV('當月Palms進度');
       sheetData['palms'] = parsePalmsSheet(rows);
     } catch(e) { sheetData['palms'] = {}; }
+  };
 
+  try {
+    await Promise.all([
+      ...BRANCHES.map(b => loadBranch(b)),
+      loadPalms()
+    ]);
     setSyncStatus('ok','資料已同步');
-    render();
   } catch(e) {
-    setSyncStatus('error','載入失敗');
-    render();
+    setSyncStatus('error','部分資料載入失敗');
   }
+  render();
 }
 
 function setSyncStatus(s, t) {
