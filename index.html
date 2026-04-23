@@ -420,7 +420,8 @@ async function loadAllData() {
 function setSyncStatus(status, text) {
   const dot = document.getElementById('syncDot');
   const txt = document.getElementById('syncText');
-  dot.className = 'sync-dot ' + status;
+  if (dot) dot.className = 'sync-dot ' + status;
+  if (txt) txt.textContent = text;
   txt.textContent = text;
 }
 
