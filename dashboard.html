@@ -309,51 +309,7 @@ const loadWeekly = async () => {
       sheetData['weekly'] = rows;
     } catch(e) { sheetData['weekly'] = []; }
   };
-  try {
-    await Promise.all([
-      ...BRANCHES.map(b => loadBranch(b)),
-      loadPalms(),
-      loadCross(),
-      loadWeekly()
-    ]);
-    setSyncStatus('ok','資料已同步');
-  } catch(e) {
-    setSyncStatus('error','部分資料載入失敗');
-  }
-  function showWeekly() {
-  const rows = sheetData['weekly'] || [];
-  const headers = rows[0] || [];
-  const data = rows.slice(1);
-
-  // 取得今天的年月
-  const now = new Date();
-  const thisMonth = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
-
-  // 找欄位index
-  const idx = (name) => headers.indexOf(name);
-  const iDate = idx('例會日期');
-  const iBranch = idx('分會');
-  const iCols = ['應到人數','實到人數','缺席人數','來賓應到','來賓實到','一對一次數(無則填0)','引薦單數'];
-
-  // 找最新一週（最後一筆每個分會）
-  const latest = {};
-  const monthly = {};
-  BRANCHES.forEach(b => { latest[b.name] = null; monthly[b.name] = {}; iCols.forEach(c => monthly[b.name][c] = 0); });
-
-  data.forEach(row => {
-    const branch = row[iBranch];
-    const dateStr = row[iDate] || '';
-    const rowMonth = dateStr.replace(/-/g,'').slice(0,6);
-    if (!latest[branch]) latest[branch] = row;
-    else latest[branch] = row;
-    if (rowMonth === thisMonth) {
-      iCols.forEach(c => {
-        const v = parseFloat(row[idx(c)]) || 0;
-        monthly[branch][c] = (monthly[branch][c] || 0) + v;
-      });
-    }
-  });
-
+  
   let html = `<div style="padding:16px">
     <h2 style="color:var(--red);margin-bottom:16px">📋 分會週報數據</h2>`;
 
@@ -449,7 +405,48 @@ function numClass(n) {
 // ============================================================
 // RENDER
 // ============================================================
-function render() {
+function showWeekly() {
+  const rows = sheetData['weekly'] || [];
+  const headers = rows[0] || [];
+  const data = rows.slice(1);
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+  const idx = (name) => headers.indexOf(name);
+  const iCols = ['應到人數','實到人數','缺席人數','來賓應到','來賓實到','一對一次數(無則填0)','引薦單數'];
+  const latest = {};
+  const monthly = {};
+  BRANCHES.forEach(b => { latest[b.name] = null; monthly[b.name] = {}; iCols.forEach(c => monthly[b.name][c] = 0); });
+  data.forEach(row => {
+    const branch = row[idx('分會')];
+    const dateStr = row[idx('例會日期')] || '';
+    const rowMonth = dateStr.replace(/-/g,'').slice(0,6);
+    if (branch) latest[branch] = row;
+    if (rowMonth === thisMonth && branch) {
+      iCols.forEach(c => { monthly[branch][c] = (monthly[branch][c]||0) + (parseFloat(row[idx(c)])||0); });
+    }
+  });
+  let html = `<div style="padding:16px"><h2 style="color:var(--red);margin-bottom:16px">📋 分會週報數據</h2>`;
+  BRANCHES.forEach(b => {
+    const l = latest[b.name];
+    const m = monthly[b.name];
+    html += `<div style="background:var(--surface);border-radius:12px;padding:16px;margin-bottom:16px">
+      <h3 style="color:#fff;margin-bottom:12px">${b.name}</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:#1e1e2e;border-radius:8px;padding:12px">
+          <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">最新一週</div>
+          ${l ? iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${l[idx(c)]||0}</span></div>`).join('') : '<div style="color:#555">尚無資料</div>'}
+        </div>
+        <div style="background:#1e1e2e;border-radius:8px;padding:12px">
+          <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">本月累積</div>
+          ${iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${m[c]||0}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+  function render() {
   renderMonthBar();
   renderMain();
 }
