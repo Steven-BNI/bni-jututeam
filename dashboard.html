@@ -224,6 +224,31 @@ function parseBranchSheet(rows) {
   return result;
 }
 
+function parseCrossSheet(rows) {
+  // Find row with '分會' in column A (around row 25)
+  const result = { headers: [], data: [] };
+  let headerRowIdx = -1;
+  for (let i = 0; i < rows.length; i++) {
+    const cell = (rows[i][0]||'').replace(/"/g,'').trim();
+    if (cell === '分會') { headerRowIdx = i; break; }
+  }
+  if (headerRowIdx < 0) return result;
+  result.headers = rows[headerRowIdx].map(h => h.replace(/"/g,'').trim());
+  for (let i = headerRowIdx+1; i < rows.length; i++) {
+    const row = rows[i];
+    const branch = (row[0]||'').replace(/"/g,'').trim();
+    if (!branch) break;
+    const obj = {};
+    result.headers.forEach((h,idx) => {
+      obj[h] = (row[idx]||'').replace(/"/g,'').trim();
+    });
+    result.data.push(obj);
+  }
+  console.log('[CROSS] headers:', result.headers);
+  console.log('[CROSS] data rows:', result.data.length);
+  return result;
+}
+
 function parsePalmsSheet(rows) {
   const result = {};
   if (!rows || rows.length < 2) return result;
@@ -261,10 +286,18 @@ async function loadAll() {
     } catch(e) { sheetData['palms'] = {}; }
   };
 
+  const loadCross = async () => {
+    try {
+      const rows = await fetchCSV('月度橫向比較');
+      sheetData['cross'] = parseCrossSheet(rows);
+    } catch(e) { sheetData['cross'] = { headers:[], data:[] }; }
+  };
+
   try {
     await Promise.all([
       ...BRANCHES.map(b => loadBranch(b)),
-      loadPalms()
+      loadPalms(),
+      loadCross()
     ]);
     setSyncStatus('ok','資料已同步');
   } catch(e) {
@@ -442,6 +475,36 @@ function renderMain() {
   tableHTML += '</table></div></div>';
 
   // PALMS
+  // Cross comparison section
+  const crossData = (sheetData['cross']||{}).data || [];
+  const crossHeaders = (sheetData['cross']||{}).headers || [];
+  let crossHTML = `<div class="section"><div class="section-title">橫向比較｜${latestLabel}（完整月份）</div>
+    <div class="data-card">
+      <table class="data-table">
+        <tr>`;
+  crossHeaders.forEach(h => { crossHTML += `<th>${h}</th>`; });
+  crossHTML += '</tr>';
+  
+  if (crossData.length === 0) {
+    crossHTML += `<tr><td colspan="${crossHeaders.length||5}" style="color:var(--muted);font-size:11px;padding:14px">尚無資料</td></tr>`;
+  } else {
+    crossData.forEach(row => {
+      crossHTML += '<tr>';
+      crossHeaders.forEach(h => {
+        const val = row[h]||'—';
+        const num = parseFloat(val);
+        let cls = '';
+        if (h !== '分會' && !isNaN(num)) {
+          if (h.includes('缺席')) cls = num > 5 ? 'num-down' : 'num-up';
+          else if (h.includes('淨增長')) cls = num > 0 ? 'num-up' : num < 0 ? 'num-down' : 'num-zero';
+        }
+        crossHTML += `<td class="branch-name ${cls}">${val}</td>`;
+      });
+      crossHTML += '</tr>';
+    });
+  }
+  crossHTML += '</table></div></div>';
+
   // PALMS - use current month (202604)
   const palms = (sheetData['palms']||{})[PALMS_MONTH] || {};
   const palmsLabel = formatMonthLabel(PALMS_MONTH);
@@ -497,7 +560,7 @@ function renderMain() {
     </div>
   </div>`;
 
-  mainEl.innerHTML = lightsHTML + tableHTML + palmsHTML + chartHTML;
+  mainEl.innerHTML = lightsHTML + tableHTML + crossHTML + palmsHTML + chartHTML;
   renderChart();
 }
 
