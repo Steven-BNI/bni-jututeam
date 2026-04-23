@@ -340,6 +340,17 @@ function render() {
   renderMain();
 }
 
+function getLatestMonth() {
+  const allMonths = new Set();
+  BRANCHES.forEach(b => {
+    Object.keys(sheetData[b.id]||{}).forEach(m => {
+      if (/^\d{6}$/.test(m)) allMonths.add(m);
+    });
+  });
+  const sorted = Array.from(allMonths).sort();
+  return sorted[sorted.length - 1] || '202603';
+}
+
 function renderMonthBar() {
   // No month bar needed
 }
