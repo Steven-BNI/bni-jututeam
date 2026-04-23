@@ -388,25 +388,23 @@ function renderMain() {
   lightsHTML += '</div></div>';
 
   // Core data table - use latest month
-  let tableHTML = `<div class="section"><div class="section-title">核心數據｜${latestLabel}</div>
+  let tableHTML = `<div class="section"><div class="section-title">分會紅綠燈數據｜${latestLabel}</div>
     <div class="data-card">
       <table class="data-table">
         <tr>
-          <th>分會</th><th>規模</th><th>增長(6月)</th><th>引薦單</th><th>來賓</th><th>缺席率</th>
+          <th>分會</th><th>規模</th><th>增長(6月)</th><th>保留率%</th><th>引薦單</th><th>來賓</th><th>轉換率%</th><th>缺席率%</th><th>得分</th><th>燈號</th>
         </tr>`;
   BRANCHES.forEach(b => {
-    // Try current latest month data
     const allD = sheetData[b.id] || {};
     const months = Object.keys(allD).filter(m => /^\d{6}$/.test(m)).sort();
     const latestM = months[months.length-1];
     const d = latestM ? allD[latestM] : null;
     
     if (!d || Object.keys(d).length === 0) {
-      tableHTML += `<tr><td class="branch-name">${b.name}</td><td colspan="5" style="color:var(--muted);font-size:11px">尚無資料</td></tr>`;
+      tableHTML += `<tr><td class="branch-name">${b.name}</td><td colspan="9" style="color:var(--muted);font-size:11px">尚無資料</td></tr>`;
       return;
     }
     
-    // Try all possible field name variants
     const getField = (obj, ...keys) => {
       for (const k of keys) {
         if (obj[k] !== undefined && obj[k] !== '') return obj[k];
@@ -414,20 +412,29 @@ function renderMain() {
       return '—';
     };
     
-    const size = getField(d, '分會規模', 'B');
-    const growth = getField(d, '月淨增長', '會員增長(六個月)', '會員增長');
+    const size = getField(d, '分會規模');
+    const growth = getField(d, '會員增長(六個月)', '月淨增長');
     const gNum = parseFloat(growth);
-    const refVal = getField(d, '引薦單', 'E');
-    const guestVal = getField(d, '來賓', 'F');
-    const absRate = getField(d, '缺席率(%)', '缺席率（%）', '缺席率', 'H');
+    const retention = getField(d, '保留率(%)', '保留率');
+    const refVal = getField(d, '引薦單');
+    const guestVal = getField(d, '來賓');
+    const convert = getField(d, '轉換率(%)', '轉換率');
+    const absRate = getField(d, '缺席率(%)', '缺席率');
+    const score = getField(d, '得分');
+    const light = getField(d, '燈號');
+    const lightEmoji = light==='綠'?'🟢':light==='黃'?'🟡':light==='紅'?'🔴':light==='灰'?'⚪':'—';
     
     tableHTML += `<tr>
       <td class="branch-name">${b.name}</td>
       <td>${size}</td>
       <td class="${numClass(growth)}">${!isNaN(gNum)?(gNum>0?'+':'')+gNum:'—'}</td>
+      <td>${retention !== '—' ? retention+'%' : '—'}</td>
       <td>${refVal}</td>
       <td>${guestVal}</td>
+      <td>${convert !== '—' ? convert+'%' : '—'}</td>
       <td>${absRate !== '—' ? absRate+'%' : '—'}</td>
+      <td>${score}</td>
+      <td>${lightEmoji}</td>
     </tr>`;
   });
   tableHTML += '</table></div></div>';
