@@ -229,11 +229,15 @@ function parseCrossSheet(rows) {
   const CROSS_HEADERS = ['分會', '月淨增長（人）', '來賓數（人）', '缺席率（%）', 'ROI >20X（%）'];
   const result = { headers: CROSS_HEADERS, data: [] };
   
-  // Find row with '分會' in column A
+  // Find the SECOND row with '分會' in column A (first is trend table, second is cross comparison)
   let headerRowIdx = -1;
+  let foundCount = 0;
   for (let i = 0; i < rows.length; i++) {
     const cell = (rows[i][0]||'').replace(/"/g,'').trim();
-    if (cell === '分會') { headerRowIdx = i; break; }
+    if (cell === '分會') {
+      foundCount++;
+      if (foundCount === 2) { headerRowIdx = i; break; }
+    }
   }
   if (headerRowIdx < 0) return result;
   
