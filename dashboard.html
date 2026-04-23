@@ -320,7 +320,7 @@ const loadWeekly = async () => {
   } catch(e) {
     setSyncStatus('error','部分資料載入失敗');
   }
-  render();
+  if (location.hash !== '#weekly') render();
 } 
 
 function setSyncStatus(s, t) {
