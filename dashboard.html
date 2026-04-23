@@ -346,6 +346,8 @@ function renderMonthBar() {
 
 function renderMain() {
   const mIdx = getMonthIdx(curMonth);
+  const latestMonth = getLatestMonth();
+  const latestLabel = latestMonth ? formatMonthLabel(latestMonth) : '最新';
   const content = document.getElementById('mainContent');
 
   // Traffic lights
