@@ -600,7 +600,7 @@ function formatMonthLabel(m) {
 function renderChart() {
   const ctx = document.getElementById('trendChart');
   if (!ctx) return;
-  if (charts.trend) { charts.trend.destroy(); }
+  if (charts.trend) { charts.trend.destroy(); charts.trend = null; }
 
   const palmsMonths = Object.keys(sheetData['palms']||{}).filter(m => /^\d{6}$/.test(m)).sort();
 const chartEndMonth = palmsMonths.length > 0 ? palmsMonths[palmsMonths.length-1] : latestM;
