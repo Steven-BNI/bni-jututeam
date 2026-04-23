@@ -400,7 +400,7 @@ document.getElementById('weeklyBtn').classList.add('active');
   const now = new Date();
   const thisMonth = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
   const idx = (name) => headers.indexOf(name);
-  const iCols = ['應到人數','實到人數','缺席人數','來賓應到','來賓實到','一對一次數(無則填0)','引薦單數'];
+  const iCols = ['應到人數','實到人數','缺席人數','來賓應到(無則填0)','來賓實到(無則填0)','一對一次數(無則填0)','引薦單數(無則填0)'];
   const latest = {};
   const monthly = {};
   BRANCHES.forEach(b => { latest[b.name] = null; monthly[b.name] = {}; iCols.forEach(c => monthly[b.name][c] = 0); });
