@@ -174,7 +174,7 @@ const MONTH_LABELS = [];
 const PALMS_MONTH = '202604';
 
 // State
-let curMonth = '202504';
+let curMonth = '';
 let sheetData = {};
 let charts = {};
 
@@ -373,10 +373,8 @@ function renderMain() {
   // Traffic lights
   let lightsHTML = '<div class="section"><div class="section-title">各分會紅綠燈</div><div class="lights-grid">';
   BRANCHES.forEach(b => {
-    // For traffic light, show current month data if available, else latest
-    const dCur = getBranchMonth(b.id, curMonth);
-    const dLatest = getBranchLatest(b.id);
-    const d = dCur || dLatest;
+    // Always use latest data for traffic light
+    const d = getBranchLatest(b.id);
     const light = d ? (d['燈號']||'') : '';
     const score = d ? (d['得分']||'—') : '—';
     const size = d ? (d['分會規模']||'—') : '—';
