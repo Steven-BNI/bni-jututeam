@@ -206,16 +206,19 @@ function parseCSV(text) {
 function parseBranchSheet(rows) {
   const result = {};
   if (!rows || rows.length < 2) return result;
-  const headers = rows[0].map(h => h.replace(/"/g,'').trim());
+  // Clean headers - remove quotes, newlines, extra spaces
+  const headers = rows[0].map(h => h.replace(/"/g,'').replace(/\n/g,'').replace(/\r/g,'').trim());
+  console.log('[BRANCH] headers:', headers);
   for (let i=1; i<rows.length; i++) {
     const row = rows[i];
     const month = (row[0]||'').replace(/"/g,'').trim();
-    if (!month) continue;
+    if (!month || !/^\d{6}$/.test(month)) continue;
     result[month] = {};
     headers.forEach((h,idx) => {
-      result[month][h] = (row[idx]||'').replace(/"/g,'').trim();
+      if (h) result[month][h] = (row[idx]||'').replace(/"/g,'').trim();
     });
   }
+  console.log('[BRANCH] parsed months:', Object.keys(result));
   return result;
 }
 
