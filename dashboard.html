@@ -207,7 +207,7 @@ function parseBranchSheet(rows) {
   const result = {};
   if (!rows || rows.length < 2) return result;
   // Clean headers - remove quotes, newlines, extra spaces
-  const headers = rows[0].map(h => h.replace(/"/g,'').replace(/\n/g,'').replace(/\r/g,'').trim());
+  const headers = rows[0].map(h => h.replace(/"/g,'').replace(/[\n\r]/g,'').replace(/\s+/g,' ').trim());
   console.log('[BRANCH] headers:', headers);
   for (let i=1; i<rows.length; i++) {
     const row = rows[i];
@@ -219,6 +219,8 @@ function parseBranchSheet(rows) {
     });
   }
   console.log('[BRANCH] parsed months:', Object.keys(result));
+  const firstMonth = Object.keys(result)[0];
+  if (firstMonth) console.log('[BRANCH] first row keys:', Object.keys(result[firstMonth]));
   return result;
 }
 
@@ -351,6 +353,7 @@ function getLatestMonth() {
     });
   });
   const sorted = Array.from(allMonths).sort();
+  console.log('[LATEST] all months:', sorted);
   return sorted[sorted.length - 1] || '202603';
 }
 
@@ -413,13 +416,13 @@ function renderMain() {
     };
     
     const size = getField(d, '分會規模');
-    const growth = getField(d, '會員增長(六個月)', '月淨增長');
+    const growth = getField(d, '會員增長 (六個月)', '會員增長(六個月)', '月淨增長');
     const gNum = parseFloat(growth);
-    const retention = getField(d, '保留率(%)', '保留率');
+    const retention = getField(d, '保留率 (%)', '保留率(%)', '保留率');
     const refVal = getField(d, '引薦單');
     const guestVal = getField(d, '來賓');
-    const convert = getField(d, '轉換率(%)', '轉換率');
-    const absRate = getField(d, '缺席率(%)', '缺席率');
+    const convert = getField(d, '轉換率 (%)', '轉換率(%)', '轉換率');
+    const absRate = getField(d, '缺席率 (%)', '缺席率(%)', '缺席率');
     const score = getField(d, '得分');
     const light = getField(d, '燈號');
     const lightEmoji = light==='綠'?'🟢':light==='黃'?'🟡':light==='紅'?'🔴':light==='灰'?'⚪':'—';
