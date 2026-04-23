@@ -407,7 +407,7 @@ document.getElementById('weeklyBtn').classList.add('active');
   data.forEach(row => {
     const branch = row[idx('分會')];
     const dateStr = row[idx('例會日期')] || '';
-    const rowMonth = dateStr.replace(/-/g,'').slice(0,6);
+    const rowMonth = dateStr.replace(/[-\/]/g,'').slice(0,6);
     if (branch) latest[branch] = row;
     if (rowMonth === thisMonth && branch) {
       iCols.forEach(c => { monthly[branch][c] = (monthly[branch][c]||0) + (parseFloat(row[idx(c)])||0); });
