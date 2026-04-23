@@ -150,7 +150,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
   <button class="refresh-btn" onclick="loadAll()">🔄 重新整理</button>
 </div>
 
-<div class="month-bar" id="monthBar"></div>
+<!-- month bar removed - always shows latest -->
 
 <div id="mainContent">
   <div class="loading">載入中...</div>
@@ -167,8 +167,11 @@ const BRANCHES = [
   { id: '聚富', name: '聚富', person: '吳宗憲', sheet: '聚富_數據', start: 21, target: 50, refTarget: 400, guestTarget: 50 },
 ];
 
-const MONTHS = ['202504','202505','202506','202507','202508','202509'];
-const MONTH_LABELS = ['4月','5月','6月','7月','8月','9月'];
+// Months will be dynamically determined from data
+const MONTHS = [];
+const MONTH_LABELS = [];
+// PALMS month is always current month
+const PALMS_MONTH = '202604';
 
 // State
 let curMonth = '202504';
@@ -271,6 +274,7 @@ function getMonthIdx(month) {
 }
 
 function getProgressTarget(branch, monthIdx) {
+  // monthIdx: 0=4月, 1=5月, ..., 5=9月
   const ratio = (monthIdx + 1) / 6;
   const targetPeople = branch.start + (branch.target - branch.start) * ratio;
   const peopleRatio = targetPeople / branch.target;
@@ -330,9 +334,7 @@ function render() {
 }
 
 function renderMonthBar() {
-  document.getElementById('monthBar').innerHTML = MONTHS.map((m,i) => `
-    <div class="month-tab ${m===curMonth?'active':''}" onclick="setMonth('${m}')">${MONTH_LABELS[i]}</div>
-  `).join('');
+  // No month bar needed
 }
 
 function renderMain() {
@@ -360,15 +362,15 @@ function renderMain() {
   });
   lightsHTML += '</div></div>';
 
-  // Core data table
-  let tableHTML = `<div class="section"><div class="section-title">核心數據｜${MONTH_LABELS[mIdx] || curMonth}</div>
+  // Core data table - use latest month
+  let tableHTML = `<div class="section"><div class="section-title">核心數據｜${latestLabel}</div>
     <div class="data-card">
       <table class="data-table">
         <tr>
-          <th>分會</th><th>規模</th><th>淨增長</th><th>引薦單</th><th>來賓</th><th>缺席率</th>
+          <th>分會</th><th>規模</th><th>增長(6月)</th><th>引薦單</th><th>來賓</th><th>缺席率</th>
         </tr>`;
   BRANCHES.forEach(b => {
-    const d = getBranchMonth(b.id, curMonth);
+    const d = getBranchLatest(b.id);
     if (!d) {
       tableHTML += `<tr><td class="branch-name">${b.name}</td><td colspan="5" style="color:var(--muted);font-size:11px">尚無資料</td></tr>`;
       return;
@@ -390,11 +392,15 @@ function renderMain() {
   tableHTML += '</table></div></div>';
 
   // PALMS
-  const palms = (sheetData['palms']||{})[curMonth] || {};
-  let palmsHTML = `<div class="section"><div class="section-title">當月 PALMS 進度｜${MONTH_LABELS[mIdx] || curMonth}</div><div class="palms-grid">`;
+  // PALMS - use current month (202604)
+  const palms = (sheetData['palms']||{})[PALMS_MONTH] || {};
+  const palmsLabel = formatMonthLabel(PALMS_MONTH);
+  let palmsHTML = `<div class="section"><div class="section-title">當月 PALMS 進度｜${palmsLabel}</div><div class="palms-grid">`;
   BRANCHES.forEach(b => {
     const p = palms[b.name] || {};
-    const prog = getProgressTarget(b, mIdx);
+    // PALMS month 202604 = month index 1 (first month of new period 4-9)
+    const palmsIdx = 0; // April = index 0
+    const prog = getProgressTarget(b, palmsIdx);
     const actualPeople = parseFloat(p['實際人數']||p['實際人數 ']) || 0;
     const actualRef = parseFloat(p['月引薦單數']||p['月引薦單']) || 0;
     const actualGuest = parseFloat(p['月來賓數']||p['月來賓']) || 0;
@@ -431,9 +437,10 @@ function renderMain() {
   });
   palmsHTML += '</div></div>';
 
-  // Trend chart
+  // Trend chart - 7 months ending at latest month
+  const { months: chartMonths, labels: chartLabels } = getChartMonths(latestMonth);
   const chartHTML = `<div class="section" style="padding-bottom:30px">
-    <div class="section-title">各分會人數趨勢</div>
+    <div class="section-title">各分會人數趨勢｜近7個月</div>
     <div class="chart-card">
       <div class="chart-title">近期分會規模（人）</div>
       <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
@@ -444,19 +451,18 @@ function renderMain() {
   renderChart();
 }
 
-function getChartMonths() {
+function getChartMonths(refMonth) {
   // Collect all months from all branch data
   const allMonths = new Set();
-  MONTHS.forEach(m => allMonths.add(m));
   BRANCHES.forEach(b => {
     Object.keys(sheetData[b.id]||{}).forEach(m => {
       if (/^\d{6}$/.test(m)) allMonths.add(m);
     });
   });
   const sorted = Array.from(allMonths).sort();
-  // Find current month position
-  const curIdx = sorted.indexOf(curMonth);
-  const end = curIdx >= 0 ? curIdx : sorted.length - 1;
+  const ref = refMonth || sorted[sorted.length-1];
+  const refIdx = sorted.indexOf(ref);
+  const end = refIdx >= 0 ? refIdx : sorted.length - 1;
   const start = Math.max(0, end - 6);
   const slice = sorted.slice(start, end + 1);
   return { months: slice, labels: slice.map(formatMonthLabel) };
@@ -472,9 +478,8 @@ function renderChart() {
   if (!ctx) return;
   if (charts.trend) { charts.trend.destroy(); }
 
-  const { months, labels } = getChartMonths();
-  // Debug
-  console.log('Chart months:', months);
+  const latestM = getLatestMonth();
+  const { months, labels } = getChartMonths(latestM);
   const colors = ['#E8001D','#00d97e','#ffd94a','#7c7cff'];
   const datasets = BRANCHES.map((b, i) => {
     const data = months.map(m => {
@@ -511,7 +516,7 @@ function renderChart() {
   });
 }
 
-function setMonth(m) { curMonth = m; renderMonthBar(); renderMain(); }
+function setMonth(m) { curMonth = m; renderMain(); }
 
 // Auto refresh every 3 min
 setInterval(loadAll, 180000);
