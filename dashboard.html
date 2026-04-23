@@ -572,12 +572,16 @@ function renderMain() {
 }
 
 function getChartMonths(refMonth) {
-  // Collect all months from all branch data
+  // Collect all months from all branch data + PALMS month
   const allMonths = new Set();
   BRANCHES.forEach(b => {
     Object.keys(sheetData[b.id]||{}).forEach(m => {
       if (/^\d{6}$/.test(m)) allMonths.add(m);
     });
+  });
+  // Add PALMS month
+  Object.keys(sheetData['palms']||{}).forEach(m => {
+    if (/^\d{6}$/.test(m)) allMonths.add(m);
   });
   const sorted = Array.from(allMonths).sort();
   const ref = refMonth || sorted[sorted.length-1];
@@ -603,8 +607,15 @@ function renderChart() {
   const colors = ['#E8001D','#00d97e','#ffd94a','#7c7cff'];
   const datasets = BRANCHES.map((b, i) => {
     const data = months.map(m => {
+      // Try branch data first
       const d = (sheetData[b.id]||{})[m];
-      return d && d['分會規模'] ? parseFloat(d['分會規模'])||null : null;
+      if (d && d['分會規模']) return parseFloat(d['分會規模'])||null;
+      // Fall back to PALMS actual people for current month
+      const palms = (sheetData['palms']||{})[m];
+      if (palms && palms[b.name] && palms[b.name]['實際人數']) {
+        return parseFloat(palms[b.name]['實際人數'])||null;
+      }
+      return null;
     });
     return {
       label: b.name,
