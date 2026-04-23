@@ -708,7 +708,8 @@ function setMonth(m) { curMonth = m; renderMain(); }
 // Auto refresh every 3 min
 setInterval(loadAll, 180000);
 loadAll().then(() => {
-  if (location.hash === '#weekly') { render(); showWeekly(); }
+  if (location.hash === '#weekly') showWeekly();
+  else render();
 });
 </script>
 </body>
