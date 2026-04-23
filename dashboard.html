@@ -299,12 +299,21 @@ async function loadAll() {
       sheetData['cross'] = parseCrossSheet(rows);
     } catch(e) { sheetData['cross'] = { headers:[], data:[] }; }
   };
-
+const loadWeekly = async () => {
+    try {
+      const url = `https://docs.google.com/spreadsheets/d/${WEEKLY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=表單回覆 1`;
+      const r = await fetch(url);
+      const text = await r.text();
+      const rows = parseCSV(text);
+      sheetData['weekly'] = rows;
+    } catch(e) { sheetData['weekly'] = []; }
+  };
   try {
     await Promise.all([
       ...BRANCHES.map(b => loadBranch(b)),
       loadPalms(),
-      loadCross()
+      loadCross(),
+      loadWeekly()
     ]);
     setSyncStatus('ok','資料已同步');
   } catch(e) {
