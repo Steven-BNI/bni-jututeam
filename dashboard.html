@@ -225,27 +225,30 @@ function parseBranchSheet(rows) {
 }
 
 function parseCrossSheet(rows) {
-  // Find row with '分會' in column A (around row 25)
-  const result = { headers: [], data: [] };
+  // Headers are missing in CSV due to merged cells - hardcode them
+  const CROSS_HEADERS = ['分會', '月淨增長（人）', '來賓數（人）', '缺席率（%）', 'ROI >20X（%）'];
+  const result = { headers: CROSS_HEADERS, data: [] };
+  
+  // Find row with '分會' in column A
   let headerRowIdx = -1;
   for (let i = 0; i < rows.length; i++) {
     const cell = (rows[i][0]||'').replace(/"/g,'').trim();
     if (cell === '分會') { headerRowIdx = i; break; }
   }
   if (headerRowIdx < 0) return result;
-  result.headers = rows[headerRowIdx].map(h => h.replace(/"/g,'').trim());
+  
+  // Read data rows after header
   for (let i = headerRowIdx+1; i < rows.length; i++) {
     const row = rows[i];
     const branch = (row[0]||'').replace(/"/g,'').trim();
     if (!branch) break;
     const obj = {};
-    result.headers.forEach((h,idx) => {
+    CROSS_HEADERS.forEach((h, idx) => {
       obj[h] = (row[idx]||'').replace(/"/g,'').trim();
     });
     result.data.push(obj);
   }
-  console.log('[CROSS] headers:', result.headers);
-  console.log('[CROSS] data rows:', result.data.length);
+  console.log('[CROSS] data:', result.data);
   return result;
 }
 
