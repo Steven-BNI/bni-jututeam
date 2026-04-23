@@ -309,33 +309,19 @@ const loadWeekly = async () => {
       sheetData['weekly'] = rows;
     } catch(e) { sheetData['weekly'] = []; }
   };
-  
-  let html = `<div style="padding:16px">
-    <h2 style="color:var(--red);margin-bottom:16px">📋 分會週報數據</h2>`;
-
-  BRANCHES.forEach(b => {
-    const l = latest[b.name];
-    const m = monthly[b.name];
-    html += `<div style="background:var(--surface);border-radius:12px;padding:16px;margin-bottom:16px">
-      <h3 style="color:#fff;margin-bottom:12px">${b.name}</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div style="background:#1e1e2e;border-radius:8px;padding:12px">
-          <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">最新一週</div>
-          ${l ? iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${l[idx(c)]||0}</span></div>`).join('') : '<div style="color:#555">尚無資料</div>'}
-        </div>
-        <div style="background:#1e1e2e;border-radius:8px;padding:12px">
-          <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">本月累積</div>
-          ${iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${m[c]||0}</span></div>`).join('')}
-        </div>
-      </div>
-    </div>`;
-  });
-
-  html += `</div>`;
-  document.getElementById('mainContent').innerHTML = html;
-}
+ try {
+    await Promise.all([
+      ...BRANCHES.map(b => loadBranch(b)),
+      loadPalms(),
+      loadCross(),
+      loadWeekly()
+    ]);
+    setSyncStatus('ok','資料已同步');
+  } catch(e) {
+    setSyncStatus('error','部分資料載入失敗');
+  }
   render();
-}
+} 
 
 function setSyncStatus(s, t) {
   document.getElementById('syncDot').className = 'sync-dot ' + s;
