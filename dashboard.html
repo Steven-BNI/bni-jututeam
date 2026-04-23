@@ -392,19 +392,35 @@ function renderMain() {
           <th>分會</th><th>規模</th><th>增長(6月)</th><th>引薦單</th><th>來賓</th><th>缺席率</th>
         </tr>`;
   BRANCHES.forEach(b => {
-    const d = getBranchLatest(b.id);
-    if (!d) {
+    // Try current latest month data
+    const allD = sheetData[b.id] || {};
+    const months = Object.keys(allD).filter(m => /^\d{6}$/.test(m)).sort();
+    const latestM = months[months.length-1];
+    const d = latestM ? allD[latestM] : null;
+    
+    if (!d || Object.keys(d).length === 0) {
       tableHTML += `<tr><td class="branch-name">${b.name}</td><td colspan="5" style="color:var(--muted);font-size:11px">尚無資料</td></tr>`;
       return;
     }
-    const growth = d['月淨增長']||d['會員增長(六個月)']||d['會員增長\n(六個月)']||'—';
+    
+    // Try all possible field name variants
+    const getField = (obj, ...keys) => {
+      for (const k of keys) {
+        if (obj[k] !== undefined && obj[k] !== '') return obj[k];
+      }
+      return '—';
+    };
+    
+    const size = getField(d, '分會規模', 'B');
+    const growth = getField(d, '月淨增長', '會員增長(六個月)', '會員增長');
     const gNum = parseFloat(growth);
-    const refVal = d['引薦單']||'—';
-    const guestVal = d['來賓']||'—';
-    const absRate = d['缺席率(%)']||d['缺席率（%）']||d['缺席率']||'—';
+    const refVal = getField(d, '引薦單', 'E');
+    const guestVal = getField(d, '來賓', 'F');
+    const absRate = getField(d, '缺席率(%)', '缺席率（%）', '缺席率', 'H');
+    
     tableHTML += `<tr>
       <td class="branch-name">${b.name}</td>
-      <td>${d['分會規模']||'—'}</td>
+      <td>${size}</td>
       <td class="${numClass(growth)}">${!isNaN(gNum)?(gNum>0?'+':'')+gNum:'—'}</td>
       <td>${refVal}</td>
       <td>${guestVal}</td>
@@ -429,13 +445,13 @@ function renderMain() {
     const peoplePct = prog.people > 0 ? Math.round((actualPeople/prog.people)*100) : 0;
     const refPct = prog.ref > 0 ? Math.round((actualRef/prog.ref)*100) : 0;
     const guestPct = prog.guest > 0 ? Math.round((actualGuest/prog.guest)*100) : 0;
-    const weeks = p['會議週數'] || '—';
+    const weeks = p['會議週數'] || '';
     const hasPalms = p['實際人數'];
 
     palmsHTML += `<div class="palms-card">
       <div class="palms-head">
         <div class="palms-name">${b.name}｜${b.person}</div>
-        <div class="palms-week">第 ${weeks} 週</div>
+        <div class="palms-week">當月進度</div>
       </div>`;
 
     if (!hasPalms) {
