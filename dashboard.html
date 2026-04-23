@@ -299,9 +299,10 @@ function getProgressTarget(branch, monthIdx) {
 
 function getBranchLatest(branchId) {
   const data = sheetData[branchId] || {};
-  // Find latest month with data
-  for (let i = MONTHS.length-1; i >= 0; i--) {
-    if (data[MONTHS[i]] && data[MONTHS[i]]['燈號']) return data[MONTHS[i]];
+  // Find latest month across ALL available months, not just MONTHS array
+  const allMonths = Object.keys(data).filter(m => /^\d{6}$/.test(m)).sort();
+  for (let i = allMonths.length - 1; i >= 0; i--) {
+    if (data[allMonths[i]] && data[allMonths[i]]['燈號']) return data[allMonths[i]];
   }
   return null;
 }
