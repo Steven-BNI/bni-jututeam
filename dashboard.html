@@ -277,7 +277,7 @@ function parsePalmsSheet(rows) {
 
 async function loadAll() {
   setSyncStatus('loading','載入資料中...');
-  document.getElementById('mainContent').innerHTML = '<div class="loading">載入中...</div>';
+  if (location.hash !== '#weekly') document.getElementById('mainContent').innerHTML = '<div class="loading">載入中...</div>';
   
   // Load all in parallel with timeout
   const loadBranch = async (b) => {
