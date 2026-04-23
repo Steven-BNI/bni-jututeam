@@ -604,8 +604,8 @@ function renderChart() {
 
   const latestM = getLatestMonth();
   const palmsMonths = Object.keys(sheetData['palms']||{}).filter(m => /^\d{6}$/.test(m)).sort();
-const chartEndMonth = palmsMonths.length > 0 ? palmsMonths[palmsMonths.length-1] : latestM;
-const { months, labels } = getChartMonths(chartEndMonth);
+  const chartEndMonth = palmsMonths.length > 0 ? palmsMonths[palmsMonths.length-1] : latestM;
+  const { months, labels } = getChartMonths(chartEndMonth);
   const colors = ['#E8001D','#00d97e','#ffd94a','#7c7cff'];
   const datasets = BRANCHES.map((b, i) => {
     const data = months.map(m => {
