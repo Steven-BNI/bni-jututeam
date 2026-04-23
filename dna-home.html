@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnA 專區</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8001D;
+  --bg: #0a0a0c;
+  --surface: #13131a;
+  --surface2: #1c1c28;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0f0f5;
+  --muted: #7a7a99;
+  --green: #00d97e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+.header { background: linear-gradient(135deg, #0f0f18 0%, #1a0508 100%); border-bottom: 2px solid var(--red); padding: 28px 20px 24px; position: relative; overflow: hidden; text-align: center; }
+.header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(232,0,29,0.12) 0%, transparent 70%); pointer-events: none; }
+.header-eyebrow { font-size: 10px; letter-spacing: 4px; color: var(--red); font-weight: 700; margin-bottom: 8px; font-family: 'Oswald', sans-serif; }
+.header h1 { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: #fff; line-height: 1.2; }
+.header h1 em { color: var(--red); font-style: normal; }
+.header-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+
+.content { flex: 1; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; max-width: 480px; margin: 0 auto; width: 100%; }
+
+.menu-title { font-size: 11px; letter-spacing: 3px; color: var(--muted); font-family: 'Oswald', sans-serif; align-self: flex-start; margin-bottom: 4px; }
+
+.menu-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 20px;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.menu-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(232,0,29,0.05) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.menu-card:hover { border-color: var(--red); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,0,29,0.15); }
+.menu-card:hover::before { opacity: 1; }
+
+.menu-icon { font-size: 32px; flex-shrink: 0; }
+.menu-info { flex: 1; }
+.menu-name { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+.menu-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.menu-arrow { font-size: 20px; color: var(--muted); flex-shrink: 0; transition: transform 0.2s; }
+.menu-card:hover .menu-arrow { transform: translateX(4px); color: var(--red); }
+
+.back-link { margin-top: 8px; }
+.back-link a { font-size: 12px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+.back-link a:hover { color: var(--text); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)} }
+.menu-card { animation: fadeUp 0.3s ease both; }
+.menu-card:nth-child(2) { animation-delay: 0.08s; }
+</style>
+</head>
+<body>
+
+<!-- Password overlay -->
+<div id="passwordOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid #E8001D;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;text-align:center;">
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;color:#E8001D;margin-bottom:12px">BNI 聚團隊</div>
+    <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">DnA 專區</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入專區密碼</div>
+    <input id="pwInput" type="password" placeholder="••••••••"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;letter-spacing:4px;margin-bottom:12px;font-family:'Noto Sans TC',sans-serif;"
+      onkeydown="if(event.key==='Enter')checkPw()" />
+    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
+    <button onclick="checkPw()"
+      style="width:100%;padding:12px;border-radius:8px;background:#E8001D;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
+      進入 DnA 專區
+    </button>
+    <div style="margin-top:16px">
+      <a href="calendar.html" style="font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;">← 返回區域行事曆</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function checkPw() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === '20333000') {
+    document.getElementById('passwordOverlay').style.display = 'none';
+    sessionStorage.setItem('dna_auth', '1');
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+if (sessionStorage.getItem('dna_auth') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('passwordOverlay').style.display = 'none';
+  });
+}
+</script>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <h1>DnA <em>專區</em></h1>
+  <div class="header-sub">董事暨顧問｜內部工具</div>
+</div>
+
+<div class="content">
+  <div class="menu-title">請選擇功能</div>
+
+  <a href="index.html" class="menu-card">
+    <div class="menu-icon">📊</div>
+    <div class="menu-info">
+      <div class="menu-name">五大地基追蹤</div>
+      <div class="menu-desc">DnA成員個人地基狀態<br>出席、培訓、紅綠燈、活動、績效</div>
+    </div>
+    <div class="menu-arrow">›</div>
+  </a>
+
+  <a href="dashboard.html" class="menu-card">
+    <div class="menu-icon">📈</div>
+    <div class="menu-info">
+      <div class="menu-name">分會數據儀表板</div>
+      <div class="menu-desc">各分會紅綠燈、核心數據<br>PALMS進度、人數趨勢</div>
+    </div>
+    <div class="menu-arrow">›</div>
+  </a>
+
+  <div class="back-link">
+    <a href="calendar.html">← 返回區域行事曆</a>
+  </div>
+</div>
+
+</body>
+</html>

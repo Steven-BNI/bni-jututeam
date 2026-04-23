@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜區域行事曆</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #f5f4f0; font-family: 'Noto Sans TC', sans-serif; color: #1a1a1a; min-height: 100vh; }
+
+.header { background: #1a1a1a; padding: 20px 20px 18px; position: relative; overflow: hidden; }
+.header::after { content: 'BNI'; position: absolute; right: -10px; top: -10px; font-family: 'Oswald', sans-serif; font-size: 90px; font-weight: 700; color: rgba(255,255,255,0.04); pointer-events: none; line-height: 1; }
+.header-eyebrow { font-size: 10px; letter-spacing: 3px; color: #E8001D; font-weight: 700; margin-bottom: 6px; font-family: 'Oswald', sans-serif; }
+.header h1 { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px; line-height: 1.3; }
+.header h1 em { color: #E8001D; font-style: normal; }
+.header-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 1px; }
+
+.nav-bar { background: #fff; border-bottom: 2px solid #e8e6e0; padding: 10px 16px; display: flex; gap: 10px; align-items: center; }
+.nav-btn { padding: 7px 16px; border-radius: 6px; border: 1.5px solid #e8e6e0; background: #fafaf8; color: #1a1a1a; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
+
+.content { padding: 16px; }
+
+.info-bar { background: #fff; border-radius: 10px; border: 1.5px solid #e8e6e0; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.info-icon { font-size: 20px; }
+.info-text { flex: 1; font-size: 12px; color: #888; line-height: 1.6; }
+.info-text strong { color: #1a1a1a; font-weight: 700; }
+.info-link { padding: 7px 14px; border-radius: 6px; background: #E8001D; color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; font-family: 'Noto Sans TC', sans-serif; }
+
+.calendar-wrap { background: #fff; border-radius: 10px; border: 1.5px solid #e8e6e0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.calendar-wrap iframe { width: 100%; height: calc(100vh - 280px); min-height: 500px; border: none; display: block; }
+
+.footer-note { text-align: center; padding: 16px; font-size: 11px; color: #aaa; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <h1>區域 <em>行事曆</em></h1>
+  <div class="header-sub">新北市西A區｜板橋區</div>
+</div>
+
+<div class="nav-bar">
+  <a href="/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+  <a href="calendar.html" class="nav-btn active">📅 區域行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 聚團隊成員介紹</a>
+</div>
+
+<div class="content">
+  <div class="info-bar">
+    <div class="info-icon">📌</div>
+    <div class="info-text">
+      <strong>BNI 聚團隊｜區域行事曆</strong><br>
+      全球暨台灣總部培訓 ／ 區域培訓行事曆暨大型活動 ／ 各分會大型活動
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+  <a href="https://timetr.ee/p/bni_xinbei_west_a" target="_blank" class="info-link">在 TimeTree 開啟</a>
+  <a href="https://timetr.ee/dl/pcs" target="_blank" style="padding:7px 14px;border-radius:6px;background:#00875a;color:#fff;font-size:12px;font-weight:700;text-decoration:none;text-align:center;font-family:'Noto Sans TC',sans-serif;">下載 TimeTree</a>
+</div>
+  </div>
+
+  <!-- 電腦版：嵌入行事曆 -->
+  <div class="calendar-wrap" id="desktopCal">
+    <iframe src="https://timetreeapp.com/public_calendars/bni_xinbei_west_a/embed" 
+            frameborder="0" 
+            allowtransparency="true">
+    </iframe>
+  </div>
+
+  <!-- 手機版：直接開啟按鈕 -->
+  <div id="mobileCal" style="display:none;padding:20px 0">
+    <a href="https://timetr.ee/p/bni_xinbei_west_a" target="_blank"
+      style="display:block;background:#00875a;color:#fff;text-align:center;padding:18px;border-radius:12px;font-size:16px;font-weight:900;text-decoration:none;font-family:'Noto Sans TC',sans-serif;margin-bottom:12px">
+      📅 開啟 BNI 聚團隊行事曆
+    </a>
+    <a href="https://timetr.ee/dl/pcs" target="_blank"
+      style="display:block;background:#1a1a1a;color:#fff;text-align:center;padding:14px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;font-family:'Noto Sans TC',sans-serif">
+      下載 TimeTree App（可追蹤活動通知）
+    </a>
+  </div>
+
+  <script>
+  // 偵測手機版
+  if (window.innerWidth < 768) {
+    document.getElementById('desktopCal').style.display = 'none';
+    document.getElementById('mobileCal').style.display = 'block';
+  }
+  </script>
+
+  <div class="footer-note">
+    行事曆由辦公室更新 ｜ 如有問題請聯絡 Steven
+  </div>
+</div>
+
+</body>
+</html>

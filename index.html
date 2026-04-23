@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnA 五大地基追蹤系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8001D;
+  --bg: #f5f4f0;
+  --white: #ffffff;
+  --surface: #fafaf8;
+  --border: #e8e6e0;
+  --text: #1a1a1a;
+  --muted: #888880;
+  --green: #00875a;
+  --green-bg: #e6f4ef;
+  --yellow: #b35c00;
+  --yellow-bg: #fff4e5;
+  --red-bg: #ffeaea;
+  --gray-bg: #f0f0ee;
+  --gray-text: #999;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; }
+
+.header { background: var(--text); padding: 20px 20px 18px; position: relative; overflow: hidden; }
+.header::after { content: 'DNA'; position: absolute; right: -10px; top: -10px; font-family: 'Oswald', sans-serif; font-size: 90px; font-weight: 700; color: rgba(255,255,255,0.04); pointer-events: none; line-height: 1; }
+.header-eyebrow { font-size: 10px; letter-spacing: 3px; color: var(--red); font-weight: 700; margin-bottom: 6px; font-family: 'Oswald', sans-serif; }
+.header h1 { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px; line-height: 1.3; }
+.header h1 em { color: var(--red); font-style: normal; }
+.header-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 1px; }
+
+/* SYNC STATUS */
+.sync-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 8px 16px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-text); flex-shrink: 0; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+.sync-dot.error { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.month-bar { background: var(--white); border-bottom: 2px solid var(--border); display: flex; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+.month-bar::-webkit-scrollbar { display: none; }
+.month-tab { flex-shrink: 0; padding: 12px 16px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; white-space: nowrap; font-family: 'Oswald', sans-serif; letter-spacing: 0.5px; }
+.month-tab:hover { color: var(--text); }
+.month-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+.member-bar { padding: 14px 16px 10px; background: var(--white); border-bottom: 1px solid var(--border); }
+.member-bar-label { font-size: 10px; letter-spacing: 2px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.member-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.member-scroll::-webkit-scrollbar { display: none; }
+.member-btn { flex-shrink: 0; padding: 7px 13px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.member-btn .m-name { font-size: 13px; }
+.member-btn .m-role { font-size: 9px; color: var(--muted); font-weight: 400; }
+.member-btn:hover { border-color: var(--red); }
+.member-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+.member-btn.active .m-role { color: rgba(255,255,255,0.7); }
+.member-btn.locked { opacity: 0.35; cursor: default; }
+
+.overview { margin: 14px 16px; background: var(--white); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--green); }
+.overview.warn { border-left-color: #f59e0b; }
+.overview.danger { border-left-color: var(--red); }
+.overview.na { border-left-color: var(--gray-text); }
+.overview-score { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; color: var(--green); line-height: 1; }
+.overview.warn .overview-score { color: #f59e0b; }
+.overview.danger .overview-score { color: var(--red); }
+.overview-score span { font-size: 16px; color: var(--muted); }
+.overview-info { flex: 1; }
+.overview-name { font-size: 15px; font-weight: 900; }
+.overview-role { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.overview-status { font-size: 12px; font-weight: 700; color: var(--green); }
+.overview.warn .overview-status { color: #f59e0b; }
+.overview.danger .overview-status { color: var(--red); }
+
+.section-label { padding: 16px 16px 8px; font-size: 10px; letter-spacing: 3px; color: var(--muted); font-weight: 700; font-family: 'Oswald', sans-serif; }
+.cards { padding: 0 16px 30px; display: flex; flex-direction: column; gap: 10px; }
+
+.fcard { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; border: 1.5px solid var(--border); transition: border-color 0.2s, box-shadow 0.2s; animation: slideUp 0.25s ease both; }
+.fcard:nth-child(2){animation-delay:0.04s}.fcard:nth-child(3){animation-delay:0.08s}.fcard:nth-child(4){animation-delay:0.12s}.fcard:nth-child(5){animation-delay:0.16s}
+.fcard:hover { box-shadow: var(--shadow-lg); }
+.fcard-head { padding: 13px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.fcard-num { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--red); width: 24px; flex-shrink: 0; }
+.fcard-info { flex: 1; min-width: 0; }
+.fcard-title { font-size: 14px; font-weight: 900; margin-bottom: 2px; }
+.fcard-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+.fcard-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.badge-ok { background: var(--green-bg); color: var(--green); }
+.badge-warn { background: var(--yellow-bg); color: var(--yellow); }
+.badge-danger { background: var(--red-bg); color: var(--red); }
+.badge-na { background: var(--gray-bg); color: var(--gray-text); }
+.fcard-chevron { color: var(--muted); font-size: 16px; margin-left: 6px; transition: transform 0.2s; flex-shrink: 0; }
+.fcard.open .fcard-chevron { transform: rotate(180deg); }
+.fcard-body { display: none; border-top: 1px solid var(--border); }
+.fcard.open .fcard-body { display: block; }
+.fcard-body-inner { padding: 14px 14px 16px 50px; }
+
+.input-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.5px; }
+.toggle-row { display: flex; gap: 8px; }
+.toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; }
+.toggle-btn:hover { border-color: var(--text); }
+.toggle-btn.sel-yes { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.toggle-btn.sel-no { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.light-row { display: flex; gap: 6px; }
+.light-btn { flex: 1; padding: 8px 4px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; }
+.light-btn:hover { border-color: #aaa; }
+.light-btn.sel-green { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.light-btn.sel-yellow { background: var(--yellow-bg); border-color: #f59e0b; color: var(--yellow); }
+.light-btn.sel-red { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.light-btn.sel-gray { background: var(--gray-bg); border-color: #ccc; color: var(--gray-text); }
+.text-input { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; font-family: 'Noto Sans TC', sans-serif; color: var(--text); outline: none; transition: border-color 0.2s; }
+.text-input:focus { border-color: var(--red); }
+.num-row { display: flex; gap: 8px; align-items: center; }
+.num-input { width: 80px; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-size: 14px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; color: var(--text); outline: none; text-align: center; transition: border-color 0.2s; }
+.num-input:focus { border-color: var(--red); }
+.num-label { font-size: 12px; color: var(--muted); }
+.mini-progress { margin-top: 10px; }
+.mini-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.mini-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width 0.5s ease; }
+.mini-fill.warn { background: #f59e0b; }
+.mini-fill.danger { background: var(--red); }
+.check-grid { display: flex; flex-direction: column; gap: 8px; }
+.check-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.2s; }
+.check-item:hover { border-color: var(--green); }
+.check-item.checked { background: var(--green-bg); border-color: var(--green); }
+.check-box { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; transition: all 0.2s; }
+.check-item.checked .check-box { background: var(--green); border-color: var(--green); color: #fff; }
+.check-text { flex: 1; font-size: 12px; font-weight: 700; }
+.check-date { font-size: 10px; color: var(--muted); }
+.check-item.checked .check-date { color: var(--green); }
+.date-mini { font-size: 11px; padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border); background: var(--white); color: var(--text); font-family: 'Noto Sans TC', sans-serif; outline: none; width: 110px; }
+.rule-box { background: var(--bg); border-radius: 6px; padding: 10px 12px; font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; border-left: 3px solid var(--border); }
+.inactive-note { padding: 20px; text-align: center; font-size: 12px; color: var(--muted); }
+
+/* READONLY MODE */
+.readonly-notice { background: #fffbe6; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--yellow); margin: 10px 16px 0; display: flex; align-items: center; gap: 8px; }
+
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; z-index: 9999; transition: transform 0.25s ease; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* LOADING */
+.loading-wrap { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
+
+@keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div id="passwordOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid #E8001D;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;text-align:center;">
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;color:#E8001D;margin-bottom:12px">BNI 聚團隊</div>
+    <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">DnA 專區</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入專區密碼</div>
+    <input id="pwInput" type="password" placeholder="••••••••"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;letter-spacing:4px;margin-bottom:12px;font-family:'Noto Sans TC',sans-serif;"
+      onkeydown="if(event.key==='Enter')checkPw()" />
+    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
+    <button onclick="checkPw()"
+      style="width:100%;padding:12px;border-radius:8px;background:#E8001D;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
+      進入 DnA 專區
+    </button>
+    <div style="margin-top:16px">
+      <a href="calendar.html" style="font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;">← 返回區域行事曆</a>
+    </div>
+  </div>
+</div>
+<script>
+function checkPw() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === '20333000') {
+    document.getElementById('passwordOverlay').style.display = 'none';
+    sessionStorage.setItem('dna_auth', '1');
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+// Check if already authenticated
+if (sessionStorage.getItem('dna_auth') === '1') {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('passwordOverlay').style.display = 'none';
+  });
+}
+</script>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <h1>DnA <em>五大地基</em><br>追蹤系統</h1>
+  <div class="header-sub">DnA｜2025.12 起</div>
+</div>
+
+<div style="background:#fff;border-bottom:2px solid #e8e6e0;padding:10px 16px;display:flex;gap:10px;align-items:center">
+  <a href="index.html" style="padding:7px 16px;border-radius:6px;border:1.5px solid #E8001D;background:#E8001D;color:#fff;font-size:12px;font-family:'Noto Sans TC',sans-serif;font-weight:700;text-decoration:none">📊 DnA 五大地基</a>
+  <a href="calendar.html" style="padding:7px 16px;border-radius:6px;border:1.5px solid #e8e6e0;background:#fafaf8;color:#1a1a1a;font-size:12px;font-family:'Noto Sans TC',sans-serif;font-weight:700;text-decoration:none">📅 區域行事曆</a>
+</div>
+<div class="sync-bar">
+  <div class="sync-dot loading" id="syncDot"></div>
+  <span id="syncText">正在連線 Google Sheet...</span>
+</div>
+
+<div id="mainContent" style="display:none">
+  <div class="month-bar" id="monthBar"></div>
+  <div id="readonlyNotice"></div>
+  <div class="member-bar">
+    <div class="member-bar-label">DnA 成員</div>
+    <div class="member-scroll" id="memberScroll"></div>
+  </div>
+  <div id="overviewWrap"></div>
+  <div class="section-label">五大地基</div>
+  <div class="cards" id="cardsWrap"></div>
+</div>
+
+<div id="errorWrap" style="display:none">
+  <div class="inactive-note">
+    ⚠️ 無法連線 Google Sheet<br><br>
+    請確認試算表已設定為「知道連結的人可以檢視」<br><br>
+    <button onclick="initApp()" style="padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:'Noto Sans TC',sans-serif">重新連線</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
+
+const MONTHS = [
+  '2025-12','2026-01','2026-02','2026-03',
+  '2026-04','2026-05','2026-06',
+  '2026-07','2026-08','2026-09'
+];
+
+const MEMBERS = [
+  { id: 'Steven Chou',   name: 'Steven',  role: 'ED',           branches: [{name:'聚財',target:85}], hasF5: true },
+  { id: 'Popo Lin',   name: '林綉蓉',  role: '董事顧問',     branches: [{name:'聚大',target:51}], hasF5: true },
+  { id: 'Archie Wu',   name: '吳宗憲',  role: '董事顧問',     branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'Brenda Chen', name: '陳虹君',  role: '區域培訓大使', branches: [], hasF5: false },
+  { id: 'Shawn Chen',  name: '陳世祥',  role: '啟動大使',     branches: [], hasF5: false },
+  { id: 'Penny Li',    name: '李佩玲',  role: '增長大使',     branches: [{name:'聚道',target:60}], hasF5: true },
+  { id: 'Super Star Yu',   name: '余明興',  role: '增長大使',     branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'Anthony Chen', name: '陳臣勝',  role: '增長助理大使', branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'KK Yang',  name: '楊凱雯',  role: '助理大使',     branches: [], hasF5: false },
+  { id: 'Teresa Tsai',  name: '蔡菱秝',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-04' },
+];
+
+const F4_ACTIVITIES = [
+  { id: 'M1_H1', label: 'M1 培訓（上半年）', period: '1–6月至少一次' },
+  { id: 'M2_H1', label: 'M2 培訓（上半年）', period: '1–6月至少一次' },
+  { id: 'M1_H2', label: 'M1 培訓（下半年）', period: '7–12月至少一次' },
+  { id: 'M2_H2', label: 'M2 培訓（下半年）', period: '7–12月至少一次' },
+  { id: 'ANNUAL', label: '台灣年會 DnA培訓', period: '6/28–6/29' },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let curMonth = '2025-12';
+let curMember = 'Steven Chou';
+let sheetData = {}; // sheetData[sheetName][row][col]
+let isReadOnly = true; // always readonly — editing done in Google Sheet
+
+// ============================================================
+// GOOGLE SHEET FETCH
+// ============================================================
+// We fetch each sheet tab via the public CSV export URL
+async function fetchSheet(tabName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('fetch failed');
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+function parseCSV(text) {
+  const rows = [];
+  // Normalize line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let row = [], cur = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') {
+      if (inQ && text[i+1] === '"') { cur += '"'; i++; } // escaped quote
+      else { inQ = !inQ; }
+    } else if (c === ',' && !inQ) {
+      row.push(cur.trim());
+      cur = '';
+    } else if (c === '\n' && !inQ) {
+      row.push(cur.trim());
+      if (row.some(r => r !== '')) rows.push(row);
+      row = []; cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  if (cur || row.length) { row.push(cur.trim()); if (row.some(r => r !== '')) rows.push(row); }
+  return rows;
+}
+
+// Parse a monthly sheet into our data structure
+// Expected columns: 成員ID | 地基1(1/0) | 地基2(場次) | 地基3(燈) | 地基5_分會1 | 地基5_分會2...
+function parseMonthSheet(rows, month) {
+  const result = {};
+  if (!rows || rows.length < 2) return result;
+  
+  // Clean headers - handle cases where Google Sheets merges cells in CSV export
+  let headers = rows[0].map(h => h.replace(/"/g,'').trim());
+  
+  // If first header contains spaces (like "成員ID Steven Chou"), it means
+  // the CSV export merged columns - we need to re-split the data
+  if (headers[0] && headers[0].includes(' ') && !headers[0].includes('_')) {
+    // Rebuild: treat first word as ID column header
+    headers[0] = '成員ID';
+  }
+  
+  // Find name column
+  const nameColIdx = headers.findIndex(h => h === '姓名' || h === '中文名字' || h === '名字');
+  
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    let memberId = (row[0]||'').replace(/"/g,'').trim();
+    if (!memberId) continue;
+    
+    // If memberId contains spaces and matches pattern "FirstName LastName ChineseName"
+    // extract just the English name part (first two words)
+    const parts = memberId.split(' ');
+    if (parts.length > 2) {
+      // Check if last part is Chinese - if so, it's the merged name column
+      const lastPart = parts[parts.length - 1];
+      if (/[一-鿿]/.test(lastPart)) {
+        memberId = parts.slice(0, -1).join(' ');
+      }
+    }
+    
+    result[memberId] = {};
+    headers.forEach((h, idx) => {
+      if (idx === 0) return;
+      if (idx === nameColIdx && nameColIdx > 0) return;
+      if (!h) return;
+      result[memberId][h] = (row[idx]||'').replace(/"/g,'').trim();
+    });
+  }
+  return result;
+}
+
+// Parse F4 sheet
+function parseF4Sheet(rows) {
+  const result = {};
+  if (!rows || rows.length < 2) return result;
+  const headers = rows[0].map(h => h.replace(/"/g,"").trim());
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const memberId = (row[0]||"").replace(/"/g,"").trim();
+    if (!memberId) continue;
+    result[memberId] = {};
+    headers.forEach((h, idx) => {
+      if (idx === 0) return;
+      if (idx === 1 && (h === "姓名" || h === "中文名字" || h === "名字")) return;
+      result[memberId][h] = (row[idx]||"").replace(/"/g,"").trim();
+    });
+  }
+  return result;
+}
+
+async function fetchWithTimeout(tabName, timeout=8000) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('fetch failed');
+    return await res.text();
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function loadAllData() {
+  setSyncStatus('loading', '正在載入資料...');
+  // Show UI immediately so user isn't staring at blank screen
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('errorWrap').style.display = 'none';
+  render();
+  
+  try {
+    // Load current month first for fast display
+    const curIdx = MONTHS.indexOf(curMonth);
+    const priority = [curMonth, '地基4'];
+    const rest = MONTHS.filter(m => m !== curMonth);
+    
+    // Load current month + F4 first
+    await Promise.all([
+      fetchWithTimeout(curMonth).then(t => { sheetData[curMonth] = parseMonthSheet(parseCSV(t), curMonth); }).catch(() => { sheetData[curMonth] = {}; }),
+      fetchWithTimeout('地基4').then(t => { sheetData['f4'] = parseF4Sheet(parseCSV(t)); }).catch(() => { sheetData['f4'] = {}; }),
+    ]);
+    setSyncStatus('ok', '資料已同步 Google Sheet');
+    render();
+    
+    // Load rest in background
+    for (const m of rest) {
+      try {
+        const text = await fetchWithTimeout(m, 6000);
+        sheetData[m] = parseMonthSheet(parseCSV(text), m);
+      } catch(e) {
+        sheetData[m] = {};
+      }
+    }
+  } catch(e) {
+    setSyncStatus('error', '連線失敗');
+    render();
+  }
+}
+
+function setSyncStatus(status, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + status;
+  txt.textContent = text;
+}
+
+// ============================================================
+// DATA GETTERS
+// ============================================================
+function getMonthVal(month, memberId, field) {
+  return (sheetData[month] && sheetData[month][memberId] && sheetData[month][memberId][field]) || '';
+}
+function getF4Val(memberId, actId) {
+  return (sheetData['f4'] && sheetData['f4'][memberId] && sheetData['f4'][memberId][actId]) || '';
+}
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+function calcF1(mid) {
+  const idx = MONTHS.indexOf(curMonth);
+  const start = Math.max(0, idx - 5);
+  const absentLabels = [];
+  for (let i = start; i <= idx; i++) {
+    const v = getMonthVal(MONTHS[i], mid, '地基1');
+    if (v === '0') {
+      const mNum = parseInt(MONTHS[i].split('-')[1]);
+      absentLabels.push(mNum + '月缺席');
+    }
+  }
+  if (absentLabels.length >= 2) return { status: 'danger', label: '注意（' + absentLabels.join('、') + '）' };
+  if (absentLabels.length === 1) return { status: 'warn', label: '注意（' + absentLabels[0] + '）' };
+  if (getMonthVal(curMonth, mid, '地基1') === '') return { status: 'na', label: '未填寫' };
+  return { status: 'ok', label: '達標' };
+}
+
+function calcF2(mid) {
+  const idx = MONTHS.indexOf(curMonth);
+  const start = Math.max(0, idx - 5);
+  const missingLabels = [];
+  for (let i = start; i <= idx; i++) {
+    const v = getMonthVal(MONTHS[i], mid, '地基2');
+    if (!v) {
+      const mNum = parseInt(MONTHS[i].split('-')[1]);
+      missingLabels.push(mNum + '月');
+    }
+  }
+  if (missingLabels.length >= 2) return { status: 'warn', label: '注意（' + missingLabels.join('、') + '未參與）' };
+  if (!getMonthVal(curMonth, mid, '地基2')) return { status: 'na', label: '未填寫' };
+  return { status: 'ok', label: '已記錄' };
+}
+
+function calcF3(mid) {
+  const idx = MONTHS.indexOf(curMonth);
+  const start = Math.max(0, idx - 5);
+  let streak = 0, maxStreak = 0;
+  const nonGreenLabels = [];
+  const streakLabels = [];
+  let tempStreak = [];
+  
+  for (let i = start; i <= idx; i++) {
+    const v = getMonthVal(MONTHS[i], mid, '地基3');
+    const mNum = parseInt(MONTHS[i].split('-')[1]);
+    if (v && v !== '綠') {
+      streak++;
+      tempStreak.push(mNum + '月' + v);
+      if (streak > maxStreak) {
+        maxStreak = streak;
+        streakLabels.length = 0;
+        streakLabels.push(...tempStreak);
+      }
+    } else {
+      if (v === '綠') streak = 0;
+      tempStreak = [];
+    }
+    if (v && v !== '綠') nonGreenLabels.push(mNum + '月' + v);
+  }
+  
+  if (maxStreak >= 3) return { status: 'danger', label: '注意（連續：' + streakLabels.join('、') + '）' };
+  if (maxStreak >= 1) return { status: 'warn', label: '注意（' + nonGreenLabels.join('、') + '）' };
+  if (!getMonthVal(curMonth, mid, '地基3')) return { status: 'na', label: '未填寫' };
+  return { status: 'ok', label: '達標' };
+}
+
+function calcF4(mid) {
+  const done = F4_ACTIVITIES.filter(a => getF4Val(mid, a.id) === '1').length;
+  if (done === 0) return { status: 'na', label: '未開始' };
+  if (done < F4_ACTIVITIES.length) return { status: 'warn', label: `${done}/${F4_ACTIVITIES.length} 完成` };
+  return { status: 'ok', label: '全部完成' };
+}
+
+function calcF5(mid, month) {
+  const m = MEMBERS.find(x => x.id === mid);
+  if (!m || !m.hasF5 || m.branches.length === 0) return null;
+  let allEmpty = true;
+  const details = m.branches.map(b => {
+    const actual = parseFloat(getMonthVal(month, mid, `地基5_${b.name}`));
+    if (!isNaN(actual)) allEmpty = false;
+    const pct = !isNaN(actual) ? Math.round((actual / b.target) * 100) : null;
+    return { ...b, actual: isNaN(actual) ? null : actual, pct };
+  });
+  if (allEmpty) return { status: 'na', label: '未填寫', details };
+  const avgPct = details.filter(d => d.pct !== null).reduce((s, d) => s + d.pct, 0) / details.filter(d => d.pct !== null).length;
+  if (avgPct < 60) return { status: 'danger', label: `注意（${Math.round(avgPct)}%）`, details };
+  if (avgPct < 80) return { status: 'warn', label: `注意中（${Math.round(avgPct)}%）`, details };
+  return { status: 'ok', label: `達標（${Math.round(avgPct)}%）`, details };
+}
+
+function overallStatus(mid, month) {
+  const r1 = calcF1(mid), r2 = calcF2(mid), r3 = calcF3(mid), r4 = calcF4(mid);
+  const results = [r1, r2, r3, r4];
+  const m = MEMBERS.find(x => x.id === mid);
+  if (m.hasF5) { const f5 = calcF5(mid, month); if (f5) results.push(f5); }
+  const counted = results.filter(r => r && r.status !== 'na');
+  const ok = counted.filter(r => r.status === 'ok').length;
+  const total = results.length;
+  const hasDanger = results.some(r => r && r.status === 'danger');
+  const hasWarn = results.some(r => r && r.status === 'warn');
+  let cls = 'ok', statusText = `✓ ${ok}/${total} 達標`;
+  if (hasDanger) { cls = 'danger'; statusText = `⚠ 有地基需注意`; }
+  else if (hasWarn) { cls = 'warn'; statusText = `！部分地基需注意`; }
+  return { ok, total, cls, statusText };
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render() {
+  renderMonths();
+  renderMembers();
+  renderReadonlyNotice();
+  renderOverview();
+  renderCards();
+}
+
+function renderMonths() {
+  document.getElementById('monthBar').innerHTML = MONTHS.map(m => {
+    const label = m.replace('-','年') + '月';
+    return `<div class="month-tab ${m===curMonth?'active':''}" onclick="setMonth('${m}')">${label}</div>`;
+  }).join('');
+}
+
+function renderMembers() {
+  document.getElementById('memberScroll').innerHTML = MEMBERS.map(m => {
+    const locked = m.startMonth && curMonth < m.startMonth;
+    if (locked) {
+      return `<button class="member-btn locked" disabled>
+        <span class="m-name">${m.name}</span>
+        <span class="m-role">${m.role}</span>
+      </button>`;
+    }
+    return `<button class="member-btn ${m.id===curMember?'active':''}" onclick="setMember('${m.id}')">
+      <span class="m-name">${m.name}</span>
+      <span class="m-role">${m.role}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderReadonlyNotice() {
+  document.getElementById('readonlyNotice').innerHTML = `
+    <div class="readonly-notice">
+      👁 觀看模式｜資料由辦公室在 Google Sheet 輸入，此頁面自動同步顯示
+      <button onclick="loadAllData()" style="margin-left:auto;padding:4px 10px;border-radius:5px;border:1px solid #f59e0b;background:transparent;color:var(--yellow);font-size:11px;cursor:pointer;font-family:'Noto Sans TC',sans-serif">🔄 重新整理</button>
+    </div>`;
+}
+
+function renderOverview() {
+  const m = getMember();
+  const locked = m.startMonth && curMonth < m.startMonth;
+  if (locked) {
+    document.getElementById('overviewWrap').innerHTML = `<div class="inactive-note">🔒 ${m.name} 從 2026/04 起啟用</div>`;
+    return;
+  }
+  const { ok, total, cls, statusText } = overallStatus(curMember, curMonth);
+  document.getElementById('overviewWrap').innerHTML = `
+    <div class="overview ${cls}" style="margin:14px 16px;">
+      <div class="overview-score">${ok}<span>/${total}</span></div>
+      <div class="overview-info">
+        <div class="overview-name">${m.name}</div>
+        <div class="overview-role">${m.role}</div>
+        <div class="overview-status">${statusText}</div>
+      </div>
+    </div>`;
+}
+
+function renderCards() {
+  const m = getMember();
+  const locked = m.startMonth && curMonth < m.startMonth;
+  if (locked) { document.getElementById('cardsWrap').innerHTML = ''; return; }
+
+  const f1 = calcF1(curMember);
+  const f2 = calcF2(curMember);
+  const f3 = calcF3(curMember);
+  const f4 = calcF4(curMember);
+  const f5 = m.hasF5 ? calcF5(curMember, curMonth) : null;
+
+  const f1v = getMonthVal(curMonth, curMember, '地基1');
+  const f2v = getMonthVal(curMonth, curMember, '地基2');
+  const f3v = getMonthVal(curMonth, curMember, '地基3');
+
+  const bClass = s => s==='ok'?'ok':s==='warn'?'warn':s==='danger'?'danger':'na';
+
+  let cards = [];
+
+  // F1
+  cards.push(`<div class="fcard" id="fc1">
+    <div class="fcard-head" onclick="toggleCard('fc1')">
+      <div class="fcard-num">1</div>
+      <div class="fcard-info"><div class="fcard-title">DnA 月會出席</div><div class="fcard-sub">文化濃度</div></div>
+      <div class="fcard-badge badge-${bClass(f1.status)}">${f1.label}</div>
+      <div class="fcard-chevron">⌄</div>
+    </div>
+    <div class="fcard-body"><div class="fcard-body-inner">
+      <div class="rule-box">滾動式六個月內缺席第二次，進入降責期</div>
+      <div class="input-label">本月狀態</div>
+      <div class="toggle-row">
+        <button class="toggle-btn ${f1v==='1'?'sel-yes':''}" disabled>✅ 有出席</button>
+        <button class="toggle-btn ${f1v==='0'?'sel-no':''}" disabled>❌ 未出席</button>
+      </div>
+      ${!f1v?'<div style="font-size:11px;color:var(--muted);margin-top:8px">尚未填寫</div>':''}
+    </div></div>
+  </div>`);
+
+  // F2
+  cards.push(`<div class="fcard" id="fc2">
+    <div class="fcard-head" onclick="toggleCard('fc2')">
+      <div class="fcard-num">2</div>
+      <div class="fcard-info"><div class="fcard-title">每月基礎性培訓</div><div class="fcard-sub">可複製能力</div></div>
+      <div class="fcard-badge badge-${bClass(f2.status)}">${f2.label}</div>
+      <div class="fcard-chevron">⌄</div>
+    </div>
+    <div class="fcard-body"><div class="fcard-body-inner">
+      <div class="rule-box">每月任選一場：初進階MSP 或 技巧性工作坊<br>滾動式六個月未參與兩次，進入降責期</div>
+      <div class="input-label">本月參加場次</div>
+      ${f2v ? `<div style="padding:10px 12px;background:var(--green-bg);border-radius:8px;font-size:13px;color:var(--green);font-weight:700">${f2v}</div>` 
+             : `<div style="padding:10px 12px;background:var(--gray-bg);border-radius:8px;font-size:12px;color:var(--gray-text)">尚未填寫</div>`}
+    </div></div>
+  </div>`);
+
+  // F3
+  const lightMap = { '綠':'sel-green', '黃':'sel-yellow', '紅':'sel-red', '灰':'sel-gray' };
+  cards.push(`<div class="fcard" id="fc3">
+    <div class="fcard-head" onclick="toggleCard('fc3')">
+      <div class="fcard-num">3</div>
+      <div class="fcard-info"><div class="fcard-title">個人紅綠燈</div><div class="fcard-sub">穩定度 × 示範力</div></div>
+      <div class="fcard-badge badge-${bClass(f3.status)}">${f3.label}</div>
+      <div class="fcard-chevron">⌄</div>
+    </div>
+    <div class="fcard-body"><div class="fcard-body-inner">
+      <div class="rule-box">連續三個月未達綠燈，進入降責期</div>
+      <div class="input-label">本月燈號</div>
+      <div class="light-row">
+        ${['綠','黃','紅','灰'].map(l=>`<button class="light-btn ${f3v===l?lightMap[l]:''}" disabled>${l==='綠'?'🟢綠燈':l==='黃'?'🟡黃燈':l==='紅'?'🔴紅燈':'⚪灰燈'}</button>`).join('')}
+      </div>
+      ${!f3v?'<div style="font-size:11px;color:var(--muted);margin-top:8px">尚未填寫</div>':''}
+    </div></div>
+  </div>`);
+
+  // F4
+  const f4checks = F4_ACTIVITIES.map(a => {
+    const v = getF4Val(curMember, a.id);
+    const checked = v === '1';
+    const dateVal = getF4Val(curMember, a.id + '_date');
+    return `<div class="check-item ${checked?'checked':''}">
+      <div class="check-box">${checked?'✓':''}</div>
+      <div style="flex:1">
+        <div class="check-text">${a.label}</div>
+        <div class="check-date">${a.period}${checked&&dateVal?' ｜ '+dateVal:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  cards.push(`<div class="fcard" id="fc4">
+    <div class="fcard-head" onclick="toggleCard('fc4')">
+      <div class="fcard-num">4</div>
+      <div class="fcard-info"><div class="fcard-title">行為與態度</div><div class="fcard-sub">融入度 × 重要活動</div></div>
+      <div class="fcard-badge badge-${bClass(f4.status)}">${f4.label}</div>
+      <div class="fcard-chevron">⌄</div>
+    </div>
+    <div class="fcard-body"><div class="fcard-body-inner">
+      <div class="rule-box">M1/M2 上下半年各至少一次 ｜ 台灣年會 6/28–6/29</div>
+      <div class="check-grid">${f4checks}</div>
+    </div></div>
+  </div>`);
+
+  // F5
+  if (m.hasF5 && f5) {
+    const branchRows = f5.details.map(b => {
+      const pct = b.pct !== null ? b.pct : 0;
+      const pClass = pct >= 80 ? '' : pct >= 60 ? 'warn' : 'danger';
+      const pColor = pct >= 80 ? 'var(--green)' : pct >= 60 ? '#f59e0b' : 'var(--red)';
+      return `<div style="margin-bottom:12px">
+        <div class="input-label">${b.name}分會 — 目標 ${b.target} 人</div>
+        ${b.actual !== null ? `
+          <div class="num-row">
+            <div style="width:80px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;text-align:center">${b.actual}</div>
+            <span class="num-label">/ ${b.target} 人</span>
+            <span style="font-size:12px;font-weight:700;color:${pColor}">${pct}%</span>
+          </div>
+          <div class="mini-progress"><div class="mini-bar"><div class="mini-fill ${pClass}" style="width:${Math.min(pct,100)}%"></div></div></div>
+        ` : '<div style="font-size:12px;color:var(--gray-text);padding:8px 0">尚未填寫</div>'}
+      </div>`;
+    }).join('');
+    cards.push(`<div class="fcard" id="fc5">
+      <div class="fcard-head" onclick="toggleCard('fc5')">
+        <div class="fcard-num">5</div>
+        <div class="fcard-info"><div class="fcard-title">任務與績效</div><div class="fcard-sub">分會人數達成率 ｜ 目標期 4/1–9/30</div></div>
+        <div class="fcard-badge badge-${bClass(f5.status)}">${f5.label}</div>
+        <div class="fcard-chevron">⌄</div>
+      </div>
+      <div class="fcard-body"><div class="fcard-body-inner">
+        <div class="rule-box">2026/4/1—2026/9/30 目標達成追蹤 ｜ 未達60%進入降責期</div>
+        ${branchRows}
+      </div></div>
+    </div>`);
+  }
+
+  document.getElementById('cardsWrap').innerHTML = cards.join('');
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function getMember() { return MEMBERS.find(m => m.id === curMember); }
+function setMonth(k) { curMonth = k; render(); }
+function setMember(id) { 
+  console.log('setMember called:', id);
+  curMember = id; 
+  renderMembers();
+  renderOverview();
+  renderCards();
+}
+function toggleCard(id) { const el = document.getElementById(id); if(el) el.classList.toggle('open'); }
+function toast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function initApp() {
+  await loadAllData();
+}
+
+// Auto-refresh every 2 minutes
+setInterval(() => { loadAllData(); }, 120000);
+
+initApp();
+</script>
+</body>
+</html>
