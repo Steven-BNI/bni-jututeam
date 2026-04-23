@@ -141,6 +141,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
   <a href="/bni-jututeam/" class="nav-btn">📊 五大地基</a>
   <a href="/bni-jututeam/dashboard.html" class="nav-btn active">📈 分會儀表板</a>
   <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
 </div>
 
 <div class="sync-bar">
@@ -341,7 +342,10 @@ function renderMain() {
   // Traffic lights
   let lightsHTML = '<div class="section"><div class="section-title">各分會紅綠燈</div><div class="lights-grid">';
   BRANCHES.forEach(b => {
-    const d = getBranchMonth(b.id, curMonth) || getBranchLatest(b.id);
+    // For traffic light, show current month data if available, else latest
+    const dCur = getBranchMonth(b.id, curMonth);
+    const dLatest = getBranchLatest(b.id);
+    const d = dCur || dLatest;
     const light = d ? (d['燈號']||'') : '';
     const score = d ? (d['得分']||'—') : '—';
     const size = d ? (d['分會規模']||'—') : '—';
@@ -369,15 +373,18 @@ function renderMain() {
       tableHTML += `<tr><td class="branch-name">${b.name}</td><td colspan="5" style="color:var(--muted);font-size:11px">尚無資料</td></tr>`;
       return;
     }
-    const growth = d['月淨增長']||d['會員增長(六個月)']||'—';
+    const growth = d['月淨增長']||d['會員增長(六個月)']||d['會員增長\n(六個月)']||'—';
     const gNum = parseFloat(growth);
+    const refVal = d['引薦單']||'—';
+    const guestVal = d['來賓']||'—';
+    const absRate = d['缺席率(%)']||d['缺席率（%）']||d['缺席率']||'—';
     tableHTML += `<tr>
       <td class="branch-name">${b.name}</td>
       <td>${d['分會規模']||'—'}</td>
       <td class="${numClass(growth)}">${!isNaN(gNum)?(gNum>0?'+':'')+gNum:'—'}</td>
-      <td>${d['引薦單']||'—'}</td>
-      <td>${d['來賓']||'—'}</td>
-      <td>${d['缺席率(%)']||d['缺席率（%）']||'—'}%</td>
+      <td>${refVal}</td>
+      <td>${guestVal}</td>
+      <td>${absRate !== '—' ? absRate+'%' : '—'}</td>
     </tr>`;
   });
   tableHTML += '</table></div></div>';
@@ -388,9 +395,9 @@ function renderMain() {
   BRANCHES.forEach(b => {
     const p = palms[b.name] || {};
     const prog = getProgressTarget(b, mIdx);
-    const actualPeople = parseFloat(p['實際人數']) || 0;
-    const actualRef = parseFloat(p['月引薦單數']) || 0;
-    const actualGuest = parseFloat(p['月來賓數']) || 0;
+    const actualPeople = parseFloat(p['實際人數']||p['實際人數 ']) || 0;
+    const actualRef = parseFloat(p['月引薦單數']||p['月引薦單']) || 0;
+    const actualGuest = parseFloat(p['月來賓數']||p['月來賓']) || 0;
     const peoplePct = prog.people > 0 ? Math.round((actualPeople/prog.people)*100) : 0;
     const refPct = prog.ref > 0 ? Math.round((actualRef/prog.ref)*100) : 0;
     const guestPct = prog.guest > 0 ? Math.round((actualGuest/prog.guest)*100) : 0;
@@ -438,19 +445,20 @@ function renderMain() {
 }
 
 function getChartMonths() {
-  // Get 7 months: current month + 6 previous months
-  // All available months across branch data
+  // Collect all months from all branch data
   const allMonths = new Set();
   MONTHS.forEach(m => allMonths.add(m));
-  // Also check branch data for historical months
   BRANCHES.forEach(b => {
-    Object.keys(sheetData[b.id]||{}).forEach(m => allMonths.add(m));
+    Object.keys(sheetData[b.id]||{}).forEach(m => {
+      if (/^\d{6}$/.test(m)) allMonths.add(m);
+    });
   });
   const sorted = Array.from(allMonths).sort();
+  // Find current month position
   const curIdx = sorted.indexOf(curMonth);
-  if (curIdx === -1) return { months: sorted.slice(-7), labels: sorted.slice(-7).map(formatMonthLabel) };
-  const start = Math.max(0, curIdx - 6);
-  const slice = sorted.slice(start, curIdx + 1);
+  const end = curIdx >= 0 ? curIdx : sorted.length - 1;
+  const start = Math.max(0, end - 6);
+  const slice = sorted.slice(start, end + 1);
   return { months: slice, labels: slice.map(formatMonthLabel) };
 }
 
@@ -465,6 +473,8 @@ function renderChart() {
   if (charts.trend) { charts.trend.destroy(); }
 
   const { months, labels } = getChartMonths();
+  // Debug
+  console.log('Chart months:', months);
   const colors = ['#E8001D','#00d97e','#ffd94a','#7c7cff'];
   const datasets = BRANCHES.map((b, i) => {
     const data = months.map(m => {
