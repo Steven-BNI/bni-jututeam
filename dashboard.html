@@ -436,6 +436,8 @@ document.getElementById('weeklyBtn').classList.add('active');
   document.getElementById('mainContent').innerHTML = html;
 }
   function render() {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('dashboardBtn').classList.add('active');
   renderMonthBar();
   renderMain();
 }
