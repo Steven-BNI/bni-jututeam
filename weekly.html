@@ -136,6 +136,10 @@ async function loadWeekly() {
     renderWeekly(rows, thisMonth);
     setSyncStatus('ok','資料已同步');
   } catch(e) {
+    console.log('ERROR:', e.message, e.stack);
+    setSyncStatus('error','載入失敗');
+    document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
+  }
     setSyncStatus('error','載入失敗');
     document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
   }
