@@ -140,10 +140,7 @@ async function loadWeekly() {
     setSyncStatus('error','載入失敗');
     document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
   }
-    setSyncStatus('error','載入失敗');
-    document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
-  }
-}
+
 
 function renderWeekly(rows, thisMonth) {
   const headers = rows[0] || [];
