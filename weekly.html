@@ -63,10 +63,22 @@ const WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
 const PALMS_SHEET_ID = '1gD7k1ZI81gSC5FbkiimFAiHm0AvbBQI0k0jFRfKXJsA';
 
 const BRANCHES = [
-  { name:'聚財', targetPeople:85, startPeople:58, refTarget:700, guestTarget:40 },
-  { name:'聚道', targetPeople:60, startPeople:36, refTarget:360, guestTarget:28 },
-  { name:'聚大', targetPeople:51, startPeople:24, refTarget:450, guestTarget:30 },
-  { name:'聚富', targetPeople:50, startPeople:21, refTarget:400, guestTarget:50 },
+  { name:'聚財', monthlyTargets: {
+    '202604':{people:63,ref:519,guest:30}, '202605':{people:67,ref:553,guest:32},
+    '202606':{people:72,ref:588,guest:34}, '202607':{people:76,ref:623,guest:36},
+    '202608':{people:81,ref:659,guest:38}, '202609':{people:85,ref:700,guest:40} }},
+  { name:'聚道', monthlyTargets: {
+    '202604':{people:40,ref:240,guest:19}, '202605':{people:44,ref:264,guest:21},
+    '202606':{people:48,ref:288,guest:22}, '202607':{people:52,ref:312,guest:24},
+    '202608':{people:56,ref:336,guest:26}, '202609':{people:60,ref:360,guest:28} }},
+  { name:'聚大', monthlyTargets: {
+    '202604':{people:29,ref:265,guest:18}, '202605':{people:33,ref:291,guest:20},
+    '202606':{people:38,ref:318,guest:22}, '202607':{people:42,ref:344,guest:24},
+    '202608':{people:47,ref:371,guest:26}, '202609':{people:51,ref:450,guest:30} }},
+  { name:'聚富', monthlyTargets: {
+    '202604':{people:26,ref:208,guest:29}, '202605':{people:31,ref:248,guest:35},
+    '202606':{people:36,ref:288,guest:40}, '202607':{people:40,ref:320,guest:46},
+    '202608':{people:45,ref:360,guest:51}, '202609':{people:50,ref:400,guest:50} }},
 ];
 
 let palmsData = {};
