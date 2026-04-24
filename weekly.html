@@ -103,12 +103,11 @@ function parseCSV(text) {
   return rows.filter(r=>r.some(c=>c.trim()));
 }
 
-function getMonthTarget(branch, actualPeople) {
-  const ratio = actualPeople / branch.targetPeople;
-  return {
-    ref: Math.round(branch.refTarget * ratio),
-    guest: Math.round(branch.guestTarget * ratio)
-  };
+function getMonthTarget(branch, thisMonth) {
+  const t = branch.monthlyTargets[thisMonth];
+  if (t) return { ref: t.ref, guest: t.guest, people: t.people };
+  return { ref: 0, guest: 0, people: 0 };
+}
 }
 
 async function loadWeekly() {
@@ -180,8 +179,8 @@ function renderWeekly(rows, thisMonth) {
   BRANCHES.forEach(b => {
     const l = latest[b.name];
     const m = monthly[b.name];
-    const actualPeople = palmsData[b.name] || b.startPeople;
-    const targets = getMonthTarget(b, actualPeople);
+    const actualPeople = targets.people || b.startPeople;
+    const targets = getMonthTarget(b, thisMonth);
     const avgAbsRate = m.absRates.length > 0
       ? (m.absRates.reduce((a,c)=>a+c,0) / m.absRates.length).toFixed(1)
       : '—';
