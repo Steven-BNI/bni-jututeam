@@ -60,7 +60,16 @@ h1 em { color:var(--red); font-style:normal; }
 <div id="mainContent"><div class="loading">載入中...</div></div>
 <script>
 const WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
-const BRANCHES = ['聚財','聚道','聚大','聚富'];
+const PALMS_SHEET_ID = '1gD7k1ZI81gSC5FbkiimFAiHm0AvbBQI0k0jFRfKXJsA';
+
+const BRANCHES = [
+  { name:'聚財', targetPeople:85, startPeople:58, refTarget:700, guestTarget:40 },
+  { name:'聚道', targetPeople:60, startPeople:36, refTarget:360, guestTarget:28 },
+  { name:'聚大', targetPeople:51, startPeople:24, refTarget:450, guestTarget:30 },
+  { name:'聚富', targetPeople:50, startPeople:21, refTarget:400, guestTarget:50 },
+];
+
+let palmsData = {};
 
 function setSyncStatus(s, t) {
   document.getElementById('syncDot').className = 'sync-dot ' + s;
@@ -82,14 +91,40 @@ function parseCSV(text) {
   return rows.filter(r=>r.some(c=>c.trim()));
 }
 
+function getMonthTarget(branch, actualPeople) {
+  const ratio = actualPeople / branch.targetPeople;
+  return {
+    ref: Math.round(branch.refTarget * ratio),
+    guest: Math.round(branch.guestTarget * ratio)
+  };
+}
+
 async function loadWeekly() {
   setSyncStatus('loading','載入資料中...');
   try {
+    const now = new Date();
+    const thisMonth = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+
+    // Load PALMS
+    const palmsUrl = `https://docs.google.com/spreadsheets/d/${PALMS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=當月Palms進度`;
+    const palmsR = await fetch(palmsUrl);
+    const palmsText = await palmsR.text();
+    const palmsRows = parseCSV(palmsText);
+    const palmsHeaders = palmsRows[0] || [];
+    const palmsNameIdx = palmsHeaders.indexOf('分會');
+    const palmsPeopleIdx = palmsHeaders.indexOf('實際人數');
+    palmsRows.slice(1).forEach(row => {
+      const name = (row[palmsNameIdx]||'').trim();
+      const people = parseFloat(row[palmsPeopleIdx]) || 0;
+      if (name) palmsData[name] = people;
+    });
+
+    // Load weekly
     const url = `https://docs.google.com/spreadsheets/d/${WEEKLY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=表單回覆 1`;
     const r = await fetch(url);
     const text = await r.text();
     const rows = parseCSV(text);
-    renderWeekly(rows);
+    renderWeekly(rows, thisMonth);
     setSyncStatus('ok','資料已同步');
   } catch(e) {
     setSyncStatus('error','載入失敗');
@@ -97,44 +132,82 @@ async function loadWeekly() {
   }
 }
 
-function renderWeekly(rows) {
+function renderWeekly(rows, thisMonth) {
   const headers = rows[0] || [];
   const data = rows.slice(1);
-  const now = new Date();
-  const thisMonth = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
   const idx = (name) => headers.indexOf(name);
-  const iCols = ['應到人數','實到人數','缺席人數','來賓應到(無則填0)','來賓實到(無則填0)','一對一次數(無則填0)','引薦單數(無則填0)'];
+
+  const iCols = ['缺席人數','應到人數','來賓實到(無則填0)','一對一次數(無則填0)','引薦單數(無則填0)'];
   const latest = {};
   const monthly = {};
-  BRANCHES.forEach(b => { latest[b] = null; monthly[b] = {}; iCols.forEach(c => monthly[b][c] = 0); });
+  const weeklyAbsRates = {};
+
+  BRANCHES.forEach(b => {
+    latest[b.name] = null;
+    monthly[b.name] = { guest:0, ref:0, oneone:0, absRates:[] };
+  });
+
   data.forEach(row => {
     const branch = row[idx('分會')];
     const dateStr = row[idx('例會日期')] || '';
     const parts = dateStr.split(/[-\/]/);
     const rowMonth = parts[0] + String(parts[1]).padStart(2,'0');
     if (branch) latest[branch] = row;
-    if (rowMonth === thisMonth && branch) {
-      iCols.forEach(c => { monthly[branch][c] = (monthly[branch][c]||0) + (parseFloat(row[idx(c)])||0); });
+    if (rowMonth === thisMonth && branch && monthly[branch]) {
+      const absent = parseFloat(row[idx('缺席人數')]) || 0;
+      const shouldAttend = parseFloat(row[idx('應到人數')]) || 0;
+      if (shouldAttend > 0) monthly[branch].absRates.push(absent / shouldAttend * 100);
+      monthly[branch].guest += parseFloat(row[idx('來賓實到(無則填0)')]) || 0;
+      monthly[branch].ref += parseFloat(row[idx('引薦單數(無則填0)')]) || 0;
+      monthly[branch].oneone += parseFloat(row[idx('一對一次數(無則填0)')]) || 0;
     }
   });
+
   let html = '<h2 style="color:var(--red);margin-bottom:16px">📋 分會週報數據</h2>';
+
   BRANCHES.forEach(b => {
-    const l = latest[b];
-    const m = monthly[b];
+    const l = latest[b.name];
+    const m = monthly[b.name];
+    const actualPeople = palmsData[b.name] || b.startPeople;
+    const targets = getMonthTarget(b, actualPeople);
+    const avgAbsRate = m.absRates.length > 0
+      ? (m.absRates.reduce((a,c)=>a+c,0) / m.absRates.length).toFixed(1)
+      : '—';
+
+    // 最新一週
+    const latestAbsent = l ? (parseFloat(l[idx('缺席人數')])||0) : 0;
+    const latestShould = l ? (parseFloat(l[idx('應到人數')])||0) : 0;
+    const latestAbsRate = latestShould > 0 ? (latestAbsent/latestShould*100).toFixed(1)+'%' : '—';
+    const latestGuest = l ? (l[idx('來賓實到(無則填0)')]||0) : 0;
+    const latestRef = l ? (l[idx('引薦單數(無則填0)')]||0) : 0;
+    const latestOneOne = l ? (l[idx('一對一次數(無則填0)')]||0) : 0;
+
     html += `<div style="background:var(--surface);border-radius:12px;padding:16px;margin-bottom:16px">
-      <h3 style="color:#fff;margin-bottom:12px">${b}</h3>
+      <h3 style="color:#fff;margin-bottom:4px">${b.name}</h3>
+      <div style="color:var(--muted);font-size:11px;margin-bottom:12px">當月人數：${actualPeople} 人</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div style="background:#1e1e2e;border-radius:8px;padding:12px">
           <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">最新一週</div>
-          ${l ? iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${l[idx(c)]||0}</span></div>`).join('') : '<div style="color:#555">尚無資料</div>'}
+          ${l ? `
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">缺席率</span><span style="color:#fff;font-size:13px">${latestAbsRate}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">來賓實到</span><span style="color:#fff;font-size:13px">${latestGuest}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">一對一</span><span style="color:#fff;font-size:13px">${latestOneOne}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">引薦單</span><span style="color:#fff;font-size:13px">${latestRef}</span></div>
+          ` : '<div style="color:#555">尚無資料</div>'}
         </div>
         <div style="background:#1e1e2e;border-radius:8px;padding:12px">
           <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">本月累積</div>
-          ${iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${m[c]||0}</span></div>`).join('')}
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">平均缺席率</span><span style="color:#fff;font-size:13px">${avgAbsRate}%</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">來賓目標</span><span style="color:#ffd94a;font-size:13px">${targets.guest}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">來賓累積</span><span style="color:#fff;font-size:13px">${m.guest}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">一對一累積</span><span style="color:#fff;font-size:13px">${m.oneone}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">引薦單目標</span><span style="color:#ffd94a;font-size:13px">${targets.ref}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">引薦單累積</span><span style="color:#fff;font-size:13px">${m.ref}</span></div>
         </div>
       </div>
     </div>`;
   });
+
   document.getElementById('mainContent').innerHTML = html;
 }
 
