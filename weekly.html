@@ -108,7 +108,6 @@ function getMonthTarget(branch, thisMonth) {
   if (t) return { ref: t.ref, guest: t.guest, people: t.people };
   return { ref: 0, guest: 0, people: 0 };
 }
-
 async function loadWeekly() {
   setSyncStatus('loading','載入資料中...');
   try {
