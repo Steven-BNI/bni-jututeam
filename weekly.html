@@ -226,7 +226,8 @@ function renderWeekly(rows, thisMonth) {
     html += '<div class="branch-title">' + b.name + '</div>';
     html += '<div class="branch-people">當月目標人數：' + t.people + ' 人</div>';
     html += '<div class="two-col">';
-    html += '<div class="inner-card"><div class="inner-title">最新一週</div>' + latestBlock + '</div>';
+    var dateLabel = l ? (l[idx('例會日期')] || '最新一週') : '最新一週';
+    html += '<div class="inner-card"><div class="inner-title">' + dateLabel + '</div>' + latestBlock + '</div>';
     html += '<div class="inner-card"><div class="inner-title">本月累積</div>' + monthlyBlock + '</div>';
     html += '</div>';
     html += '</div>';
