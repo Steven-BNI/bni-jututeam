@@ -215,6 +215,11 @@ function renderWeekly(rows, thisMonth) {
     }
 
     var monthlyBlock = '';
+    var currentPeople = l ? (l[idx('應到人數')] || 0) : 0;
+    var seasonTarget = b.targets['202609'] ? b.targets['202609'].people : 0;
+    monthlyBlock += dataRowTarget('會期目標人數', seasonTarget);
+    monthlyBlock += dataRowTarget('當月目標人數', t.people);
+    monthlyBlock += dataRow('現有人數', currentPeople);
     monthlyBlock += dataRow('平均缺席率', avgAbsRate);
     monthlyBlock += dataRowTarget('來賓目標', t.guest);
     monthlyBlock += dataRow('來賓累積', m.guest);
