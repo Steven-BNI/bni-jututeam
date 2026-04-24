@@ -61,8 +61,7 @@ h1 em { color:var(--red); font-style:normal; }
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn active">📋 分會週報</a>
   <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
-  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link
-target="_blank" class="nav-btn">👥 成員介紹</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
 </div>
 <div class="sync-bar">
   <div class="sync-dot loading" id="syncDot"></div>
@@ -71,17 +70,171 @@ target="_blank" class="nav-btn">👥 成員介紹</a>
 </div>
 <div id="mainContent"><div class="loading">載入中...</div></div>
 <script>
-const WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
-const BRANCHES = [
-  { name:'聚財', targets:{ '202604':{people:63,ref:519,guest:30}, '202605':{people:67,ref:553,guest:32}, '202606':{people:72,ref:588,guest:34}, '202607':{people:76,ref:623,guest:36}, '202608':{people:81,ref:659,guest:38}, '202609':{people:85,ref:700,guest:40} } },
-  { name:'聚道', targets:{ '202604':{people:40,ref:240,guest:19}, '202605':{people:44,ref:264,guest:21}, '202606':{people:48,ref:288,guest:22}, '202607':{people:52,ref:312,guest:24}, '202608':{people:56,ref:336,guest:26}, '202609':{people:60,ref:360,guest:28} } },
-  { name:'聚大', targets:{ '202604':{people:29,ref:265,guest:18}, '202605':{people:33,ref:291,guest:20}, '202606':{people:38,ref:318,guest:22}, '202607':{people:42,ref:344,guest:24}, '202608':{people:47,ref:371,guest:26}, '202609':{people:51,ref:450,guest:30} } },
-  { name:'聚富', targets:{ '202604':{people:26,ref:208,guest:29}, '202605':{people:31,ref:248,guest:35}, '202606':{people:36,ref:288,guest:40}, '202607':{people:40,ref:320,guest:46}, '202608':{people:45,ref:360,guest:51}, '202609':{people:50,ref:400,guest:50} } },
+var WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
+var BRANCHES = [
+  { name:'聚財', targets:{
+    '202604':{people:63,ref:519,guest:30},
+    '202605':{people:67,ref:553,guest:32},
+    '202606':{people:72,ref:588,guest:34},
+    '202607':{people:76,ref:623,guest:36},
+    '202608':{people:81,ref:659,guest:38},
+    '202609':{people:85,ref:700,guest:40}
+  }},
+  { name:'聚道', targets:{
+    '202604':{people:40,ref:240,guest:19},
+    '202605':{people:44,ref:264,guest:21},
+    '202606':{people:48,ref:288,guest:22},
+    '202607':{people:52,ref:312,guest:24},
+    '202608':{people:56,ref:336,guest:26},
+    '202609':{people:60,ref:360,guest:28}
+  }},
+  { name:'聚大', targets:{
+    '202604':{people:29,ref:265,guest:18},
+    '202605':{people:33,ref:291,guest:20},
+    '202606':{people:38,ref:318,guest:22},
+    '202607':{people:42,ref:344,guest:24},
+    '202608':{people:47,ref:371,guest:26},
+    '202609':{people:51,ref:450,guest:30}
+  }},
+  { name:'聚富', targets:{
+    '202604':{people:26,ref:208,guest:29},
+    '202605':{people:31,ref:248,guest:35},
+    '202606':{people:36,ref:288,guest:40},
+    '202607':{people:40,ref:320,guest:46},
+    '202608':{people:45,ref:360,guest:51},
+    '202609':{people:50,ref:400,guest:50}
+  }}
 ];
-function setSyncStatus(s,t){document.getElementById('syncDot').className='sync-dot '+s;document.getElementById('syncText').textContent=t;}
-function parseCSV(text){const rows=[];text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');let row=[],cur='',inQ=false;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){row.push(cur);cur='';}else if(c==='\n'&&!inQ){row.push(cur);rows.push(row);row=[];cur='';}else cur+=c;}if(cur||row.length){row.push(cur);rows.push(row);}return rows.filter(r=>r.some(c=>c.trim()));}
-async function loadWeekly(){setSyncStatus('loading','載入資料中...');try{const now=new Date();const thisMonth=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0');const url='https://docs.google.com/spreadsheets/d/'+WEEKLY_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('表單回覆 1');const r=await fetch(url);const text=await r.text();const rows=parseCSV(text);renderWeekly(rows,thisMonth);setSyncStatus('ok','資料已同步');}catch(e){console.log('ERROR:',e.message);setSyncStatus('error','載入失敗');document.getElementById('mainContent').innerHTML='<div class="loading">載入失敗，請重新整理</div>';}}
-function renderWeekly(rows,thisMonth){const headers=rows[0]||[];const data=rows.slice(1);const idx=function(name){return headers.indexOf(name);};const latest={};const monthly={};BRANCHES.forEach(function(b){latest[b.name]=null;monthly[b.name]={guest:0,ref:0,oneone:0,absRates:[]};});data.forEach(function(row){const branch=row[idx('分會')];const dateStr=row[idx('例會日期')]||'';const parts=dateStr.split(/[-\/]/);const rowMonth=parts[0]+String(parts[1]).padStart(2,'0');if(branch)latest[branch]=row;if(rowMonth===thisMonth&&branch&&monthly[branch]){const absent=parseFloat(row[idx('缺席人數')])||0;const shouldAttend=parseFloat(row[idx('應到人數')])||0;if(shouldAttend>0)monthly[branch].absRates.push(absent/shouldAttend*100);monthly[branch].guest+=parseFloat(row[idx('來賓實到(無則填0)')])||0;monthly[branch].ref+=parseFloat(row[idx('引薦單數(無則填0)')])||0;monthly[branch].oneone+=parseFloat(row[idx('一對一次數(無則填0)')])||0;}});let html='<h2 style="color:var(--red);margin-bottom:16px">分會週報數據</h2>';BRANCHES.forEach(function(b){const l=latest[b.name];const m=monthly[b.name];const t=b.targets[thisMonth]||{people:0,ref:0,guest:0};const avgAbsRate=m.absRates.length>0?(m.absRates.reduce(function(a,c){return a+c;},0)/m.absRates.length).toFixed(1)+'%':'—';const latestAbsent=l?(parseFloat(l[idx('缺席人數')])||0):0;const latestShould=l?(parseFloat(l[idx('應到人數')])||0):0;const latestAbsRate=latestShould>0?(latestAbsent/latestShould*100).toFixed(1)+'%':'—';const latestGuest=l?(l[idx('來賓實到(無則填0)')]||0):0;const latestRef=l?(l[idx('引薦單數(無則填0)')]||0):0;const latestOneOne=l?(l[idx('一對一次數(無則填0)')]||0):0;html+='<div class="branch-card"><div class="branch-title">'+b.name+'</div><div class="branch-people">當月目標人數：'+t.people+' 人</div><div class="two-col"><div class="inner-card"><div class="inner-title">最新一週</div>'+(l?'<div class="data-row"><span class="data-label">缺席率</span><span class="data-value">'+latestAbsRate+'</span></div><div class="data-row"><span class="data-label">來賓實到</span><span class="data-value">'+latestGuest+'</span></div><div class="data-row"><span class="data-label">一對一</span><span class="data-value">'+latestOneOne+'</span></div><div class="data-row"><span class="data-label">引薦單</span><span class="data-value">'+latestRef+'</span></div>':'<div class="no-data">尚無資料</div>')+'</div><div class="inner-card"><div class="inner-title">本月累積</div><div class="data-row"><span class="data-label">平均缺席率</span><span class="data-value">'+avgAbsRate+'</span></div><div class="data-row"><span class="data-label">來賓目標</span><span class="data-value target">'+t.guest+'</span></div><div class="data-row"><span class="data-label">來賓累積</span><span class="data-value">'+m.guest+'</span></div><div class="data-row"><span class="data-label">一對一累積</span><span class="data-value">'+m.oneone+'</span></div><div class="data-row"><span class="data-label">引薦單目標</span><span class="data-value target">'+t.ref+'</span></div><div class="data-row"><span class="data-label">引薦單累積</span><span class="data-value">'+m.ref+'</span></div></div></div></div>';});document.getElementById('mainContent').innerHTML=html;}
+
+function setSyncStatus(s, t) {
+  document.getElementById('syncDot').className = 'sync-dot ' + s;
+  document.getElementById('syncText').textContent = t;
+}
+
+function parseCSV(text) {
+  var rows = [];
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  var row = [], cur = '', inQ = false;
+  for (var i = 0; i < text.length; i++) {
+    var c = text[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { row.push(cur); cur = ''; }
+    else if (c === '\n' && !inQ) { row.push(cur); rows.push(row); row = []; cur = ''; }
+    else { cur += c; }
+  }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(function(r) { return r.some(function(c) { return c.trim(); }); });
+}
+
+function dataRow(label, value) {
+  return '<div class="data-row"><span class="data-label">' + label + '</span><span class="data-value">' + value + '</span></div>';
+}
+
+function dataRowTarget(label, value) {
+  return '<div class="data-row"><span class="data-label">' + label + '</span><span class="data-value target">' + value + '</span></div>';
+}
+
+async function loadWeekly() {
+  setSyncStatus('loading', '載入資料中...');
+  try {
+    var now = new Date();
+    var thisMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0');
+    var url = 'https://docs.google.com/spreadsheets/d/' + WEEKLY_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('表單回覆 1');
+    var r = await fetch(url);
+    var text = await r.text();
+    var rows = parseCSV(text);
+    renderWeekly(rows, thisMonth);
+    setSyncStatus('ok', '資料已同步');
+  } catch(e) {
+    console.log('ERROR:', e.message);
+    setSyncStatus('error', '載入失敗');
+    document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
+  }
+}
+
+function renderWeekly(rows, thisMonth) {
+  var headers = rows[0] || [];
+  var data = rows.slice(1);
+
+  function idx(name) { return headers.indexOf(name); }
+
+  var latest = {};
+  var monthly = {};
+
+  BRANCHES.forEach(function(b) {
+    latest[b.name] = null;
+    monthly[b.name] = { guest:0, ref:0, oneone:0, absRates:[] };
+  });
+
+  data.forEach(function(row) {
+    var branch = row[idx('分會')];
+    var dateStr = row[idx('例會日期')] || '';
+    var parts = dateStr.split(/[-\/]/);
+    var rowMonth = parts[0] + String(parts[1]).padStart(2, '0');
+    if (branch) { latest[branch] = row; }
+    if (rowMonth === thisMonth && branch && monthly[branch]) {
+      var absent = parseFloat(row[idx('缺席人數')]) || 0;
+      var shouldAttend = parseFloat(row[idx('應到人數')]) || 0;
+      if (shouldAttend > 0) { monthly[branch].absRates.push(absent / shouldAttend * 100); }
+      monthly[branch].guest += parseFloat(row[idx('來賓實到(無則填0)')]) || 0;
+      monthly[branch].ref += parseFloat(row[idx('引薦單數(無則填0)')]) || 0;
+      monthly[branch].oneone += parseFloat(row[idx('一對一次數(無則填0)')]) || 0;
+    }
+  });
+
+  var html = '<h2 style="color:var(--red);margin-bottom:16px">分會週報數據</h2>';
+
+  BRANCHES.forEach(function(b) {
+    var l = latest[b.name];
+    var m = monthly[b.name];
+    var t = b.targets[thisMonth] || { people:0, ref:0, guest:0 };
+
+    var avgAbsRate = m.absRates.length > 0
+      ? (m.absRates.reduce(function(a, c) { return a + c; }, 0) / m.absRates.length).toFixed(1) + '%'
+      : '—';
+
+    var latestBlock = '';
+    if (l) {
+      var absent = parseFloat(l[idx('缺席人數')]) || 0;
+      var shouldAttend = parseFloat(l[idx('應到人數')]) || 0;
+      var absRate = shouldAttend > 0 ? (absent / shouldAttend * 100).toFixed(1) + '%' : '—';
+      latestBlock += dataRow('應到人數', l[idx('應到人數')] || 0);
+      latestBlock += dataRow('實到人數', l[idx('實到人數')] || 0);
+      latestBlock += dataRow('缺席人數', l[idx('缺席人數')] || 0);
+      latestBlock += dataRow('缺席率', absRate);
+      latestBlock += dataRow('遲到人數', l[idx('遲到人數')] || 0);
+      latestBlock += dataRow('代理人數', l[idx('代理人數')] || 0);
+      latestBlock += dataRow('新會員宣誓', l[idx('新會員宣誓(無則填0)')] || 0);
+      latestBlock += dataRow('續約會員宣誓', l[idx('續約會員宣誓(無則填0)')] || 0);
+      latestBlock += dataRow('來賓應到', l[idx('來賓應到(無則填0)')] || 0);
+      latestBlock += dataRow('來賓實到', l[idx('來賓實到(無則填0)')] || 0);
+      latestBlock += dataRow('一對一', l[idx('一對一次數(無則填0)')] || 0);
+      latestBlock += dataRow('引薦單', l[idx('引薦單數(無則填0)')] || 0);
+    } else {
+      latestBlock = '<div class="no-data">尚無資料</div>';
+    }
+
+    var monthlyBlock = '';
+    monthlyBlock += dataRow('平均缺席率', avgAbsRate);
+    monthlyBlock += dataRowTarget('來賓目標', t.guest);
+    monthlyBlock += dataRow('來賓累積', m.guest);
+    monthlyBlock += dataRow('一對一累積', m.oneone);
+    monthlyBlock += dataRowTarget('引薦單目標', t.ref);
+    monthlyBlock += dataRow('引薦單累積', m.ref);
+
+    html += '<div class="branch-card">';
+    html += '<div class="branch-title">' + b.name + '</div>';
+    html += '<div class="branch-people">當月目標人數：' + t.people + ' 人</div>';
+    html += '<div class="two-col">';
+    html += '<div class="inner-card"><div class="inner-title">最新一週</div>' + latestBlock + '</div>';
+    html += '<div class="inner-card"><div class="inner-title">本月累積</div>' + monthlyBlock + '</div>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
 loadWeekly();
 </script>
 </body>
