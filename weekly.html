@@ -50,24 +50,11 @@ h1 em { color:var(--red); font-style:normal; }
 .data-value.target { color:#ffd94a; }
 .no-data { color:#555; font-size:15px; }
 .lights-section { margin-bottom:20px; }
-.lights-title { font-family:'Oswald',sans-serif; font-size:15px; color:var(--muted); letter-spacing:2px; margin-bottom:10px; }
-.lights-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.light-card { background:var(--surface); border-radius:10px; padding:14px; }
-.light-card-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:10px; }
-.light-bars { display:flex; flex-direction:column; gap:6px; }
-.light-row { display:flex; align-items:center; gap:8px; }
-.light-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.light-dot.green { background:#00d97e; }
-.light-dot.yellow { background:#ffd94a; }
-.light-dot.red { background:#E8001D; }
-.light-dot.gray { background:#888; }
-.light-bar-wrap { flex:1; background:rgba(255,255,255,0.06); border-radius:99px; height:8px; overflow:hidden; }
-.light-bar-fill { height:100%; border-radius:99px; }
-.light-bar-fill.green { background:#00d97e; }
-.light-bar-fill.yellow { background:#ffd94a; }
-.light-bar-fill.red { background:#E8001D; }
-.light-bar-fill.gray { background:#888; }
-.light-pct { font-size:13px; color:#fff; min-width:36px; text-align:right; }
+.lights-label { font-size:12px; color:var(--muted); letter-spacing:2px; margin-bottom:10px; }
+.lights-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.light-card { background:var(--surface); border-radius:10px; padding:12px; text-align:center; }
+.light-name { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; }
+.light-sub { font-size:11px; line-height:1.8; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -94,36 +81,24 @@ var WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
 var LIGHTS_SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
 var BRANCHES = [
   { name:'聚財', targets:{
-    '202604':{people:63,ref:519,guest:30},
-    '202605':{people:67,ref:553,guest:32},
-    '202606':{people:72,ref:588,guest:34},
-    '202607':{people:76,ref:623,guest:36},
-    '202608':{people:81,ref:659,guest:38},
-    '202609':{people:85,ref:700,guest:40}
+    '202604':{people:63,ref:519,guest:30}, '202605':{people:67,ref:553,guest:32},
+    '202606':{people:72,ref:588,guest:34}, '202607':{people:76,ref:623,guest:36},
+    '202608':{people:81,ref:659,guest:38}, '202609':{people:85,ref:700,guest:40}
   }},
   { name:'聚道', targets:{
-    '202604':{people:40,ref:240,guest:19},
-    '202605':{people:44,ref:264,guest:21},
-    '202606':{people:48,ref:288,guest:22},
-    '202607':{people:52,ref:312,guest:24},
-    '202608':{people:56,ref:336,guest:26},
-    '202609':{people:60,ref:360,guest:28}
+    '202604':{people:40,ref:240,guest:19}, '202605':{people:44,ref:264,guest:21},
+    '202606':{people:48,ref:288,guest:22}, '202607':{people:52,ref:312,guest:24},
+    '202608':{people:56,ref:336,guest:26}, '202609':{people:60,ref:360,guest:28}
   }},
   { name:'聚大', targets:{
-    '202604':{people:29,ref:265,guest:18},
-    '202605':{people:33,ref:291,guest:20},
-    '202606':{people:38,ref:318,guest:22},
-    '202607':{people:42,ref:344,guest:24},
-    '202608':{people:47,ref:371,guest:26},
-    '202609':{people:51,ref:450,guest:30}
+    '202604':{people:29,ref:265,guest:18}, '202605':{people:33,ref:291,guest:20},
+    '202606':{people:38,ref:318,guest:22}, '202607':{people:42,ref:344,guest:24},
+    '202608':{people:47,ref:371,guest:26}, '202609':{people:51,ref:450,guest:30}
   }},
   { name:'聚富', targets:{
-    '202604':{people:26,ref:208,guest:29},
-    '202605':{people:31,ref:248,guest:35},
-    '202606':{people:36,ref:288,guest:40},
-    '202607':{people:40,ref:320,guest:46},
-    '202608':{people:45,ref:360,guest:51},
-    '202609':{people:50,ref:400,guest:50}
+    '202604':{people:26,ref:208,guest:29}, '202605':{people:31,ref:248,guest:35},
+    '202606':{people:36,ref:288,guest:40}, '202607':{people:40,ref:320,guest:46},
+    '202608':{people:45,ref:360,guest:51}, '202609':{people:50,ref:400,guest:50}
   }}
 ];
 
@@ -134,44 +109,59 @@ function setSyncStatus(s, t) {
 
 function parseCSV(text) {
   var rows = [];
-  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  var row = [], cur = '', inQ = false;
-  for (var i = 0; i < text.length; i++) {
-    var c = text[i];
-    if (c === '"') { inQ = !inQ; }
-    else if (c === ',' && !inQ) { row.push(cur); cur = ''; }
-    else if (c === '\n' && !inQ) { row.push(cur); rows.push(row); row = []; cur = ''; }
-    else { cur += c; }
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var row=[],cur='',inQ=false;
+  for (var i=0;i<text.length;i++) {
+    var c=text[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){row.push(cur);cur='';}
+    else if(c==='\n'&&!inQ){row.push(cur);rows.push(row);row=[];cur='';}
+    else{cur+=c;}
   }
-  if (cur || row.length) { row.push(cur); rows.push(row); }
-  return rows.filter(function(r) { return r.some(function(c) { return c.trim(); }); });
+  if(cur||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(function(r){return r.some(function(c){return c.trim();});});
 }
 
-function dataRow(label, value) {
-  return '<div class="data-row"><span class="data-label">' + label + '</span><span class="data-value">' + value + '</span></div>';
-}
-function dataRowTarget(label, value) {
-  return '<div class="data-row"><span class="data-label">' + label + '</span><span class="data-value target">' + value + '</span></div>';
-}
-function lightBar(cls, pct) {
-  return '<div class="light-row"><div class="light-dot ' + cls + '"></div><div class="light-bar-wrap"><div class="light-bar-fill ' + cls + '" style="width:' + pct + '%"></div></div><div class="light-pct">' + pct + '%</div></div>';
+function dataRow(label,value){return '<div class="data-row"><span class="data-label">'+label+'</span><span class="data-value">'+value+'</span></div>';}
+function dataRowTarget(label,value){return '<div class="data-row"><span class="data-label">'+label+'</span><span class="data-value target">'+value+'</span></div>';}
+
+function buildDonut(g, y, r, gr) {
+  var circ = 2 * Math.PI * 38;
+  var segs = [
+    {pct:g, color:'#00d97e'},
+    {pct:y, color:'#ffd94a'},
+    {pct:r, color:'#E8001D'},
+    {pct:gr, color:'#888'}
+  ];
+  var offset = circ * 0.25;
+  var arcs = segs.map(function(s) {
+    var len = circ * s.pct / 100;
+    var arc = '<circle cx="50" cy="50" r="38" fill="none" stroke="' + s.color + '" stroke-width="12" stroke-dasharray="' + len + ' ' + circ + '" stroke-dashoffset="' + offset + '" stroke-linecap="butt"/>';
+    offset -= len;
+    return arc;
+  }).join('');
+  return '<svg width="90" height="90" viewBox="0 0 100 100" style="display:block;margin:0 auto 6px">' +
+    '<circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>' +
+    arcs +
+    '<text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" fill="#00d97e" font-family="Noto Sans TC,sans-serif">' + g + '%</text>' +
+    '<text x="50" y="62" text-anchor="middle" font-size="10" fill="#7a7a99" font-family="Noto Sans TC,sans-serif">綠燈</text>' +
+    '</svg>';
 }
 
 async function loadAll() {
-  setSyncStatus('loading', '載入資料中...');
+  setSyncStatus('loading','載入資料中...');
   try {
     var now = new Date();
-    var thisMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0');
-    var lightsUrl = 'https://docs.google.com/spreadsheets/d/' + LIGHTS_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('會員紅綠燈');
-    var weeklyUrl = 'https://docs.google.com/spreadsheets/d/' + WEEKLY_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('表單回覆 1');
-    var results = await Promise.all([fetch(lightsUrl), fetch(weeklyUrl)]);
+    var thisMonth = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0');
+    var lightsUrl = 'https://docs.google.com/spreadsheets/d/'+LIGHTS_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('會員紅綠燈');
+    var weeklyUrl = 'https://docs.google.com/spreadsheets/d/'+WEEKLY_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('表單回覆 1');
+    var results = await Promise.all([fetch(lightsUrl),fetch(weeklyUrl)]);
     var lightsText = await results[0].text();
     var weeklyText = await results[1].text();
     render(parseCSV(lightsText), parseCSV(weeklyText), thisMonth);
-    setSyncStatus('ok', '資料已同步');
+    setSyncStatus('ok','資料已同步');
   } catch(e) {
-    console.log('ERROR:', e.message);
-    setSyncStatus('error', '載入失敗');
+    setSyncStatus('error','載入失敗');
     document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
   }
 }
@@ -181,114 +171,112 @@ function render(lightsRows, weeklyRows, thisMonth) {
   var lightsData = {};
   var lightsMonth = '';
   lightsRows.slice(1).forEach(function(row) {
-    var month = (row[lHeaders.indexOf('月份')] || '').trim();
-    var branch = (row[lHeaders.indexOf('分會')] || '').trim();
+    var month = (row[lHeaders.indexOf('月份')]||'').trim();
+    var branch = (row[lHeaders.indexOf('分會')]||'').trim();
     if (month && branch) {
       if (!lightsData[branch] || month > lightsData[branch].month) {
         lightsData[branch] = {
           month: month,
-          green: parseFloat(row[lHeaders.indexOf('綠燈%')]) || 0,
-          yellow: parseFloat(row[lHeaders.indexOf('黃燈%')]) || 0,
-          red: parseFloat(row[lHeaders.indexOf('紅燈%')]) || 0,
-          gray: parseFloat(row[lHeaders.indexOf('灰燈%')]) || 0
+          g: parseFloat(row[lHeaders.indexOf('綠燈%')])||0,
+          y: parseFloat(row[lHeaders.indexOf('黃燈%')])||0,
+          r: parseFloat(row[lHeaders.indexOf('紅燈%')])||0,
+          gr: parseFloat(row[lHeaders.indexOf('灰燈%')])||0
         };
         lightsMonth = month;
       }
     }
   });
 
-  var monthLabel = lightsMonth ? lightsMonth.slice(0,4) + '年' + parseInt(lightsMonth.slice(4)) + '月' : '';
+  var monthLabel = lightsMonth ? lightsMonth.slice(0,4)+'年'+parseInt(lightsMonth.slice(4))+'月' : '';
 
   var lightsHtml = '<div class="lights-section">';
-  lightsHtml += '<div class="lights-title">會員紅綠燈比例｜' + monthLabel + '</div>';
+  lightsHtml += '<div class="lights-label">會員紅綠燈比例｜' + monthLabel + '</div>';
   lightsHtml += '<div class="lights-grid">';
   BRANCHES.forEach(function(b) {
-    var d = lightsData[b.name] || { green:0, yellow:0, red:0, gray:0 };
+    var d = lightsData[b.name] || {g:0,y:0,r:0,gr:0};
     lightsHtml += '<div class="light-card">';
-    lightsHtml += '<div class="light-card-title">' + b.name + '</div>';
-    lightsHtml += '<div class="light-bars">';
-    lightsHtml += lightBar('green', d.green);
-    lightsHtml += lightBar('yellow', d.yellow);
-    lightsHtml += lightBar('red', d.red);
-    lightsHtml += lightBar('gray', d.gray);
+    lightsHtml += '<div class="light-name">' + b.name + '</div>';
+    lightsHtml += buildDonut(d.g, d.y, d.r, d.gr);
+    lightsHtml += '<div class="light-sub">';
+    lightsHtml += '<span style="color:#ffd94a">黃 '+d.y+'%</span>　';
+    lightsHtml += '<span style="color:#E8001D">紅 '+d.r+'%</span>　';
+    lightsHtml += '<span style="color:#888">灰 '+d.gr+'%</span>';
     lightsHtml += '</div></div>';
   });
   lightsHtml += '</div></div>';
 
-  var wHeaders = weeklyRows[0] || [];
+  var wHeaders = weeklyRows[0]||[];
   var data = weeklyRows.slice(1);
-  function idx(name) { return wHeaders.indexOf(name); }
-  var latest = {};
-  var monthly = {};
-  BRANCHES.forEach(function(b) {
-    latest[b.name] = null;
-    monthly[b.name] = { guest:0, ref:0, oneone:0, absRates:[] };
+  function idx(name){return wHeaders.indexOf(name);}
+  var latest={}, monthly={};
+  BRANCHES.forEach(function(b){
+    latest[b.name]=null;
+    monthly[b.name]={guest:0,ref:0,oneone:0,absRates:[]};
   });
-  data.forEach(function(row) {
-    var branch = row[idx('分會')];
-    var dateStr = row[idx('例會日期')] || '';
-    var parts = dateStr.split(/[-\/]/);
-    var rowMonth = parts[0] + String(parts[1]).padStart(2, '0');
-    if (branch) { latest[branch] = row; }
-    if (rowMonth === thisMonth && branch && monthly[branch]) {
-      var absent = parseFloat(row[idx('缺席人數')]) || 0;
-      var shouldAttend = parseFloat(row[idx('應到人數')]) || 0;
-      if (shouldAttend > 0) { monthly[branch].absRates.push(absent / shouldAttend * 100); }
-      monthly[branch].guest += parseFloat(row[idx('來賓實到(無則填0)')]) || 0;
-      monthly[branch].ref += parseFloat(row[idx('引薦單數(無則填0)')]) || 0;
-      monthly[branch].oneone += parseFloat(row[idx('一對一次數(無則填0)')]) || 0;
+  data.forEach(function(row){
+    var branch=row[idx('分會')];
+    var dateStr=row[idx('例會日期')]||'';
+    var parts=dateStr.split(/[-\/]/);
+    var rowMonth=parts[0]+String(parts[1]).padStart(2,'0');
+    if(branch){latest[branch]=row;}
+    if(rowMonth===thisMonth&&branch&&monthly[branch]){
+      var absent=parseFloat(row[idx('缺席人數')])||0;
+      var shouldAttend=parseFloat(row[idx('應到人數')])||0;
+      if(shouldAttend>0){monthly[branch].absRates.push(absent/shouldAttend*100);}
+      monthly[branch].guest+=parseFloat(row[idx('來賓實到(無則填0)')])||0;
+      monthly[branch].ref+=parseFloat(row[idx('引薦單數(無則填0)')])||0;
+      monthly[branch].oneone+=parseFloat(row[idx('一對一次數(無則填0)')])||0;
     }
   });
 
   var html = lightsHtml;
   html += '<h2 style="color:var(--red);margin-bottom:16px">分會週報數據</h2>';
 
-  BRANCHES.forEach(function(b) {
-    var l = latest[b.name];
-    var m = monthly[b.name];
-    var t = b.targets[thisMonth] || { people:0, ref:0, guest:0 };
-    var avgAbsRate = m.absRates.length > 0
-      ? (m.absRates.reduce(function(a,c){return a+c;},0)/m.absRates.length).toFixed(1)+'%' : '—';
-    var latestBlock = '';
-    if (l) {
-      var absent = parseFloat(l[idx('缺席人數')])||0;
-      var shouldAttend = parseFloat(l[idx('應到人數')])||0;
-      var absRate = shouldAttend>0?(absent/shouldAttend*100).toFixed(1)+'%':'—';
-      latestBlock += dataRow('應到人數', l[idx('應到人數')]||0);
-      latestBlock += dataRow('實到人數', l[idx('實到人數')]||0);
-      latestBlock += dataRow('缺席人數', l[idx('缺席人數')]||0);
-      latestBlock += dataRow('缺席率', absRate);
-      latestBlock += dataRow('遲到人數', l[idx('遲到人數')]||0);
-      latestBlock += dataRow('代理人數', l[idx('代理人數')]||0);
-      latestBlock += dataRow('新會員宣誓', l[idx('新會員宣誓(無則填0)')]||0);
-      latestBlock += dataRow('續約會員宣誓', l[idx('續約會員宣誓(無則填0)')]||0);
-      latestBlock += dataRow('來賓應到', l[idx('來賓應到(無則填0)')]||0);
-      latestBlock += dataRow('來賓實到', l[idx('來賓實到(無則填0)')]||0);
-      latestBlock += dataRow('一對一', l[idx('一對一次數(無則填0)')]||0);
-      latestBlock += dataRow('引薦單', l[idx('引薦單數(無則填0)')]||0);
+  BRANCHES.forEach(function(b){
+    var l=latest[b.name];
+    var m=monthly[b.name];
+    var t=b.targets[thisMonth]||{people:0,ref:0,guest:0};
+    var avgAbsRate=m.absRates.length>0?(m.absRates.reduce(function(a,c){return a+c;},0)/m.absRates.length).toFixed(1)+'%':'—';
+    var latestBlock='';
+    if(l){
+      var absent=parseFloat(l[idx('缺席人數')])||0;
+      var shouldAttend=parseFloat(l[idx('應到人數')])||0;
+      var absRate=shouldAttend>0?(absent/shouldAttend*100).toFixed(1)+'%':'—';
+      latestBlock+=dataRow('應到人數',l[idx('應到人數')]||0);
+      latestBlock+=dataRow('實到人數',l[idx('實到人數')]||0);
+      latestBlock+=dataRow('缺席人數',l[idx('缺席人數')]||0);
+      latestBlock+=dataRow('缺席率',absRate);
+      latestBlock+=dataRow('遲到人數',l[idx('遲到人數')]||0);
+      latestBlock+=dataRow('代理人數',l[idx('代理人數')]||0);
+      latestBlock+=dataRow('新會員宣誓',l[idx('新會員宣誓(無則填0)')]||0);
+      latestBlock+=dataRow('續約會員宣誓',l[idx('續約會員宣誓(無則填0)')]||0);
+      latestBlock+=dataRow('來賓應到',l[idx('來賓應到(無則填0)')]||0);
+      latestBlock+=dataRow('來賓實到',l[idx('來賓實到(無則填0)')]||0);
+      latestBlock+=dataRow('一對一',l[idx('一對一次數(無則填0)')]||0);
+      latestBlock+=dataRow('引薦單',l[idx('引薦單數(無則填0)')]||0);
     } else {
-      latestBlock = '<div class="no-data">尚無資料</div>';
+      latestBlock='<div class="no-data">尚無資料</div>';
     }
-    var currentPeople = l?(l[idx('應到人數')]||0):0;
-    var seasonTarget = b.targets['202609']?b.targets['202609'].people:0;
-    var monthlyBlock = '';
-    monthlyBlock += dataRowTarget('會期目標人數', seasonTarget);
-    monthlyBlock += dataRowTarget('當月目標人數', t.people);
-    monthlyBlock += dataRow('現有人數', currentPeople);
-    monthlyBlock += dataRow('平均缺席率', avgAbsRate);
-    monthlyBlock += dataRowTarget('來賓目標', t.guest);
-    monthlyBlock += dataRow('來賓累積', m.guest);
-    monthlyBlock += dataRow('一對一累積', m.oneone);
-    monthlyBlock += dataRowTarget('引薦單目標', t.ref);
-    monthlyBlock += dataRow('引薦單累積', m.ref);
+    var currentPeople=l?(l[idx('應到人數')]||0):0;
+    var seasonTarget=b.targets['202609']?b.targets['202609'].people:0;
+    var monthlyBlock='';
+    monthlyBlock+=dataRowTarget('會期目標人數',seasonTarget);
+    monthlyBlock+=dataRowTarget('當月目標人數',t.people);
+    monthlyBlock+=dataRow('現有人數',currentPeople);
+    monthlyBlock+=dataRow('平均缺席率',avgAbsRate);
+    monthlyBlock+=dataRowTarget('來賓目標',t.guest);
+    monthlyBlock+=dataRow('來賓累積',m.guest);
+    monthlyBlock+=dataRow('一對一累積',m.oneone);
+    monthlyBlock+=dataRowTarget('引薦單目標',t.ref);
+    monthlyBlock+=dataRow('引薦單累積',m.ref);
 
-    html += '<div class="branch-card">';
-    html += '<div class="branch-title">' + b.name + '</div>';
-    html += '<div class="branch-people">當月目標人數：' + t.people + ' 人</div>';
-    html += '<div class="two-col">';
-    html += '<div class="inner-card"><div class="inner-title">' + (l?(l[idx('例會日期')]||'最新一週'):'最新一週') + '</div>' + latestBlock + '</div>';
-    html += '<div class="inner-card"><div class="inner-title">本月累積</div>' + monthlyBlock + '</div>';
-    html += '</div></div>';
+    html+='<div class="branch-card">';
+    html+='<div class="branch-title">'+b.name+'</div>';
+    html+='<div class="branch-people">當月目標人數：'+t.people+' 人</div>';
+    html+='<div class="two-col">';
+    html+='<div class="inner-card"><div class="inner-title">'+(l?(l[idx('例會日期')]||'最新一週'):'最新一週')+'</div>'+latestBlock+'</div>';
+    html+='<div class="inner-card"><div class="inner-title">本月累積</div>'+monthlyBlock+'</div>';
+    html+='</div></div>';
   });
 
   document.getElementById('mainContent').innerHTML = html;
