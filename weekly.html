@@ -49,6 +49,25 @@ h1 em { color:var(--red); font-style:normal; }
 .data-value { color:#fff; font-size:15px; }
 .data-value.target { color:#ffd94a; }
 .no-data { color:#555; font-size:15px; }
+.lights-section { margin-bottom:20px; }
+.lights-title { font-family:'Oswald',sans-serif; font-size:15px; color:var(--muted); letter-spacing:2px; margin-bottom:10px; }
+.lights-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.light-card { background:var(--surface); border-radius:10px; padding:14px; }
+.light-card-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:10px; }
+.light-bars { display:flex; flex-direction:column; gap:6px; }
+.light-row { display:flex; align-items:center; gap:8px; }
+.light-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.light-dot.green { background:#00d97e; }
+.light-dot.yellow { background:#ffd94a; }
+.light-dot.red { background:#E8001D; }
+.light-dot.gray { background:#888; }
+.light-bar-wrap { flex:1; background:rgba(255,255,255,0.06); border-radius:99px; height:8px; overflow:hidden; }
+.light-bar-fill { height:100%; border-radius:99px; }
+.light-bar-fill.green { background:#00d97e; }
+.light-bar-fill.yellow { background:#ffd94a; }
+.light-bar-fill.red { background:#E8001D; }
+.light-bar-fill.gray { background:#888; }
+.light-pct { font-size:13px; color:#fff; min-width:36px; text-align:right; }
 </style>
 </head>
 <body>
@@ -67,11 +86,12 @@ h1 em { color:var(--red); font-style:normal; }
 <div class="sync-bar">
   <div class="sync-dot loading" id="syncDot"></div>
   <span id="syncText">載入資料中...</span>
-  <button class="refresh-btn" onclick="loadWeekly()">🔄 重新整理</button>
+  <button class="refresh-btn" onclick="loadAll()">🔄 重新整理</button>
 </div>
 <div id="mainContent"><div class="loading">載入中...</div></div>
 <script>
 var WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
+var LIGHTS_SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
 var BRANCHES = [
   { name:'聚財', targets:{
     '202604':{people:63,ref:519,guest:30},
@@ -130,21 +150,24 @@ function parseCSV(text) {
 function dataRow(label, value) {
   return '<div class="data-row"><span class="data-label">' + label + '</span><span class="data-value">' + value + '</span></div>';
 }
-
 function dataRowTarget(label, value) {
   return '<div class="data-row"><span class="data-label">' + label + '</span><span class="data-value target">' + value + '</span></div>';
 }
+function lightBar(cls, pct) {
+  return '<div class="light-row"><div class="light-dot ' + cls + '"></div><div class="light-bar-wrap"><div class="light-bar-fill ' + cls + '" style="width:' + pct + '%"></div></div><div class="light-pct">' + pct + '%</div></div>';
+}
 
-async function loadWeekly() {
+async function loadAll() {
   setSyncStatus('loading', '載入資料中...');
   try {
     var now = new Date();
     var thisMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0');
-    var url = 'https://docs.google.com/spreadsheets/d/' + WEEKLY_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('表單回覆 1');
-    var r = await fetch(url);
-    var text = await r.text();
-    var rows = parseCSV(text);
-    renderWeekly(rows, thisMonth);
+    var lightsUrl = 'https://docs.google.com/spreadsheets/d/' + LIGHTS_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('會員紅綠燈');
+    var weeklyUrl = 'https://docs.google.com/spreadsheets/d/' + WEEKLY_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('表單回覆 1');
+    var results = await Promise.all([fetch(lightsUrl), fetch(weeklyUrl)]);
+    var lightsText = await results[0].text();
+    var weeklyText = await results[1].text();
+    render(parseCSV(lightsText), parseCSV(weeklyText), thisMonth);
     setSyncStatus('ok', '資料已同步');
   } catch(e) {
     console.log('ERROR:', e.message);
@@ -153,20 +176,54 @@ async function loadWeekly() {
   }
 }
 
-function renderWeekly(rows, thisMonth) {
-  var headers = rows[0] || [];
-  var data = rows.slice(1);
+function render(lightsRows, weeklyRows, thisMonth) {
+  var lHeaders = lightsRows[0] || [];
+  var lightsData = {};
+  var lightsMonth = '';
+  lightsRows.slice(1).forEach(function(row) {
+    var month = (row[lHeaders.indexOf('月份')] || '').trim();
+    var branch = (row[lHeaders.indexOf('分會')] || '').trim();
+    if (month && branch) {
+      if (!lightsData[branch] || month > lightsData[branch].month) {
+        lightsData[branch] = {
+          month: month,
+          green: parseFloat(row[lHeaders.indexOf('綠燈%')]) || 0,
+          yellow: parseFloat(row[lHeaders.indexOf('黃燈%')]) || 0,
+          red: parseFloat(row[lHeaders.indexOf('紅燈%')]) || 0,
+          gray: parseFloat(row[lHeaders.indexOf('灰燈%')]) || 0
+        };
+        lightsMonth = month;
+      }
+    }
+  });
 
-  function idx(name) { return headers.indexOf(name); }
+  var monthLabel = lightsMonth ? lightsMonth.slice(0,4) + '年' + parseInt(lightsMonth.slice(4)) + '月' : '';
 
+  var lightsHtml = '<div class="lights-section">';
+  lightsHtml += '<div class="lights-title">會員紅綠燈比例｜' + monthLabel + '</div>';
+  lightsHtml += '<div class="lights-grid">';
+  BRANCHES.forEach(function(b) {
+    var d = lightsData[b.name] || { green:0, yellow:0, red:0, gray:0 };
+    lightsHtml += '<div class="light-card">';
+    lightsHtml += '<div class="light-card-title">' + b.name + '</div>';
+    lightsHtml += '<div class="light-bars">';
+    lightsHtml += lightBar('green', d.green);
+    lightsHtml += lightBar('yellow', d.yellow);
+    lightsHtml += lightBar('red', d.red);
+    lightsHtml += lightBar('gray', d.gray);
+    lightsHtml += '</div></div>';
+  });
+  lightsHtml += '</div></div>';
+
+  var wHeaders = weeklyRows[0] || [];
+  var data = weeklyRows.slice(1);
+  function idx(name) { return wHeaders.indexOf(name); }
   var latest = {};
   var monthly = {};
-
   BRANCHES.forEach(function(b) {
     latest[b.name] = null;
     monthly[b.name] = { guest:0, ref:0, oneone:0, absRates:[] };
   });
-
   data.forEach(function(row) {
     var branch = row[idx('分會')];
     var dateStr = row[idx('例會日期')] || '';
@@ -183,41 +240,38 @@ function renderWeekly(rows, thisMonth) {
     }
   });
 
-  var html = '<h2 style="color:var(--red);margin-bottom:16px">分會週報數據</h2>';
+  var html = lightsHtml;
+  html += '<h2 style="color:var(--red);margin-bottom:16px">分會週報數據</h2>';
 
   BRANCHES.forEach(function(b) {
     var l = latest[b.name];
     var m = monthly[b.name];
     var t = b.targets[thisMonth] || { people:0, ref:0, guest:0 };
-
     var avgAbsRate = m.absRates.length > 0
-      ? (m.absRates.reduce(function(a, c) { return a + c; }, 0) / m.absRates.length).toFixed(1) + '%'
-      : '—';
-
+      ? (m.absRates.reduce(function(a,c){return a+c;},0)/m.absRates.length).toFixed(1)+'%' : '—';
     var latestBlock = '';
     if (l) {
-      var absent = parseFloat(l[idx('缺席人數')]) || 0;
-      var shouldAttend = parseFloat(l[idx('應到人數')]) || 0;
-      var absRate = shouldAttend > 0 ? (absent / shouldAttend * 100).toFixed(1) + '%' : '—';
-      latestBlock += dataRow('應到人數', l[idx('應到人數')] || 0);
-      latestBlock += dataRow('實到人數', l[idx('實到人數')] || 0);
-      latestBlock += dataRow('缺席人數', l[idx('缺席人數')] || 0);
+      var absent = parseFloat(l[idx('缺席人數')])||0;
+      var shouldAttend = parseFloat(l[idx('應到人數')])||0;
+      var absRate = shouldAttend>0?(absent/shouldAttend*100).toFixed(1)+'%':'—';
+      latestBlock += dataRow('應到人數', l[idx('應到人數')]||0);
+      latestBlock += dataRow('實到人數', l[idx('實到人數')]||0);
+      latestBlock += dataRow('缺席人數', l[idx('缺席人數')]||0);
       latestBlock += dataRow('缺席率', absRate);
-      latestBlock += dataRow('遲到人數', l[idx('遲到人數')] || 0);
-      latestBlock += dataRow('代理人數', l[idx('代理人數')] || 0);
-      latestBlock += dataRow('新會員宣誓', l[idx('新會員宣誓(無則填0)')] || 0);
-      latestBlock += dataRow('續約會員宣誓', l[idx('續約會員宣誓(無則填0)')] || 0);
-      latestBlock += dataRow('來賓應到', l[idx('來賓應到(無則填0)')] || 0);
-      latestBlock += dataRow('來賓實到', l[idx('來賓實到(無則填0)')] || 0);
-      latestBlock += dataRow('一對一', l[idx('一對一次數(無則填0)')] || 0);
-      latestBlock += dataRow('引薦單', l[idx('引薦單數(無則填0)')] || 0);
+      latestBlock += dataRow('遲到人數', l[idx('遲到人數')]||0);
+      latestBlock += dataRow('代理人數', l[idx('代理人數')]||0);
+      latestBlock += dataRow('新會員宣誓', l[idx('新會員宣誓(無則填0)')]||0);
+      latestBlock += dataRow('續約會員宣誓', l[idx('續約會員宣誓(無則填0)')]||0);
+      latestBlock += dataRow('來賓應到', l[idx('來賓應到(無則填0)')]||0);
+      latestBlock += dataRow('來賓實到', l[idx('來賓實到(無則填0)')]||0);
+      latestBlock += dataRow('一對一', l[idx('一對一次數(無則填0)')]||0);
+      latestBlock += dataRow('引薦單', l[idx('引薦單數(無則填0)')]||0);
     } else {
       latestBlock = '<div class="no-data">尚無資料</div>';
     }
-
+    var currentPeople = l?(l[idx('應到人數')]||0):0;
+    var seasonTarget = b.targets['202609']?b.targets['202609'].people:0;
     var monthlyBlock = '';
-    var currentPeople = l ? (l[idx('應到人數')] || 0) : 0;
-    var seasonTarget = b.targets['202609'] ? b.targets['202609'].people : 0;
     monthlyBlock += dataRowTarget('會期目標人數', seasonTarget);
     monthlyBlock += dataRowTarget('當月目標人數', t.people);
     monthlyBlock += dataRow('現有人數', currentPeople);
@@ -232,17 +286,15 @@ function renderWeekly(rows, thisMonth) {
     html += '<div class="branch-title">' + b.name + '</div>';
     html += '<div class="branch-people">當月目標人數：' + t.people + ' 人</div>';
     html += '<div class="two-col">';
-    var dateLabel = l ? (l[idx('例會日期')] || '最新一週') : '最新一週';
-    html += '<div class="inner-card"><div class="inner-title">' + dateLabel + '</div>' + latestBlock + '</div>';
+    html += '<div class="inner-card"><div class="inner-title">' + (l?(l[idx('例會日期')]||'最新一週'):'最新一週') + '</div>' + latestBlock + '</div>';
     html += '<div class="inner-card"><div class="inner-title">本月累積</div>' + monthlyBlock + '</div>';
-    html += '</div>';
-    html += '</div>';
+    html += '</div></div>';
   });
 
   document.getElementById('mainContent').innerHTML = html;
 }
 
-loadWeekly();
+loadAll();
 </script>
 </body>
 </html>
