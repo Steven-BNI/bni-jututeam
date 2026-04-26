@@ -50,11 +50,8 @@ h1 em { color:var(--red); font-style:normal; }
 .data-value.target { color:#ffd94a; }
 .no-data { color:#555; font-size:15px; }
 .lights-section { margin-bottom:20px; }
-.lights-label { font-size:12px; color:var(--muted); letter-spacing:2px; margin-bottom:10px; }
-.lights-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-.light-card { background:var(--surface); border-radius:10px; padding:12px; text-align:center; }
-.light-name { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; }
-.light-sub { font-size:11px; line-height:1.8; margin-top:6px; }
+.lights-label { font-size:12px; color:var(--muted); letter-spacing:3px; margin-bottom:12px; }
+.lights-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
 </style>
 </head>
 <body>
@@ -129,34 +126,31 @@ function buildDonut(name,g,y,r,gr){
   var total=g+y+r+gr;
   if(total<100) gr+=100-total;
   if(total>100) gr=Math.max(0,gr-(total-100));
-  var circ=2*Math.PI*38;
-  var segs=[
-    {pct:g,color:'#00d97e'},
-    {pct:y,color:'#ffd94a'},
-    {pct:r,color:'#E8001D'},
-    {pct:gr,color:'#555'}
-  ];
+  var circ=2*Math.PI*52;
+  var segs=[{pct:g,color:'#00d97e'},{pct:y,color:'#ffd94a'},{pct:r,color:'#E8001D'},{pct:gr,color:'#333'}];
   var offset=circ/4;
   var arcs='';
   segs.forEach(function(s){
-    if(s.pct<=0){return;}
+    if(s.pct<=0) return;
     var len=circ*s.pct/100;
-    arcs+='<circle cx="50" cy="50" r="38" fill="none" stroke="'+s.color+'" stroke-width="14" stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+offset+'"/>';
+    arcs+='<circle cx="70" cy="70" r="52" fill="none" stroke="'+s.color+'" stroke-width="15" stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+offset+'"/>';
     offset-=len;
   });
   var div=document.createElement('div');
-  div.className='light-card';
+  div.style.cssText='background:var(--surface);border-radius:16px;padding:20px 12px 16px;text-align:center;border:1px solid var(--border)';
   div.innerHTML=
-    '<div class="light-name">'+name+'</div>'+
-    '<svg width="90" height="90" viewBox="0 0 100 100" style="display:block;margin:0 auto 6px">'+
+    '<p style="font-size:18px;font-weight:700;margin-bottom:14px;color:#fff;letter-spacing:2px">'+name+'</p>'+
+    '<svg width="144" height="144" viewBox="0 0 140 140" style="display:block;margin:0 auto 16px">'+
       arcs+
-      '<text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" fill="#00d97e" font-family="Noto Sans TC,sans-serif">'+g+'%</text>'+
-      '<text x="50" y="62" text-anchor="middle" font-size="10" fill="#7a7a99" font-family="Noto Sans TC,sans-serif">綠燈</text>'+
+      '<text x="70" y="60" text-anchor="middle" font-size="30" font-weight="700" fill="#00d97e" font-family="Noto Sans TC,sans-serif">'+g+'%</text>'+
+      '<text x="70" y="82" text-anchor="middle" font-size="12" fill="#7a7a99" font-family="Noto Sans TC,sans-serif">綠燈比例</text>'+
     '</svg>'+
-    '<div class="light-sub">'+
-      '<span style="color:#ffd94a">黃 '+y+'%</span>　'+
-      '<span style="color:#E8001D">紅 '+r+'%</span>　'+
-      '<span style="color:#999">灰 '+gr+'%</span>'+
+    '<div style="display:flex;justify-content:center;gap:16px">'+
+      '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#ffd94a">'+y+'%</div><div style="font-size:10px;color:#7a7a99;margin-top:2px">黃燈</div></div>'+
+      '<div style="width:1px;background:var(--border)"></div>'+
+      '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#E8001D">'+r+'%</div><div style="font-size:10px;color:#7a7a99;margin-top:2px">紅燈</div></div>'+
+      '<div style="width:1px;background:var(--border)"></div>'+
+      '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#666">'+gr+'%</div><div style="font-size:10px;color:#7a7a99;margin-top:2px">灰燈</div></div>'+
     '</div>';
   return div;
 }
@@ -169,9 +163,7 @@ async function loadAll(){
     var lightsUrl='https://docs.google.com/spreadsheets/d/'+LIGHTS_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('會員紅綠燈');
     var weeklyUrl='https://docs.google.com/spreadsheets/d/'+WEEKLY_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('表單回覆 1');
     var results=await Promise.all([fetch(lightsUrl),fetch(weeklyUrl)]);
-    var lightsText=await results[0].text();
-    var weeklyText=await results[1].text();
-    render(parseCSV(lightsText),parseCSV(weeklyText),thisMonth);
+    render(parseCSV(await results[0].text()),parseCSV(await results[1].text()),thisMonth);
     setSyncStatus('ok','資料已同步');
   }catch(e){
     setSyncStatus('error','載入失敗');
@@ -189,7 +181,6 @@ function render(lightsRows,weeklyRows,thisMonth){
     if(month&&branch){
       if(!lightsData[branch]||month>lightsData[branch].month){
         lightsData[branch]={
-          month:month,
           g:parseFloat(row[lHeaders.indexOf('綠燈%')])||0,
           y:parseFloat(row[lHeaders.indexOf('黃燈%')])||0,
           r:parseFloat(row[lHeaders.indexOf('紅燈%')])||0,
