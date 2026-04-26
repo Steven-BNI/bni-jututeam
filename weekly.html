@@ -81,37 +81,37 @@ var WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
 var LIGHTS_SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
 var BRANCHES = [
   { name:'聚財', targets:{
-    '202604':{people:63,ref:519,guest:30}, '202605':{people:67,ref:553,guest:32},
-    '202606':{people:72,ref:588,guest:34}, '202607':{people:76,ref:623,guest:36},
-    '202608':{people:81,ref:659,guest:38}, '202609':{people:85,ref:700,guest:40}
+    '202604':{people:63,ref:519,guest:30},'202605':{people:67,ref:553,guest:32},
+    '202606':{people:72,ref:588,guest:34},'202607':{people:76,ref:623,guest:36},
+    '202608':{people:81,ref:659,guest:38},'202609':{people:85,ref:700,guest:40}
   }},
   { name:'聚道', targets:{
-    '202604':{people:40,ref:240,guest:19}, '202605':{people:44,ref:264,guest:21},
-    '202606':{people:48,ref:288,guest:22}, '202607':{people:52,ref:312,guest:24},
-    '202608':{people:56,ref:336,guest:26}, '202609':{people:60,ref:360,guest:28}
+    '202604':{people:40,ref:240,guest:19},'202605':{people:44,ref:264,guest:21},
+    '202606':{people:48,ref:288,guest:22},'202607':{people:52,ref:312,guest:24},
+    '202608':{people:56,ref:336,guest:26},'202609':{people:60,ref:360,guest:28}
   }},
   { name:'聚大', targets:{
-    '202604':{people:29,ref:265,guest:18}, '202605':{people:33,ref:291,guest:20},
-    '202606':{people:38,ref:318,guest:22}, '202607':{people:42,ref:344,guest:24},
-    '202608':{people:47,ref:371,guest:26}, '202609':{people:51,ref:450,guest:30}
+    '202604':{people:29,ref:265,guest:18},'202605':{people:33,ref:291,guest:20},
+    '202606':{people:38,ref:318,guest:22},'202607':{people:42,ref:344,guest:24},
+    '202608':{people:47,ref:371,guest:26},'202609':{people:51,ref:450,guest:30}
   }},
   { name:'聚富', targets:{
-    '202604':{people:26,ref:208,guest:29}, '202605':{people:31,ref:248,guest:35},
-    '202606':{people:36,ref:288,guest:40}, '202607':{people:40,ref:320,guest:46},
-    '202608':{people:45,ref:360,guest:51}, '202609':{people:50,ref:400,guest:50}
+    '202604':{people:26,ref:208,guest:29},'202605':{people:31,ref:248,guest:35},
+    '202606':{people:36,ref:288,guest:40},'202607':{people:40,ref:320,guest:46},
+    '202608':{people:45,ref:360,guest:51},'202609':{people:50,ref:400,guest:50}
   }}
 ];
 
-function setSyncStatus(s, t) {
-  document.getElementById('syncDot').className = 'sync-dot ' + s;
-  document.getElementById('syncText').textContent = t;
+function setSyncStatus(s,t){
+  document.getElementById('syncDot').className='sync-dot '+s;
+  document.getElementById('syncText').textContent=t;
 }
 
-function parseCSV(text) {
-  var rows = [];
-  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+function parseCSV(text){
+  var rows=[];
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   var row=[],cur='',inQ=false;
-  for (var i=0;i<text.length;i++) {
+  for(var i=0;i<text.length;i++){
     var c=text[i];
     if(c==='"'){inQ=!inQ;}
     else if(c===','&&!inQ){row.push(cur);cur='';}
@@ -125,90 +125,105 @@ function parseCSV(text) {
 function dataRow(label,value){return '<div class="data-row"><span class="data-label">'+label+'</span><span class="data-value">'+value+'</span></div>';}
 function dataRowTarget(label,value){return '<div class="data-row"><span class="data-label">'+label+'</span><span class="data-value target">'+value+'</span></div>';}
 
-function buildDonut(g, y, r, gr) {
-  var circ = 2 * Math.PI * 38;
-  var segs = [
-    {pct:g, color:'#00d97e'},
-    {pct:y, color:'#ffd94a'},
-    {pct:r, color:'#E8001D'},
-    {pct:gr, color:'#888'}
+function buildDonut(name,g,y,r,gr){
+  var total=g+y+r+gr;
+  if(total<100) gr+=100-total;
+  if(total>100) gr=Math.max(0,gr-(total-100));
+  var circ=2*Math.PI*38;
+  var segs=[
+    {pct:g,color:'#00d97e'},
+    {pct:y,color:'#ffd94a'},
+    {pct:r,color:'#E8001D'},
+    {pct:gr,color:'#555'}
   ];
-  var offset = circ * 0.25;
-  var arcs = segs.map(function(s) {
-    var len = circ * s.pct / 100;
-    var arc = '<circle cx="50" cy="50" r="38" fill="none" stroke="' + s.color + '" stroke-width="12" stroke-dasharray="' + len + ' ' + circ + '" stroke-dashoffset="' + offset + '" stroke-linecap="butt"/>';
-    offset -= len;
-    return arc;
-  }).join('');
-  return '<svg width="90" height="90" viewBox="0 0 100 100" style="display:block;margin:0 auto 6px">' +
-    '<circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>' +
-    arcs +
-    '<text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" fill="#00d97e" font-family="Noto Sans TC,sans-serif">' + g + '%</text>' +
-    '<text x="50" y="62" text-anchor="middle" font-size="10" fill="#7a7a99" font-family="Noto Sans TC,sans-serif">綠燈</text>' +
-    '</svg>';
+  var offset=circ/4;
+  var arcs='';
+  segs.forEach(function(s){
+    if(s.pct<=0){return;}
+    var len=circ*s.pct/100;
+    arcs+='<circle cx="50" cy="50" r="38" fill="none" stroke="'+s.color+'" stroke-width="14" stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+offset+'"/>';
+    offset-=len;
+  });
+  var div=document.createElement('div');
+  div.className='light-card';
+  div.innerHTML=
+    '<div class="light-name">'+name+'</div>'+
+    '<svg width="90" height="90" viewBox="0 0 100 100" style="display:block;margin:0 auto 6px">'+
+      arcs+
+      '<text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" fill="#00d97e" font-family="Noto Sans TC,sans-serif">'+g+'%</text>'+
+      '<text x="50" y="62" text-anchor="middle" font-size="10" fill="#7a7a99" font-family="Noto Sans TC,sans-serif">綠燈</text>'+
+    '</svg>'+
+    '<div class="light-sub">'+
+      '<span style="color:#ffd94a">黃 '+y+'%</span>　'+
+      '<span style="color:#E8001D">紅 '+r+'%</span>　'+
+      '<span style="color:#999">灰 '+gr+'%</span>'+
+    '</div>';
+  return div;
 }
 
-async function loadAll() {
+async function loadAll(){
   setSyncStatus('loading','載入資料中...');
-  try {
-    var now = new Date();
-    var thisMonth = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0');
-    var lightsUrl = 'https://docs.google.com/spreadsheets/d/'+LIGHTS_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('會員紅綠燈');
-    var weeklyUrl = 'https://docs.google.com/spreadsheets/d/'+WEEKLY_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('表單回覆 1');
-    var results = await Promise.all([fetch(lightsUrl),fetch(weeklyUrl)]);
-    var lightsText = await results[0].text();
-    var weeklyText = await results[1].text();
-    render(parseCSV(lightsText), parseCSV(weeklyText), thisMonth);
+  try{
+    var now=new Date();
+    var thisMonth=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0');
+    var lightsUrl='https://docs.google.com/spreadsheets/d/'+LIGHTS_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('會員紅綠燈');
+    var weeklyUrl='https://docs.google.com/spreadsheets/d/'+WEEKLY_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('表單回覆 1');
+    var results=await Promise.all([fetch(lightsUrl),fetch(weeklyUrl)]);
+    var lightsText=await results[0].text();
+    var weeklyText=await results[1].text();
+    render(parseCSV(lightsText),parseCSV(weeklyText),thisMonth);
     setSyncStatus('ok','資料已同步');
-  } catch(e) {
+  }catch(e){
     setSyncStatus('error','載入失敗');
-    document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
+    document.getElementById('mainContent').innerHTML='<div class="loading">載入失敗，請重新整理</div>';
   }
 }
 
-function render(lightsRows, weeklyRows, thisMonth) {
-  var lHeaders = lightsRows[0] || [];
-  var lightsData = {};
-  var lightsMonth = '';
-  lightsRows.slice(1).forEach(function(row) {
-    var month = (row[lHeaders.indexOf('月份')]||'').trim();
-    var branch = (row[lHeaders.indexOf('分會')]||'').trim();
-    if (month && branch) {
-      if (!lightsData[branch] || month > lightsData[branch].month) {
-        lightsData[branch] = {
-          month: month,
-          g: parseFloat(row[lHeaders.indexOf('綠燈%')])||0,
-          y: parseFloat(row[lHeaders.indexOf('黃燈%')])||0,
-          r: parseFloat(row[lHeaders.indexOf('紅燈%')])||0,
-          gr: parseFloat(row[lHeaders.indexOf('灰燈%')])||0
+function render(lightsRows,weeklyRows,thisMonth){
+  var lHeaders=lightsRows[0]||[];
+  var lightsData={};
+  var lightsMonth='';
+  lightsRows.slice(1).forEach(function(row){
+    var month=(row[lHeaders.indexOf('月份')]||'').trim();
+    var branch=(row[lHeaders.indexOf('分會')]||'').trim();
+    if(month&&branch){
+      if(!lightsData[branch]||month>lightsData[branch].month){
+        lightsData[branch]={
+          month:month,
+          g:parseFloat(row[lHeaders.indexOf('綠燈%')])||0,
+          y:parseFloat(row[lHeaders.indexOf('黃燈%')])||0,
+          r:parseFloat(row[lHeaders.indexOf('紅燈%')])||0,
+          gr:parseFloat(row[lHeaders.indexOf('灰燈%')])||0
         };
-        lightsMonth = month;
+        lightsMonth=month;
       }
     }
   });
 
-  var monthLabel = lightsMonth ? lightsMonth.slice(0,4)+'年'+parseInt(lightsMonth.slice(4))+'月' : '';
+  var monthLabel=lightsMonth?lightsMonth.slice(0,4)+'年'+parseInt(lightsMonth.slice(4))+'月':'';
+  var container=document.createElement('div');
 
-  var lightsHtml = '<div class="lights-section">';
-  lightsHtml += '<div class="lights-label">會員紅綠燈比例｜' + monthLabel + '</div>';
-  lightsHtml += '<div class="lights-grid">';
-  BRANCHES.forEach(function(b) {
-    var d = lightsData[b.name] || {g:0,y:0,r:0,gr:0};
-    lightsHtml += '<div class="light-card">';
-    lightsHtml += '<div class="light-name">' + b.name + '</div>';
-    lightsHtml += buildDonut(d.g, d.y, d.r, d.gr);
-    lightsHtml += '<div class="light-sub">';
-    lightsHtml += '<span style="color:#ffd94a">黃 '+d.y+'%</span>　';
-    lightsHtml += '<span style="color:#E8001D">紅 '+d.r+'%</span>　';
-    lightsHtml += '<span style="color:#888">灰 '+d.gr+'%</span>';
-    lightsHtml += '</div></div>';
+  var lightsSection=document.createElement('div');
+  lightsSection.className='lights-section';
+  lightsSection.innerHTML='<div class="lights-label">會員紅綠燈比例｜'+monthLabel+'</div>';
+  var grid=document.createElement('div');
+  grid.className='lights-grid';
+  BRANCHES.forEach(function(b){
+    var d=lightsData[b.name]||{g:0,y:0,r:0,gr:100};
+    grid.appendChild(buildDonut(b.name,d.g,d.y,d.r,d.gr));
   });
-  lightsHtml += '</div></div>';
+  lightsSection.appendChild(grid);
+  container.appendChild(lightsSection);
 
-  var wHeaders = weeklyRows[0]||[];
-  var data = weeklyRows.slice(1);
+  var title=document.createElement('h2');
+  title.style.cssText='color:var(--red);margin-bottom:16px';
+  title.textContent='分會週報數據';
+  container.appendChild(title);
+
+  var wHeaders=weeklyRows[0]||[];
+  var data=weeklyRows.slice(1);
   function idx(name){return wHeaders.indexOf(name);}
-  var latest={}, monthly={};
+  var latest={},monthly={};
   BRANCHES.forEach(function(b){
     latest[b.name]=null;
     monthly[b.name]={guest:0,ref:0,oneone:0,absRates:[]};
@@ -228,9 +243,6 @@ function render(lightsRows, weeklyRows, thisMonth) {
       monthly[branch].oneone+=parseFloat(row[idx('一對一次數(無則填0)')])||0;
     }
   });
-
-  var html = lightsHtml;
-  html += '<h2 style="color:var(--red);margin-bottom:16px">分會週報數據</h2>';
 
   BRANCHES.forEach(function(b){
     var l=latest[b.name];
@@ -254,7 +266,7 @@ function render(lightsRows, weeklyRows, thisMonth) {
       latestBlock+=dataRow('來賓實到',l[idx('來賓實到(無則填0)')]||0);
       latestBlock+=dataRow('一對一',l[idx('一對一次數(無則填0)')]||0);
       latestBlock+=dataRow('引薦單',l[idx('引薦單數(無則填0)')]||0);
-    } else {
+    }else{
       latestBlock='<div class="no-data">尚無資料</div>';
     }
     var currentPeople=l?(l[idx('應到人數')]||0):0;
@@ -270,16 +282,20 @@ function render(lightsRows, weeklyRows, thisMonth) {
     monthlyBlock+=dataRowTarget('引薦單目標',t.ref);
     monthlyBlock+=dataRow('引薦單累積',m.ref);
 
-    html+='<div class="branch-card">';
-    html+='<div class="branch-title">'+b.name+'</div>';
-    html+='<div class="branch-people">當月目標人數：'+t.people+' 人</div>';
-    html+='<div class="two-col">';
-    html+='<div class="inner-card"><div class="inner-title">'+(l?(l[idx('例會日期')]||'最新一週'):'最新一週')+'</div>'+latestBlock+'</div>';
-    html+='<div class="inner-card"><div class="inner-title">本月累積</div>'+monthlyBlock+'</div>';
-    html+='</div></div>';
+    var card=document.createElement('div');
+    card.className='branch-card';
+    card.innerHTML=
+      '<div class="branch-title">'+b.name+'</div>'+
+      '<div class="branch-people">當月目標人數：'+t.people+' 人</div>'+
+      '<div class="two-col">'+
+        '<div class="inner-card"><div class="inner-title">'+(l?(l[idx('例會日期')]||'最新一週'):'最新一週')+'</div>'+latestBlock+'</div>'+
+        '<div class="inner-card"><div class="inner-title">本月累積</div>'+monthlyBlock+'</div>'+
+      '</div>';
+    container.appendChild(card);
   });
 
-  document.getElementById('mainContent').innerHTML = html;
+  document.getElementById('mainContent').innerHTML='';
+  document.getElementById('mainContent').appendChild(container);
 }
 
 loadAll();
