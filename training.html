@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜培訓公告</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8001D;
+  --bg: #0d0d14;
+  --surface: #16161f;
+  --border: rgba(255,255,255,0.08);
+  --muted: #7a7a99;
+  --green: #00d97e;
+  --yellow: #ffd94a;
+  --gray: #444;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; min-height:100vh; }
+.header { background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%); padding:24px 20px 20px; border-bottom:2px solid var(--red); position:relative; overflow:hidden; }
+.header::after { content:'TRAIN'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-family:'Oswald',sans-serif; font-size:80px; font-weight:900; color:rgba(232,0,29,0.06); letter-spacing:-2px; }
+.header-eyebrow { font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:4px; color:var(--red); margin-bottom:6px; }
+h1 { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.1; }
+h1 em { color:var(--red); font-style:normal; }
+.header-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
+.nav-bar::-webkit-scrollbar { display:none; }
+.nav-btn { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.nav-btn:hover { border-color:var(--red); color:var(--red); }
+.nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
+.sync-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 16px; display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:var(--gray); flex-shrink:0; }
+.sync-dot.ok { background:var(--green); }
+.sync-dot.loading { background:var(--yellow); animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.refresh-btn { margin-left:auto; padding:4px 10px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; font-family:'Noto Sans TC',sans-serif; cursor:pointer; }
+.refresh-btn:hover { border-color:var(--red); color:var(--red); }
+#mainContent { padding:16px; max-width:900px; margin:0 auto; }
+.loading { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
+
+/* Training card */
+.training-card { background:var(--surface); border-radius:12px; padding:20px; margin-bottom:20px; border-left:3px solid var(--border); transition:border-color 0.2s; }
+.training-card:hover { border-left-color:var(--red); }
+.training-card.featured { border-left-color:var(--yellow); }
+
+.training-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.training-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:4px; }
+.training-meta { font-size:12px; color:var(--muted); }
+.training-meta span { margin-right:12px; }
+.training-meta span::before { margin-right:4px; }
+
+/* Progress bar */
+.progress-wrap { margin:14px 0; }
+.progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+.progress-label strong { color:#fff; }
+.progress-bar { background:rgba(255,255,255,0.08); border-radius:99px; height:10px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg, var(--red), #ff6b6b); transition:width 0.8s ease; }
+.progress-fill.full { background:linear-gradient(90deg, var(--green), #00ff9d); }
+.progress-fill.warn { background:linear-gradient(90deg, var(--yellow), #ffb347); }
+
+/* Guests section */
+.guests-title { font-size:12px; color:var(--yellow); font-weight:700; letter-spacing:2px; margin:16px 0 12px; border-top:1px solid var(--border); padding-top:14px; }
+.guests-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.guest-card { background:#1e1e2e; border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:8px; }
+.guest-top { display:flex; gap:12px; align-items:flex-start; }
+.guest-photo { width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--yellow); flex-shrink:0; background:#2a2a3e; display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--muted); overflow:hidden; }
+.guest-photo img { width:100%; height:100%; object-fit:cover; }
+.guest-info { flex:1; }
+.guest-name { font-size:15px; font-weight:700; color:#fff; margin-bottom:2px; }
+.guest-topic { font-size:13px; color:var(--yellow); margin-bottom:4px; }
+.guest-intro { font-size:12px; color:var(--muted); line-height:1.6; }
+
+/* No guests badge */
+.badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700; margin-top:8px; }
+.badge-general { background:rgba(122,122,153,0.2); color:var(--muted); border:1px solid var(--border); }
+.badge-featured { background:rgba(255,217,74,0.15); color:var(--yellow); border:1px solid rgba(255,217,74,0.3); }
+
+/* Month section */
+.month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
+.month-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+@media (max-width:500px) {
+  .guests-grid { grid-template-columns:1fr; }
+  .training-header { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <h1>區域 <em>培訓公告</em></h1>
+  <div class="header-sub">本月培訓場次｜報名進度｜嘉賓介紹</div>
+</div>
+
+<div class="nav-bar">
+  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+  <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
+  <a href="/bni-jututeam/training.html" class="nav-btn active">🎓 培訓公告</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
+</div>
+
+<div class="sync-bar">
+  <div class="sync-dot loading" id="syncDot"></div>
+  <span id="syncText">載入資料中...</span>
+  <button class="refresh-btn" onclick="loadTraining()">🔄 重新整理</button>
+</div>
+
+<div id="mainContent"><div class="loading">載入中...</div></div>
+
+<script>
+var SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-el';
+
+function setSyncStatus(s, t) {
+  document.getElementById('syncDot').className = 'sync-dot ' + s;
+  document.getElementById('syncText').textContent = t;
+}
+
+function parseCSV(text) {
+  var rows = [];
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var row=[], cur='', inQ=false;
+  for (var i=0; i<text.length; i++) {
+    var c = text[i];
+    if (c==='"') { inQ=!inQ; }
+    else if (c===',' && !inQ) { row.push(cur); cur=''; }
+    else if (c==='\n' && !inQ) { row.push(cur); rows.push(row); row=[]; cur=''; }
+    else { cur+=c; }
+  }
+  if (cur||row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(c){ return c.trim(); }); });
+}
+
+function convertGDriveUrl(url) {
+  if (!url || !url.trim()) return '';
+  url = url.trim();
+  // Convert Google Drive share link to direct image URL
+  var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w200';
+  // Convert open link
+  match = url.match(/id=([a-zA-Z0-9_-]+)/);
+  if (match) return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w200';
+  return url;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  var parts = d.split('/');
+  if (parts.length >= 3) return parts[1] + '月' + parts[2] + '日';
+  return d;
+}
+
+function getMonthLabel(d) {
+  if (!d) return '';
+  var parts = d.split('/');
+  if (parts.length >= 2) return parts[0] + '年' + parts[1] + '月';
+  return d;
+}
+
+async function loadTraining() {
+  setSyncStatus('loading', '載入資料中...');
+  try {
+    var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('培訓公告');
+    var r = await fetch(url);
+    var text = await r.text();
+    var rows = parseCSV(text);
+    renderTraining(rows);
+    setSyncStatus('ok', '資料已同步');
+  } catch(e) {
+    setSyncStatus('error', '載入失敗');
+    document.getElementById('mainContent').innerHTML = '<div class="loading">載入失敗，請重新整理</div>';
+  }
+}
+
+function renderTraining(rows) {
+  var headers = rows[0] || [];
+  var data = rows.slice(1).filter(function(r){ return r[0] && r[0].trim(); });
+
+  function idx(name) { return headers.indexOf(name); }
+
+  if (data.length === 0) {
+    document.getElementById('mainContent').innerHTML = '<div class="loading">目前尚無培訓資料</div>';
+    return;
+  }
+
+  // Group by month
+  var months = {};
+  var monthOrder = [];
+  data.forEach(function(row) {
+    var date = (row[idx('培訓日期')]||'').trim();
+    var parts = date.split('/');
+    var monthKey = parts.length >= 2 ? parts[0] + '/' + parts[1] : '其他';
+    if (!months[monthKey]) { months[monthKey] = []; monthOrder.push(monthKey); }
+    months[monthKey].push(row);
+  });
+
+  var html = '';
+
+  monthOrder.forEach(function(monthKey) {
+    var monthRows = months[monthKey];
+    var parts = monthKey.split('/');
+    var monthLabel = parts.length >= 2 ? parts[0] + ' 年 ' + parts[1] + ' 月' : monthKey;
+    html += '<div class="month-title">📅 ' + monthLabel + '</div>';
+
+    monthRows.forEach(function(row) {
+      var date = (row[idx('培訓日期')]||'').trim();
+      var name = (row[idx('培訓名稱')]||'').trim();
+      var location = (row[idx('地點')]||'').trim();
+      var current = parseFloat(row[idx('報名人數')]) || 0;
+      var target = parseFloat(row[idx('目標人數')]) || 0;
+      var g1name = (row[idx('嘉賓1姓名')]||'').trim();
+      var g1photo = convertGDriveUrl((row[idx('嘉賓1照片連結')]||'').trim());
+      var g1topic = (row[idx('嘉賓1主題')]||'').trim();
+      var g1intro = (row[idx('嘉賓1介紹')]||'').trim();
+      var g2name = (row[idx('嘉賓2姓名')]||'').trim();
+      var g2photo = convertGDriveUrl((row[idx('嘉賓2照片連結')]||'').trim());
+      var g2topic = (row[idx('嘉賓2主題')]||'').trim();
+      var g2intro = (row[idx('嘉賓2介紹')]||'').trim();
+
+      var hasFeatured = g1name || g2name;
+      var pct = target > 0 ? Math.min(100, Math.round(current / target * 100)) : 0;
+      var fillClass = pct >= 100 ? 'full' : (pct >= 70 ? 'warn' : '');
+
+      html += '<div class="training-card' + (hasFeatured ? ' featured' : '') + '">';
+
+      // Header
+      html += '<div class="training-header">';
+      html += '<div>';
+      html += '<div class="training-name">' + name + '</div>';
+      html += '<div class="training-meta">';
+      html += '<span>📅 ' + formatDate(date) + '</span>';
+      if (location) html += '<span>📍 ' + location + '</span>';
+      html += '</div>';
+      html += '</div>';
+      if (hasFeatured) html += '<span class="badge badge-featured">✨ 特別嘉賓場</span>';
+      else html += '<span class="badge badge-general">一般培訓</span>';
+      html += '</div>';
+
+      // Progress
+      if (target > 0) {
+        html += '<div class="progress-wrap">';
+        html += '<div class="progress-label"><span>報名進度</span><strong>' + current + ' / ' + target + ' 人（' + pct + '%）</strong></div>';
+        html += '<div class="progress-bar"><div class="progress-fill ' + fillClass + '" style="width:' + pct + '%"></div></div>';
+        html += '</div>';
+      }
+
+      // Guests
+      if (hasFeatured) {
+        html += '<div class="guests-title">🌟 特別嘉賓介紹</div>';
+        html += '<div class="guests-grid">';
+
+        if (g1name) {
+          html += '<div class="guest-card">';
+          html += '<div class="guest-top">';
+          html += '<div class="guest-photo">';
+          if (g1photo) html += '<img src="' + g1photo + '" alt="' + g1name + '" onerror="this.parentNode.innerHTML=\'👤\'">';
+          else html += '👤';
+          html += '</div>';
+          html += '<div class="guest-info">';
+          html += '<div class="guest-name">' + g1name + '</div>';
+          if (g1topic) html += '<div class="guest-topic">「' + g1topic + '」</div>';
+          html += '</div>';
+          html += '</div>';
+          if (g1intro) html += '<div class="guest-intro">' + g1intro + '</div>';
+          html += '</div>';
+        }
+
+        if (g2name) {
+          html += '<div class="guest-card">';
+          html += '<div class="guest-top">';
+          html += '<div class="guest-photo">';
+          if (g2photo) html += '<img src="' + g2photo + '" alt="' + g2name + '" onerror="this.parentNode.innerHTML=\'👤\'">';
+          else html += '👤';
+          html += '</div>';
+          html += '<div class="guest-info">';
+          html += '<div class="guest-name">' + g2name + '</div>';
+          if (g2topic) html += '<div class="guest-topic">「' + g2topic + '」</div>';
+          html += '</div>';
+          html += '</div>';
+          if (g2intro) html += '<div class="guest-intro">' + g2intro + '</div>';
+          html += '</div>';
+        }
+
+        html += '</div>';
+      }
+
+      html += '</div>';
+    });
+  });
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+loadTraining();
+</script>
+</body>
+</html>
