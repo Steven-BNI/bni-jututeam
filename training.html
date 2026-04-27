@@ -212,12 +212,11 @@ function renderTraining(rows) {
       var g1name = (row[idx('嘉賓1姓名')]||'').trim();
       var g1photo = convertGDriveUrl((row[idx('嘉賓1照片連結')]||'').trim());
       var g1topic = (row[idx('嘉賓1主題')]||'').trim();
-      var g1intro = (row[idx('嘉賓1介紹')]||'').trim();
+      var g1intro = (row[idx('嘉賓1介紹')]||'').trim().replace(/\n/g,'<br>');
       var g2name = (row[idx('嘉賓2姓名')]||'').trim();
       var g2photo = convertGDriveUrl((row[idx('嘉賓2照片連結')]||'').trim());
       var g2topic = (row[idx('嘉賓2主題')]||'').trim();
-      var g2intro = (row[idx('嘉賓2介紹')]||'').trim();
-
+      var g2intro = (row[idx('嘉賓2介紹')]||'').trim().replace(/\n/g,'<br>');
       var hasFeatured = g1name || g2name;
       var pct = target > 0 ? Math.min(100, Math.round(current / target * 100)) : 0;
       var fillClass = pct >= 100 ? 'full' : (pct >= 70 ? 'warn' : '');
