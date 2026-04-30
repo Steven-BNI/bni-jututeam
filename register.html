@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>培訓報名 | BNI 聚團隊</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --gold-dim: rgba(201,168,76,0.15);
+      --dark: #0D0D0D;
+      --dark2: #161616;
+      --dark3: #1F1F1F;
+      --border: rgba(201,168,76,0.25);
+      --text: #E8E8E0;
+      --text-dim: #888;
+      --red: #E05252;
+      --green: #52C07A;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Noto Sans TC', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── 背景裝飾 ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 80% 10%, rgba(201,168,76,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 20% 90%, rgba(201,168,76,0.05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* ── 頂部 Header ── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    .back-btn:hover { opacity: 0.7; }
+    .back-btn svg { width: 16px; height: 16px; }
+
+    .page-logo {
+      margin-left: auto;
+      font-family: 'DM Serif Display', serif;
+      font-size: 15px;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+    }
+
+    /* ── 培訓資訊卡 ── */
+    .training-card {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .training-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--gold), var(--gold-light));
+    }
+    .training-tag {
+      display: inline-block;
+      background: var(--gold-dim);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .training-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .training-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .training-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .training-meta-item svg { width: 14px; height: 14px; color: var(--gold); flex-shrink: 0; }
+
+    /* ── 進度步驟 ── */
+    .steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dim);
+      background: var(--dark2);
+      transition: all 0.3s;
+    }
+    .step.active .step-circle {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+      box-shadow: 0 0 12px rgba(201,168,76,0.3);
+    }
+    .step.done .step-circle {
+      border-color: var(--green);
+      background: rgba(82,192,122,0.15);
+      color: var(--green);
+    }
+    .step-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+    }
+    .step.active .step-label { color: var(--gold); }
+    .step.done .step-label { color: var(--green); }
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      max-width: 60px;
+      margin-bottom: 18px;
+    }
+    .step-line.done { background: var(--green); }
+
+    /* ── 區塊 ── */
+    .section {
+      display: none;
+      animation: fadeUp 0.35s ease;
+    }
+    .section.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── 身份選擇 ── */
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    .section-title span {
+      color: var(--gold);
+    }
+
+    .identity-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .identity-card {
+      background: var(--dark2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .identity-card:hover {
+      border-color: rgba(201,168,76,0.5);
+      background: var(--dark3);
+    }
+    .identity-card.selected {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+    }
+    .identity-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--dark3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .identity-card.selected .identity-icon {
+      background: rgba(201,168,76,0.2);
+    }
+    .identity-info { flex: 1; }
+    .identity-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .identity-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .identity-price {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .identity-price.free { color: var(--green); font-size: 15px; }
+
+    /* ── 表單 ── */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+    }
+    .form-label .required {
+      color: var(--red);
+      margin-left: 3px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--dark2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--text);
+      font-family: 'Noto Sans TC', sans-serif;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    }
+    .form-input::placeholder { color: #444; }
+    select.form-input {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    select.form-input option { background: var(--dark2); }
+
+    /* ── 費用摘要 ── */
+    .fee-summary {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      padding: 6px 0;
+    }
+    .fee-row-label { color: var(--text-dim); }
+    .fee-row-value { font-weight: 500; color: var(--text); }
+    .fee-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+    .fee-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .fee-total-amount {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .fee-total-amount.free { color: var(--green); font-size: 18px; }
+
+    /* ── 按鈕 ── */
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Noto Sans TC', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(201,168,76,0.35);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: transparent;
+      color: var(--text-dim);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Noto Sans TC', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 24px;
+    }
+
+    /* ── 警告提示 ── */
+    .notice {
+      background: rgba(224,82,82,0.08);
+      border: 1px solid rgba(224,82,82,0.3);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #f08080;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .notice-gold {
+      background: var(--gold-dim);
+      border: 1px solid var(--border);
+      color: var(--gold);
+    }
+
+    /* ── 確認頁 ── */
+    .confirm-rows {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .confirm-row {
+      display: flex;
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .confirm-row:last-child { border-bottom: none; }
+    .confirm-row-key {
+      width: 90px;
+      flex-shrink: 0;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .confirm-row-val {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      word-break: break-all;
+    }
+    .confirm-row-val.highlight { color: var(--gold); font-weight: 700; }
+
+    /* ── 付款中 Loading ── */
+    .loading-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 40vh;
+      gap: 20px;
+      text-align: center;
+    }
+    .loading-section.active { display: flex; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-size: 16px;
+      color: var(--text-dim);
+    }
+
+    /* ── 成功頁 ── */
+    .success-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 32px 0;
+      gap: 16px;
+    }
+    .success-section.active { display: flex; }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: rgba(82,192,122,0.15);
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .success-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .success-desc {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* 隱藏的統一金流表單 */
+    #ecpay-form { display: none; }
+
+    /* Error state */
+    .form-input.error { border-color: var(--red); }
+    .form-error {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 5px;
+    }
+
+    /* ── 免責 footer ── */
+    .page-footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: #444;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- 頂部 -->
+  <div class="top-bar">
+    <a href="training.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      返回培訓公告
+    </a>
+    <span class="page-logo">BNI 聚團隊</span>
+  </div>
+
+  <!-- 培訓資訊（由 JS 動態填入） -->
+  <div class="training-card" id="training-info-card">
+    <div class="training-tag">培訓活動</div>
+    <div class="training-name" id="display-training-name">載入中...</div>
+    <div class="training-meta">
+      <div class="training-meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span id="display-training-date">—</span>
+      </div>
+      <div class="training-meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span id="display-training-location">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 步驟指示器 -->
+  <div class="steps" id="steps-bar">
+    <div class="step active" id="step-1">
+      <div class="step-circle">1</div>
+      <div class="step-label">選身份</div>
+    </div>
+    <div class="step-line" id="line-1-2"></div>
+    <div class="step" id="step-2">
+      <div class="step-circle">2</div>
+      <div class="step-label">填資料</div>
+    </div>
+    <div class="step-line" id="line-2-3"></div>
+    <div class="step" id="step-3">
+      <div class="step-circle">3</div>
+      <div class="step-label">確認付款</div>
+    </div>
+  </div>
+
+  <!-- ══ Section 1：選擇身份 ══ -->
+  <div class="section active" id="section-identity">
+    <div class="section-title">選擇您的 <span>報名身份</span></div>
+
+    <div class="identity-cards" id="identity-cards">
+      <!-- 一般學員 -->
+      <div class="identity-card" data-identity="general" onclick="selectIdentity(this)">
+        <div class="identity-icon">👤</div>
+        <div class="identity-info">
+          <div class="identity-label">一般學員</div>
+          <div class="identity-desc">BNI 會員或訪客</div>
+        </div>
+        <div class="identity-price" id="price-general">NT$ —</div>
+      </div>
+
+      <!-- 認證導師（僅初階/進階MSP顯示） -->
+      <div class="identity-card" data-identity="mentor" id="mentor-card" style="display:none" onclick="selectIdentity(this)">
+        <div class="identity-icon">🎓</div>
+        <div class="identity-info">
+          <div class="identity-label">認證導師</div>
+          <div class="identity-desc">持有認證導師資格</div>
+        </div>
+        <div class="identity-price" id="price-mentor">NT$ —</div>
+      </div>
+
+      <!-- 講師/籌劃小組 -->
+      <div class="identity-card" data-identity="staff" onclick="selectIdentity(this)">
+        <div class="identity-icon">⭐</div>
+        <div class="identity-info">
+          <div class="identity-label">講師 / 籌劃小組</div>
+          <div class="identity-desc">受邀講師或活動籌備成員</div>
+        </div>
+        <div class="identity-price free">免費</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-to-form" onclick="goToForm()" disabled>繼續 →</button>
+    </div>
+  </div>
+
+  <!-- ══ Section 2：填寫資料 ══ -->
+  <div class="section" id="section-form">
+    <div class="section-title">填寫 <span>報名資料</span></div>
+
+    <div class="form-group">
+      <label class="form-label">姓名<span class="required">*</span></label>
+      <input type="text" class="form-input" id="input-name" placeholder="請輸入真實姓名" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">分會名稱<span class="required">*</span></label>
+      <input type="text" class="form-input" id="input-chapter" placeholder="例：BNI 聚創分會" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">電話<span class="required">*</span></label>
+      <input type="tel" class="form-input" id="input-phone" placeholder="09xxxxxxxx" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email<span class="required">*</span></label>
+      <input type="email" class="form-input" id="input-email" placeholder="yourname@example.com" />
+    </div>
+
+    <!-- 費用摘要 -->
+    <div class="fee-summary">
+      <div class="fee-row">
+        <span class="fee-row-label">培訓活動</span>
+        <span class="fee-row-value" id="summary-training-name">—</span>
+      </div>
+      <div class="fee-row">
+        <span class="fee-row-label">報名身份</span>
+        <span class="fee-row-value" id="summary-identity">—</span>
+      </div>
+      <div class="fee-divider"></div>
+      <div class="fee-total">
+        <span>應付金額</span>
+        <span class="fee-total-amount" id="summary-fee">—</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="goToConfirm()">下一步：確認資料 →</button>
+      <button class="btn-secondary" onclick="goBack(1)">← 返回選擇身份</button>
+    </div>
+  </div>
+
+  <!-- ══ Section 3：確認 ══ -->
+  <div class="section" id="section-confirm">
+    <div class="section-title">確認 <span>報名資訊</span></div>
+
+    <div class="confirm-rows" id="confirm-rows">
+      <!-- 動態填入 -->
+    </div>
+
+    <div class="notice notice-gold" id="payment-notice">
+      <!-- 動態填入 -->
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-submit" onclick="submitRegistration()">確認送出並前往付款 →</button>
+      <button class="btn-secondary" onclick="goBack(2)">← 返回修改資料</button>
+    </div>
+  </div>
+
+  <!-- ══ Loading ══ -->
+  <div class="loading-section" id="section-loading">
+    <div class="spinner"></div>
+    <div class="loading-text">正在處理報名資料，請稍候…</div>
+  </div>
+
+  <!-- ══ 成功頁（免費身份用） ══ -->
+  <div class="success-section" id="section-success">
+    <div class="success-icon">✓</div>
+    <div class="success-title">報名成功！</div>
+    <div class="success-desc" id="success-desc">
+      您的報名已完成，我們將盡快與您聯繫確認。
+    </div>
+    <button class="btn-primary" style="max-width:260px;margin-top:8px" onclick="location.href='training.html'">返回培訓公告</button>
+  </div>
+
+  <!-- 統一金流（ECPay）隱藏表單 -->
+  <form id="ecpay-form" method="POST" action="https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5">
+    <!-- 由 JS 動態注入欄位 -->
+  </form>
+
+  <div class="page-footer">
+    BNI 聚團隊 · 新北市西區 A 區<br>
+    如有問題請聯繫您的分會聯絡人
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     JavaScript
+══════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════
+// 設定區（管理員請修改此區）
+// ═══════════════════════════════════════
+const CONFIG = {
+  // Google Apps Script Web App URL（部署後貼入）
+  GAS_URL: 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec',
+
+  // 統一金流 ECPay 設定
+  ECPAY: {
+    MerchantID: 'YOUR_MERCHANT_ID',   // 商店代號
+    // ⚠️ HashKey 與 HashIV 不可放前端！請透過 GAS 後端產生 CheckMacValue
+    // 前端只負責送出表單，CheckMacValue 由 GAS 計算後回傳
+    PaymentURL: 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5',
+    // 測試環境：https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5
+    ReturnURL: 'https://steven-bni.github.io/bni-jututeam/register-return.html',
+    ClientBackURL: 'https://steven-bni.github.io/bni-jututeam/training.html',
+  },
+
+  // 認證導師身份只在這些培訓類型顯示
+  MENTOR_TRAINING_KEYWORDS: ['初階MSP', '進階MSP', 'MSP'],
+};
+
+// ═══════════════════════════════════════
+// 狀態
+// ═══════════════════════════════════════
+let state = {
+  training: null,   // 從 URL 參數讀取的培訓資料
+  identity: null,   // 'general' | 'mentor' | 'staff'
+  fee: 0,
+  formData: {},
+};
+
+// ═══════════════════════════════════════
+// 初始化：從 URL 參數讀取培訓資料
+// ═══════════════════════════════════════
+function init() {
+  const params = new URLSearchParams(location.search);
+
+  state.training = {
+    date:        params.get('date')     || '日期待定',
+    name:        params.get('name')     || '培訓活動',
+    location:    params.get('loc')      || '地點待定',
+    feeGeneral:  parseInt(params.get('fee') || '0'),
+    feeMentor:   parseInt(params.get('mfee') || '0'),
+    type:        params.get('type')     || '',   // 用於判斷是否顯示導師價
+    rowIndex:    params.get('row')      || '',   // 試算表列號（for GAS 寫入）
+  };
+
+  // 填入培訓資訊
+  document.getElementById('display-training-name').textContent = state.training.name;
+  document.getElementById('display-training-date').textContent = state.training.date;
+  document.getElementById('display-training-location').textContent = state.training.location;
+  document.getElementById('price-general').textContent =
+    state.training.feeGeneral > 0 ? `NT$ ${state.training.feeGeneral.toLocaleString()}` : 'NT$ —';
+
+  // 判斷是否顯示認證導師選項
+  const isMSP = CONFIG.MENTOR_TRAINING_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
+  if (isMSP && state.training.feeMentor > 0) {
+    document.getElementById('mentor-card').style.display = 'flex';
+    document.getElementById('price-mentor').textContent = `NT$ ${state.training.feeMentor.toLocaleString()}`;
+  }
+}
+
+// ═══════════════════════════════════════
+// 身份選擇
+// ═══════════════════════════════════════
+function selectIdentity(card) {
+  document.querySelectorAll('.identity-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.identity = card.dataset.identity;
+
+  switch (state.identity) {
+    case 'general': state.fee = state.training.feeGeneral; break;
+    case 'mentor':  state.fee = state.training.feeMentor;  break;
+    case 'staff':   state.fee = 0; break;
+  }
+
+  document.getElementById('btn-to-form').disabled = false;
+}
+
+function goToForm() {
+  if (!state.identity) return;
+
+  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
+  const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
+
+  document.getElementById('summary-training-name').textContent = state.training.name;
+  document.getElementById('summary-identity').textContent = identityLabel;
+  const el = document.getElementById('summary-fee');
+  el.textContent = feeText;
+  el.className = state.fee === 0 ? 'fee-total-amount free' : 'fee-total-amount';
+
+  switchSection(2);
+}
+
+// ═══════════════════════════════════════
+// 表單驗證 → 進入確認頁
+// ═══════════════════════════════════════
+function goToConfirm() {
+  const name    = document.getElementById('input-name').value.trim();
+  const chapter = document.getElementById('input-chapter').value.trim();
+  const phone   = document.getElementById('input-phone').value.trim();
+  const email   = document.getElementById('input-email').value.trim();
+
+  let valid = true;
+
+  // 簡易驗證
+  [
+    { id: 'input-name',    val: name,    rule: v => v.length >= 2 },
+    { id: 'input-chapter', val: chapter, rule: v => v.length >= 2 },
+    { id: 'input-phone',   val: phone,   rule: v => /^09\d{8}$/.test(v) },
+    { id: 'input-email',   val: email,   rule: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+  ].forEach(({ id, val, rule }) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('error', !rule(val));
+    if (!rule(val)) valid = false;
+  });
+
+  if (!valid) {
+    // 滾動到第一個錯誤
+    const first = document.querySelector('.form-input.error');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  state.formData = { name, chapter, phone, email };
+
+  // 填入確認頁
+  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
+  const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
+
+  document.getElementById('confirm-rows').innerHTML = `
+    <div class="confirm-row"><div class="confirm-row-key">培訓名稱</div><div class="confirm-row-val">${state.training.name}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">培訓日期</div><div class="confirm-row-val">${state.training.date}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">地點</div><div class="confirm-row-val">${state.training.location}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">姓名</div><div class="confirm-row-val">${name}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">分會</div><div class="confirm-row-val">${chapter}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">電話</div><div class="confirm-row-val">${phone}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">Email</div><div class="confirm-row-val">${email}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">身份</div><div class="confirm-row-val">${identityLabel}</div></div>
+    <div class="confirm-row"><div class="confirm-row-key">費用</div><div class="confirm-row-val highlight">${feeText}</div></div>
+  `;
+
+  const notice = document.getElementById('payment-notice');
+  if (state.fee > 0) {
+    notice.innerHTML = `💳 點擊「確認送出」後將跳轉至<strong>統一金流</strong>進行線上付款，請準備信用卡或其他支付方式。`;
+  } else {
+    notice.innerHTML = `✅ 您的身份為<strong>免費</strong>，報名成功後系統將直接完成登記，無需付款。`;
+  }
+
+  switchSection(3);
+}
+
+// ═══════════════════════════════════════
+// 送出報名（呼叫 GAS 寫入試算表）
+// ═══════════════════════════════════════
+async function submitRegistration() {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+
+  // 顯示 Loading
+  document.getElementById('steps-bar').style.display = 'none';
+  switchSection('loading');
+
+  const payload = {
+    action: 'register',
+    trainingName: state.training.name,
+    trainingDate: state.training.date,
+    location:     state.training.location,
+    rowIndex:     state.training.rowIndex,
+    name:         state.formData.name,
+    chapter:      state.formData.chapter,
+    phone:        state.formData.phone,
+    email:        state.formData.email,
+    identity:     state.identity,
+    fee:          state.fee,
+    timestamp:    new Date().toISOString(),
+  };
+
+  try {
+    const res = await fetch(CONFIG.GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (data.status !== 'ok') throw new Error(data.message || '寫入失敗');
+
+    if (state.fee > 0) {
+      // 付費：GAS 回傳 ECPay 所需的 CheckMacValue，前端組表單送出
+      redirectToECPay(data.ecpay);
+    } else {
+      // 免費：直接顯示成功
+      showSuccess();
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ 送出失敗，請重新嘗試或聯繫管理員。\n\n錯誤：' + err.message);
+    btn.disabled = false;
+    document.getElementById('steps-bar').style.display = 'flex';
+    switchSection(3);
+  }
+}
+
+// ═══════════════════════════════════════
+// 跳轉統一金流（ECPay）
+// ═══════════════════════════════════════
+function redirectToECPay(ecpayData) {
+  // ecpayData 由 GAS 後端回傳，已含 CheckMacValue
+  const form = document.getElementById('ecpay-form');
+  form.action = CONFIG.ECPAY.PaymentURL;
+  form.innerHTML = '';
+
+  const fields = {
+    MerchantID:        ecpayData.MerchantID,
+    MerchantTradeNo:   ecpayData.MerchantTradeNo,
+    MerchantTradeDate: ecpayData.MerchantTradeDate,
+    PaymentType:       'aio',
+    TotalAmount:       ecpayData.TotalAmount,
+    TradeDesc:         ecpayData.TradeDesc,
+    ItemName:          ecpayData.ItemName,
+    ReturnURL:         CONFIG.ECPAY.ReturnURL,
+    ClientBackURL:     CONFIG.ECPAY.ClientBackURL,
+    ChoosePayment:     'ALL',
+    EncryptType:       '1',
+    CheckMacValue:     ecpayData.CheckMacValue,
+  };
+
+  for (const [k, v] of Object.entries(fields)) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
+  }
+
+  form.submit();
+}
+
+function showSuccess() {
+  document.getElementById('training-info-card').style.display = 'none';
+  switchSection('success');
+  document.getElementById('success-desc').textContent =
+    `${state.formData.name}，您的報名已完成登記！\n活動相關資訊將寄送至 ${state.formData.email}。`;
+}
+
+// ═══════════════════════════════════════
+// 工具函數
+// ═══════════════════════════════════════
+function switchSection(num) {
+  document.querySelectorAll('.section, .loading-section, .success-section').forEach(s => s.classList.remove('active'));
+
+  if (num === 'loading') {
+    document.getElementById('section-loading').classList.add('active');
+    return;
+  }
+  if (num === 'success') {
+    document.getElementById('section-success').classList.add('active');
+    return;
+  }
+
+  document.getElementById('section-' + ['identity','form','confirm'][num-1]).classList.add('active');
+
+  // 更新步驟指示
+  for (let i = 1; i <= 3; i++) {
+    const step = document.getElementById('step-' + i);
+    step.classList.remove('active', 'done');
+    if (i < num) step.classList.add('done');
+    else if (i === num) step.classList.add('active');
+  }
+  document.getElementById('line-1-2').classList.toggle('done', num > 1);
+  document.getElementById('line-2-3').classList.toggle('done', num > 2);
+}
+
+function goBack(toStep) {
+  switchSection(toStep);
+}
+
+// 啟動
+init();
+</script>
+
+</body>
+</html>
