@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜聚人聚財聚商道</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8001D;
+  --bg: #0d0d14;
+  --surface: #16161f;
+  --border: rgba(255,255,255,0.08);
+  --muted: #7a7a99;
+  --green: #00d97e;
+  --yellow: #ffd94a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; min-height:100vh; }
+
+/* Header */
+.header { background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%); padding:40px 24px 36px; border-bottom:2px solid var(--red); position:relative; overflow:hidden; text-align:center; }
+.header::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:radial-gradient(ellipse at 50% 0%, rgba(232,0,29,0.08) 0%, transparent 70%); }
+.header::after { content:'BNI'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:'Oswald',sans-serif; font-size:200px; font-weight:900; color:rgba(232,0,29,0.04); letter-spacing:-4px; white-space:nowrap; pointer-events:none; }
+.header-eyebrow { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:6px; color:var(--red); margin-bottom:12px; position:relative; }
+.header-title { font-family:'Oswald',sans-serif; font-size:42px; font-weight:700; color:#fff; line-height:1.1; margin-bottom:8px; position:relative; }
+.header-title em { color:var(--red); font-style:normal; }
+.header-sub { font-size:13px; color:var(--muted); position:relative; letter-spacing:2px; }
+
+/* Main content */
+.main { padding:24px 16px 40px; max-width:600px; margin:0 auto; }
+
+/* Section label */
+.section-label { font-size:11px; color:var(--muted); letter-spacing:3px; margin:24px 0 12px; }
+
+/* Menu cards */
+.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:8px; }
+.menu-card { background:var(--surface); border-radius:14px; padding:20px 16px; text-decoration:none; color:#fff; display:flex; flex-direction:column; gap:10px; border:1px solid var(--border); transition:all 0.2s; position:relative; overflow:hidden; }
+.menu-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent,var(--border)); transition:opacity 0.2s; }
+.menu-card:hover { border-color:var(--accent,var(--red)); transform:translateY(-2px); }
+.menu-icon { font-size:28px; }
+.menu-name { font-size:15px; font-weight:700; color:#fff; }
+.menu-desc { font-size:11px; color:var(--muted); line-height:1.6; }
+
+/* Card accent colors */
+.card-weekly { --accent: #00d97e; }
+.card-training { --accent: #ffd94a; }
+.card-calendar { --accent: #7c7cff; }
+.card-members { --accent: #ff9f40; }
+
+/* Full width card */
+.menu-card-full { grid-column: 1 / -1; flex-direction:row; align-items:center; gap:16px; }
+.menu-card-full .menu-icon { font-size:32px; flex-shrink:0; }
+.menu-card-full .menu-info { flex:1; }
+.menu-card-full .menu-arrow { color:var(--muted); font-size:20px; flex-shrink:0; }
+
+/* DNA section */
+.dna-card { background:#13131a; border:1px solid rgba(232,0,29,0.3); border-radius:14px; padding:20px 16px; text-decoration:none; color:#fff; display:flex; align-items:center; gap:16px; transition:all 0.2s; margin-top:8px; }
+.dna-card:hover { border-color:var(--red); background:#1a0a0f; }
+.dna-icon { font-size:28px; flex-shrink:0; }
+.dna-info { flex:1; }
+.dna-name { font-size:15px; font-weight:700; color:var(--red); margin-bottom:4px; }
+.dna-desc { font-size:11px; color:var(--muted); line-height:1.6; }
+.dna-arrow { color:var(--red); font-size:20px; flex-shrink:0; }
+
+/* Footer */
+.footer { text-align:center; padding:24px 16px; color:var(--muted); font-size:11px; letter-spacing:2px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">新北市西A區</div>
+  <div class="header-title">BNI <em>聚團隊</em></div>
+  <div class="header-sub">當責 · 連結 · 成效</div>
+</div>
+
+<div class="main">
+
+  <div class="section-label">功能選單</div>
+
+  <div class="menu-grid">
+    <a href="/bni-jututeam/weekly.html" class="menu-card card-weekly">
+      <div class="menu-icon">📋</div>
+      <div class="menu-name">分會週報</div>
+      <div class="menu-desc">例會出席・來賓<br>一對一・引薦數據</div>
+    </a>
+
+    <a href="/bni-jututeam/training.html" class="menu-card card-training">
+      <div class="menu-icon">🎓</div>
+      <div class="menu-name">培訓公告</div>
+      <div class="menu-desc">近期培訓場次<br>報名進度・嘉賓介紹</div>
+    </a>
+
+    <a href="/bni-jututeam/calendar.html" class="menu-card card-calendar">
+      <div class="menu-icon">📅</div>
+      <div class="menu-name">區域行事曆</div>
+      <div class="menu-desc">區域培訓・總部活動<br>各分會大型活動</div>
+    </a>
+
+    <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="menu-card card-members">
+      <div class="menu-icon">👥</div>
+      <div class="menu-name">成員介紹</div>
+      <div class="menu-desc">聚團隊成員資料<br>專業別・聯絡資訊</div>
+    </a>
+  </div>
+
+  <div class="section-label">DnA 專區</div>
+
+  <a href="/bni-jututeam/dna-home.html" class="dna-card">
+    <div class="dna-icon">🔒</div>
+    <div class="dna-info">
+      <div class="dna-name">DnA 專區</div>
+      <div class="dna-desc">需要密碼才能進入</div>
+    </div>
+    <div class="dna-arrow">›</div>
+  </a>
+
+</div>
+
+<div class="footer">BNI 聚團隊 · 新北市西A區</div>
+
+</body>
+</html>
