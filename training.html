@@ -219,7 +219,7 @@ function renderTraining(rows) {
       var location   = (row[idx('地點')]||'').trim();
       var current    = parseFloat(row[idx('報名人數')]) || 0;
       var target     = parseFloat(row[idx('目標人數')]) || 0;
-      var feeGeneral = parseFloat(row[idx('一般費用')]) || 0;
+      var feeGeneral = parseFloat(row[idx('報名費用')]) || 0;
       var feeMentor  = parseFloat(row[idx('認證導師費用')]) || 0;
       var g1name  = (row[idx('嘉賓1姓名')]||'').trim();
       var g1photo = convertGDriveUrl((row[idx('嘉賓1照片連結')]||'').trim());
