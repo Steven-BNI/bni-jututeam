@@ -581,7 +581,7 @@
       <div class="identity-card" data-identity="general" onclick="selectIdentity(this)">
         <div class="identity-icon">👤</div>
         <div class="identity-info">
-          <div class="identity-label">一般學員</div>
+          <div class="identity-label">個人報名</div>
           <div class="identity-desc">聚團隊夥伴</div>
         </div>
         <div class="identity-price" id="price-general">NT$ —</div>
@@ -792,7 +792,7 @@ function selectIdentity(card) {
 function goToForm() {
   if (!state.identity) return;
 
-  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
+  const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
   const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
 
   document.getElementById('summary-training-name').textContent = state.training.name;
@@ -837,7 +837,7 @@ function goToConfirm() {
   state.formData = { name, chapter, phone, email };
 
   // 填入確認頁
-  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
+  const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
   const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
 
   document.getElementById('confirm-rows').innerHTML = `
