@@ -15,6 +15,7 @@
   --green: #00d97e;
   --yellow: #ffd94a;
   --gray: #444;
+  --gold: #C9A84C;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; min-height:100vh; }
@@ -48,7 +49,6 @@ h1 em { color:var(--red); font-style:normal; }
 .training-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:4px; }
 .training-meta { font-size:14px; color:var(--muted); }
 .training-meta span { margin-right:12px; }
-.training-meta span::before { margin-right:4px; }
 
 /* Progress bar */
 .progress-wrap { margin:14px 0; }
@@ -58,6 +58,17 @@ h1 em { color:var(--red); font-style:normal; }
 .progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg, var(--red), #ff6b6b); transition:width 0.8s ease; }
 .progress-fill.full { background:linear-gradient(90deg, var(--green), #00ff9d); }
 .progress-fill.warn { background:linear-gradient(90deg, var(--yellow), #ffb347); }
+
+/* 報名按鈕區 */
+.register-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); }
+.fee-info { font-size:13px; color:var(--muted); }
+.fee-info strong { color:var(--gold); font-size:16px; }
+.fee-info .fee-free { color:var(--green); font-size:14px; font-weight:700; }
+.btn-register { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, var(--gold), #E8C96A); color:#000; border:none; border-radius:8px; padding:10px 20px; font-size:14px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.btn-register:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(201,168,76,0.35); }
+.btn-register:active { transform:translateY(0); }
+.btn-register.full { background:linear-gradient(135deg,#444,#555); color:#888; cursor:not-allowed; }
+.btn-register.full:hover { transform:none; box-shadow:none; }
 
 /* Guests section */
 .guests-title { font-size:12px; color:var(--yellow); font-weight:700; letter-spacing:2px; margin:16px 0 12px; border-top:1px solid var(--border); padding-top:14px; }
@@ -71,7 +82,7 @@ h1 em { color:var(--red); font-style:normal; }
 .guest-topic { font-size:15px; color:var(--yellow); margin-bottom:4px; }
 .guest-intro { font-size:14px; color:var(--muted); line-height:1.6; }
 
-/* No guests badge */
+/* Badge */
 .badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700; margin-top:8px; }
 .badge-general { background:rgba(122,122,153,0.2); color:var(--muted); border:1px solid var(--border); }
 .badge-featured { background:rgba(255,217,74,0.15); color:var(--yellow); border:1px solid rgba(255,217,74,0.3); }
@@ -83,6 +94,8 @@ h1 em { color:var(--red); font-style:normal; }
 @media (max-width:500px) {
   .guests-grid { grid-template-columns:1fr; }
   .training-header { flex-direction:column; }
+  .register-row { flex-direction:column; align-items:flex-start; }
+  .btn-register { width:100%; justify-content:center; }
 }
 </style>
 </head>
@@ -135,10 +148,8 @@ function parseCSV(text) {
 function convertGDriveUrl(url) {
   if (!url || !url.trim()) return '';
   url = url.trim();
-  // Convert Google Drive share link to direct image URL
   var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (match) return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w200';
-  // Convert open link
   match = url.match(/id=([a-zA-Z0-9_-]+)/);
   if (match) return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w200';
   return url;
@@ -151,11 +162,10 @@ function formatDate(d) {
   return d;
 }
 
-function getMonthLabel(d) {
-  if (!d) return '';
-  var parts = d.split('/');
-  if (parts.length >= 2) return parts[0] + '年' + parts[1] + '月';
-  return d;
+// 判斷是否顯示認證導師費用（MSP相關培訓才有）
+var MSP_KEYWORDS = ['初階MSP', '進階MSP', 'MSP'];
+function isMSP(name) {
+  return MSP_KEYWORDS.some(function(k){ return name.indexOf(k) >= 0; });
 }
 
 async function loadTraining() {
@@ -204,22 +214,25 @@ function renderTraining(rows) {
     html += '<div class="month-title">📅 ' + monthLabel + '</div>';
 
     monthRows.forEach(function(row) {
-      var date = (row[idx('培訓日期')]||'').trim();
-      var name = (row[idx('培訓名稱')]||'').trim();
-      var location = (row[idx('地點')]||'').trim();
-      var current = parseFloat(row[idx('報名人數')]) || 0;
-      var target = parseFloat(row[idx('目標人數')]) || 0;
-      var g1name = (row[idx('嘉賓1姓名')]||'').trim();
+      var date       = (row[idx('培訓日期')]||'').trim();
+      var name       = (row[idx('培訓名稱')]||'').trim();
+      var location   = (row[idx('地點')]||'').trim();
+      var current    = parseFloat(row[idx('報名人數')]) || 0;
+      var target     = parseFloat(row[idx('目標人數')]) || 0;
+      var feeGeneral = parseFloat(row[idx('一般費用')]) || 0;
+      var feeMentor  = parseFloat(row[idx('認證導師費用')]) || 0;
+      var g1name  = (row[idx('嘉賓1姓名')]||'').trim();
       var g1photo = convertGDriveUrl((row[idx('嘉賓1照片連結')]||'').trim());
       var g1topic = (row[idx('嘉賓1主題')]||'').trim();
       var g1intro = (row[idx('嘉賓1介紹')]||'').trim().replace(/\n/g,'<br>');
-      var g2name = (row[idx('嘉賓2姓名')]||'').trim();
+      var g2name  = (row[idx('嘉賓2姓名')]||'').trim();
       var g2photo = convertGDriveUrl((row[idx('嘉賓2照片連結')]||'').trim());
       var g2topic = (row[idx('嘉賓2主題')]||'').trim();
       var g2intro = (row[idx('嘉賓2介紹')]||'').trim().replace(/\n/g,'<br>');
       var hasFeatured = g1name || g2name;
       var pct = target > 0 ? Math.min(100, Math.round(current / target * 100)) : 0;
       var fillClass = pct >= 100 ? 'full' : (pct >= 70 ? 'warn' : '');
+      var isFull = target > 0 && current >= target;
 
       html += '<div class="training-card' + (hasFeatured ? ' featured' : '') + '">';
 
@@ -248,43 +261,65 @@ function renderTraining(rows) {
       if (hasFeatured) {
         html += '<div class="guests-title">🌟 特別嘉賓介紹</div>';
         html += '<div class="guests-grid">';
-
         if (g1name) {
-          html += '<div class="guest-card">';
-          html += '<div class="guest-top">';
+          html += '<div class="guest-card"><div class="guest-top">';
           html += '<div class="guest-photo">';
           if (g1photo) html += '<img src="' + g1photo + '" alt="' + g1name + '" onerror="this.parentNode.innerHTML=\'👤\'">';
           else html += '👤';
-          html += '</div>';
-          html += '<div class="guest-info">';
+          html += '</div><div class="guest-info">';
           html += '<div class="guest-name">' + g1name + '</div>';
           if (g1topic) html += '<div class="guest-topic">「' + g1topic + '」</div>';
-          html += '</div>';
-          html += '</div>';
+          html += '</div></div>';
           if (g1intro) html += '<div class="guest-intro">' + g1intro + '</div>';
           html += '</div>';
         }
-
         if (g2name) {
-          html += '<div class="guest-card">';
-          html += '<div class="guest-top">';
+          html += '<div class="guest-card"><div class="guest-top">';
           html += '<div class="guest-photo">';
           if (g2photo) html += '<img src="' + g2photo + '" alt="' + g2name + '" onerror="this.parentNode.innerHTML=\'👤\'">';
           else html += '👤';
-          html += '</div>';
-          html += '<div class="guest-info">';
+          html += '</div><div class="guest-info">';
           html += '<div class="guest-name">' + g2name + '</div>';
           if (g2topic) html += '<div class="guest-topic">「' + g2topic + '」</div>';
-          html += '</div>';
-          html += '</div>';
+          html += '</div></div>';
           if (g2intro) html += '<div class="guest-intro">' + g2intro + '</div>';
           html += '</div>';
         }
-
         html += '</div>';
       }
 
+      // ── 報名按鈕區 ──
+      var registerUrl = 'register.html'
+        + '?name=' + encodeURIComponent(name)
+        + '&date=' + encodeURIComponent(date)
+        + '&loc='  + encodeURIComponent(location)
+        + '&fee='  + feeGeneral
+        + '&mfee=' + feeMentor
+        + '&type=' + encodeURIComponent(name);
+
+      html += '<div class="register-row">';
+
+      // 費用顯示
+      html += '<div class="fee-info">';
+      if (feeGeneral > 0) {
+        html += '費用：<strong>NT$ ' + feeGeneral.toLocaleString() + '</strong>';
+        if (feeMentor > 0 && isMSP(name)) {
+          html += '&nbsp;&nbsp;導師：<strong>NT$ ' + feeMentor.toLocaleString() + '</strong>';
+        }
+      } else {
+        html += '<span class="fee-free">✅ 免費活動</span>';
+      }
       html += '</div>';
+
+      // 報名按鈕
+      if (isFull) {
+        html += '<a class="btn-register full">⛔ 報名已額滿</a>';
+      } else {
+        html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>';
+      }
+
+      html += '</div>'; // register-row
+      html += '</div>'; // training-card
     });
   });
 
