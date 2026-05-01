@@ -499,7 +499,6 @@
     }
 
     /* 隱藏的統一金流表單 */
-    #ecpay-form { display: none; }
 
     /* Error state */
     .form-input.error { border-color: var(--red); }
@@ -694,10 +693,7 @@
     <button class="btn-primary" style="max-width:260px;margin-top:8px" onclick="location.href='training.html'">返回培訓公告</button>
   </div>
 
-  <!-- 統一金流（ECPay）隱藏表單 -->
-  <form id="ecpay-form" method="POST" action="https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5">
-    <!-- 由 JS 動態注入欄位 -->
-  </form>
+
 
   <div class="page-footer">
     BNI 聚團隊 · 新北市西區 A 區<br>
@@ -716,16 +712,7 @@ const CONFIG = {
   // Google Apps Script Web App URL（部署後貼入）
   GAS_URL: 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec',
 
-  // 統一金流 ECPay 設定
-  ECPAY: {
-    MerchantID: 'YOUR_MERCHANT_ID',   // 商店代號
-    // ⚠️ HashKey 與 HashIV 不可放前端！請透過 GAS 後端產生 CheckMacValue
-    // 前端只負責送出表單，CheckMacValue 由 GAS 計算後回傳
-    PaymentURL: 'https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5',
-    // 測試環境：https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5
-    ReturnURL: 'https://steven-bni.github.io/bni-jututeam/register-return.html',
-    ClientBackURL: 'https://steven-bni.github.io/bni-jututeam/training.html',
-  },
+
 
   // 認證導師身份只在這些培訓類型顯示
   MENTOR_TRAINING_KEYWORDS: ['初階MSP', '進階MSP', 'MSP'],
@@ -899,8 +886,12 @@ async function submitRegistration() {
     if (data.status !== 'ok') throw new Error(data.message || '寫入失敗');
 
     if (state.fee > 0) {
-      // 付費：GAS 回傳 ECPay 所需的 CheckMacValue，前端組表單送出
-      redirectToECPay(data.ecpay);
+      // 付費：跳轉黑貓PAY 付款網址
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('未取得付款網址');
+      }
     } else {
       // 免費：直接顯示成功
       showSuccess();
@@ -914,40 +905,7 @@ async function submitRegistration() {
   }
 }
 
-// ═══════════════════════════════════════
-// 跳轉統一金流（ECPay）
-// ═══════════════════════════════════════
-function redirectToECPay(ecpayData) {
-  // ecpayData 由 GAS 後端回傳，已含 CheckMacValue
-  const form = document.getElementById('ecpay-form');
-  form.action = CONFIG.ECPAY.PaymentURL;
-  form.innerHTML = '';
 
-  const fields = {
-    MerchantID:        ecpayData.MerchantID,
-    MerchantTradeNo:   ecpayData.MerchantTradeNo,
-    MerchantTradeDate: ecpayData.MerchantTradeDate,
-    PaymentType:       'aio',
-    TotalAmount:       ecpayData.TotalAmount,
-    TradeDesc:         ecpayData.TradeDesc,
-    ItemName:          ecpayData.ItemName,
-    ReturnURL:         CONFIG.ECPAY.ReturnURL,
-    ClientBackURL:     CONFIG.ECPAY.ClientBackURL,
-    ChoosePayment:     'ALL',
-    EncryptType:       '1',
-    CheckMacValue:     ecpayData.CheckMacValue,
-  };
-
-  for (const [k, v] of Object.entries(fields)) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = k;
-    input.value = v;
-    form.appendChild(input);
-  }
-
-  form.submit();
-}
 
 function showSuccess() {
   document.getElementById('training-info-card').style.display = 'none';
