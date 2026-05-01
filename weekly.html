@@ -119,6 +119,22 @@ function parseCSV(text){
   return rows.filter(function(r){return r.some(function(c){return c.trim();});});
 }
 
+// 把 "2026/4/24" 或 "2026-04-24" 轉成可比較的數字 20260424
+function dateToNum(str){
+  if(!str) return 0;
+  var p=str.split(/[-\/]/);
+  if(p.length<3) return 0;
+  return parseInt(p[0])*10000 + parseInt(p[1])*100 + parseInt(p[2]);
+}
+
+// 取得月份字串 "202605"
+function dateToMonth(str){
+  if(!str) return '';
+  var p=str.split(/[-\/]/);
+  if(p.length<2) return '';
+  return p[0] + String(parseInt(p[1])).padStart(2,'0');
+}
+
 function dataRow(label,value){return '<div class="data-row"><span class="data-label">'+label+'</span><span class="data-value">'+value+'</span></div>';}
 function dataRowTarget(label,value){return '<div class="data-row"><span class="data-label">'+label+'</span><span class="data-value target">'+value+'</span></div>';}
 
@@ -214,18 +230,33 @@ function render(lightsRows,weeklyRows,thisMonth){
   var wHeaders=weeklyRows[0]||[];
   var data=weeklyRows.slice(1);
   function idx(name){return wHeaders.indexOf(name);}
-  var latest={},monthly={};
+
+  var latest={};      // 各分會日期最新的那筆
+  var latestNum={};   // 各分會最新日期數字（用來比較）
+  var monthly={};
+
   BRANCHES.forEach(function(b){
     latest[b.name]=null;
+    latestNum[b.name]=0;
     monthly[b.name]={guest:0,ref:0,oneone:0,absRates:[]};
   });
+
   data.forEach(function(row){
     var branch=row[idx('分會')];
+    if(!branch||!monthly[branch]) return;
+
     var dateStr=row[idx('例會日期')]||'';
-    var parts=dateStr.split(/[-\/]/);
-    var rowMonth=parts[0]+String(parts[1]).padStart(2,'0');
-    if(branch){latest[branch]=row;}
-    if(rowMonth===thisMonth&&branch&&monthly[branch]){
+    var rowMonth=dateToMonth(dateStr);
+    var rowNum=dateToNum(dateStr);
+
+    // 左邊：抓日期最新的那筆
+    if(rowNum > latestNum[branch]){
+      latestNum[branch]=rowNum;
+      latest[branch]=row;
+    }
+
+    // 右邊：只加總本月
+    if(rowMonth===thisMonth){
       var absent=parseFloat(row[idx('缺席人數')])||0;
       var shouldAttend=parseFloat(row[idx('應到人數')])||0;
       if(shouldAttend>0){monthly[branch].absRates.push(absent/shouldAttend*100);}
