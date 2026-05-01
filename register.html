@@ -950,6 +950,12 @@ function goBack(toStep) {
 // init();  ← 開放時取消註解，並刪除下方 comingSoon()
 
 function comingSoon() {
+  // 測試模式：網址加 ?test=bni2026 可繞過
+  const params = new URLSearchParams(location.search);
+  if (params.get('test') === 'bni2026') {
+    init();
+    return;
+  }
   document.querySelector('.page-wrap').innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:20px;padding:32px 16px;">
       <div style="font-size:52px;">🔧</div>
