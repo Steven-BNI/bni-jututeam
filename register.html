@@ -947,7 +947,19 @@ function goBack(toStep) {
 }
 
 // 啟動
-init();
+// init();  ← 開放時取消註解，並刪除下方 comingSoon()
+
+function comingSoon() {
+  document.querySelector('.page-wrap').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:20px;padding:32px 16px;">
+      <div style="font-size:52px;">🔧</div>
+      <div style="font-size:22px;font-weight:700;color:#fff;">線上報名功能即將開放</div>
+      <div style="font-size:14px;color:#888;line-height:1.9;">目前報名系統正在建置中<br>請直接聯繫您的分會聯絡人完成報名<br>感謝您的耐心等候 🙏</div>
+      <a href="training.html" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#C9A84C,#E8C96A);color:#000;text-decoration:none;padding:13px 28px;border-radius:10px;font-size:15px;font-weight:700;">← 返回培訓公告</a>
+    </div>
+  `;
+}
+comingSoon();
 
 
 </script>
