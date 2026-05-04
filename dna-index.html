@@ -439,9 +439,17 @@ function getF4Val(memberId, actId) {
 // ============================================================
 // CALCULATIONS
 // ============================================================
+function getMemberStartIdx(mid) {
+  const m = MEMBERS.find(x => x.id === mid);
+  if (!m || !m.startMonth) return 0;
+  const idx = MONTHS.indexOf(m.startMonth);
+  return idx >= 0 ? idx : 0;
+}
+
 function calcF1(mid) {
   const idx = MONTHS.indexOf(curMonth);
-  const start = Math.max(0, idx - 5);
+  const startIdx = getMemberStartIdx(mid);
+  const start = Math.max(startIdx, idx - 5);
   const absentLabels = [];
   for (let i = start; i <= idx; i++) {
     const v = getMonthVal(MONTHS[i], mid, '地基1');
@@ -458,7 +466,8 @@ function calcF1(mid) {
 
 function calcF2(mid) {
   const idx = MONTHS.indexOf(curMonth);
-  const start = Math.max(0, idx - 5);
+  const startIdx = getMemberStartIdx(mid);
+  const start = Math.max(startIdx, idx - 5);
   const missingLabels = [];
   for (let i = start; i <= idx; i++) {
     const v = getMonthVal(MONTHS[i], mid, '地基2');
@@ -474,7 +483,8 @@ function calcF2(mid) {
 
 function calcF3(mid) {
   const idx = MONTHS.indexOf(curMonth);
-  const start = Math.max(0, idx - 5);
+  const startIdx = getMemberStartIdx(mid);
+  const start = Math.max(startIdx, idx - 5);
   let streak = 0, maxStreak = 0;
   const nonGreenLabels = [];
   const streakLabels = [];
