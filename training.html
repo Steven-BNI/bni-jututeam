@@ -69,6 +69,8 @@ h1 em { color:var(--red); font-style:normal; }
 .btn-register:active { transform:translateY(0); }
 .btn-register.full { background:linear-gradient(135deg,#444,#555); color:#888; cursor:not-allowed; }
 .btn-register.full:hover { transform:none; box-shadow:none; }
+.btn-album { display:inline-flex; align-items:center; gap:6px; background:rgba(124,124,255,0.15); color:#7c7cff; border:1px solid rgba(124,124,255,0.35); border-radius:8px; padding:9px 18px; font-size:14px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.btn-album:hover { background:rgba(124,124,255,0.25); transform:translateY(-1px); }
 
 /* Guests section */
 .guests-title { font-size:12px; color:var(--yellow); font-weight:700; letter-spacing:2px; margin:16px 0 12px; border-top:1px solid var(--border); padding-top:14px; }
@@ -229,6 +231,7 @@ function renderTraining(rows) {
       var g2photo = convertGDriveUrl((row[idx('嘉賓2照片連結')]||'').trim());
       var g2topic = (row[idx('嘉賓2主題')]||'').trim();
       var g2intro = (row[idx('嘉賓2介紹')]||'').trim().replace(/\n/g,'<br>');
+      var albumUrl = (row[idx('活動相簿連結')]||'').trim();
       var hasFeatured = g1name || g2name;
       var pct = target > 0 ? Math.min(100, Math.round(current / target * 100)) : 0;
       var fillClass = pct >= 100 ? 'full' : (pct >= 70 ? 'warn' : '');
@@ -318,6 +321,12 @@ function renderTraining(rows) {
         html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>';
       }
 
+      // 相簿按鈕
+      if (albumUrl) {
+        html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
+        html += '<a href="' + albumUrl + '" target="_blank" class="btn-album">📷 查看活動照片</a>';
+        html += '</div>';
+      }
       html += '</div>'; // register-row
       html += '</div>'; // training-card
     });
