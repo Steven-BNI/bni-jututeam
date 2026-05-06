@@ -238,7 +238,7 @@ function render(lightsRows,weeklyRows,thisMonth){
   BRANCHES.forEach(function(b){
     latest[b.name]=null;
     latestNum[b.name]=0;
-    monthly[b.name]={guest:0,ref:0,oneone:0,absRates:[]};
+    monthly[b.name]={guest:0,ref:0,oneone:0,fillcard:0,absRates:[]};
   });
 
   data.forEach(function(row){
@@ -261,6 +261,7 @@ function render(lightsRows,weeklyRows,thisMonth){
       var shouldAttend=parseFloat(row[idx('應到人數')])||0;
       if(shouldAttend>0){monthly[branch].absRates.push(absent/shouldAttend*100);}
       monthly[branch].guest+=parseFloat(row[idx('來賓實到(無則填0)')])||0;
+      monthly[branch].fillcard+=parseFloat(row[idx('來賓填單數(無則填0)')])||0;
       monthly[branch].ref+=parseFloat(row[idx('引薦單數(無則填0)')])||0;
       monthly[branch].oneone+=parseFloat(row[idx('一對一次數(無則填0)')])||0;
     }
@@ -286,6 +287,7 @@ function render(lightsRows,weeklyRows,thisMonth){
       latestBlock+=dataRow('續約會員宣誓',l[idx('續約會員宣誓(無則填0)')]||0);
       latestBlock+=dataRow('來賓應到',l[idx('來賓應到(無則填0)')]||0);
       latestBlock+=dataRow('來賓實到',l[idx('來賓實到(無則填0)')]||0);
+      latestBlock+=dataRow('來賓填單數',l[idx('來賓填單數(無則填0)')]||0);
       latestBlock+=dataRow('一對一',l[idx('一對一次數(無則填0)')]||0);
       latestBlock+=dataRow('引薦單',l[idx('引薦單數(無則填0)')]||0);
     }else{
@@ -300,6 +302,7 @@ function render(lightsRows,weeklyRows,thisMonth){
     monthlyBlock+=dataRow('平均缺席率',avgAbsRate);
     monthlyBlock+=dataRowTarget('來賓目標',t.guest);
     monthlyBlock+=dataRow('來賓累積',m.guest);
+    monthlyBlock+=dataRow('填單數累積',m.fillcard);
     monthlyBlock+=dataRow('一對一累積',m.oneone);
     monthlyBlock+=dataRowTarget('引薦單目標',t.ref);
     monthlyBlock+=dataRow('引薦單累積',m.ref);
