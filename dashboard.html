@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6R66G555ZY");
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BNI 聚團隊｜分會數據儀表板</title>
@@ -129,40 +137,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
 </style>
 </head>
 <body>
-<div id="passwordOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:99999;display:flex;align-items:center;justify-content:center;">
-  <div style="background:#13131a;border:1.5px solid #E8001D;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;text-align:center;">
-    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;color:#E8001D;margin-bottom:12px">BNI 聚團隊</div>
-    <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">DnA 專區</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入專區密碼</div>
-    <input id="pwInput" type="password" placeholder="••••••••"
-      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;letter-spacing:4px;margin-bottom:12px;font-family:'Noto Sans TC',sans-serif;"
-      onkeydown="if(event.key==='Enter')checkPw()" />
-    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
-    <button onclick="checkPw()"
-      style="width:100%;padding:12px;border-radius:8px;background:#E8001D;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
-      進入 DnA 專區
-    </button>
-    <div style="margin-top:16px">
-      <a href="/bni-jututeam/calendar.html" style="font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;">← 返回區域行事曆</a>
-    </div>
-  </div>
-</div>
-<script>
-function checkPw() {
-  const pw = document.getElementById('pwInput').value;
-  if (pw === '20333000') {
-    document.getElementById('passwordOverlay').style.display = 'none';
-    sessionStorage.setItem('dna_auth', '1');
-  } else {
-    document.getElementById('pwError').style.display = 'block';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
-  }
-}
-if (sessionStorage.getItem('dna_auth') === '1') {
-  document.getElementById('passwordOverlay').style.display = 'none';
-}
-</script>
+
 <div class="header">
   <div class="header-eyebrow">BNI 聚團隊</div>
   <h1>分會 <em>數據儀表板</em></h1>
@@ -171,12 +146,9 @@ if (sessionStorage.getItem('dna_auth') === '1') {
 
 <div class="nav-bar">
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
-  <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
-  <a href="/bni-jututeam/dashboard.html" class="nav-btn" id="dashboardBtn">📈 分會儀表板</a>
-  <a href="/bni-jututeam/dna-rules.html" class="nav-btn">📜 地基與晉升說明</a>
-  <a href="/bni-jututeam/weekly.html" class="nav-btn" id="weeklyBtn"> 分會週報</a>
-  <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
-  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 區域行事曆</a>
+  <a href="/bni-jututeam/" class="nav-btn">📊 五大地基</a>
+  <a href="/bni-jututeam/dashboard.html" class="nav-btn active">📈 分會儀表板</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
   <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
 </div>
 
@@ -194,7 +166,7 @@ if (sessionStorage.getItem('dna_auth') === '1') {
 
 <script>
 const SHEET_ID = '1gD7k1ZI81gSC5FbkiimFAiHm0AvbBQI0k0jFRfKXJsA';
-const WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
+
 // Branch config
 const BRANCHES = [
   { id: '聚財', name: '聚財', person: 'Steven', sheet: '聚財_數據', start: 58, target: 85, refTarget: 700, guestTarget: 40 },
@@ -312,7 +284,7 @@ function parsePalmsSheet(rows) {
 
 async function loadAll() {
   setSyncStatus('loading','載入資料中...');
-  if (location.hash !== '#weekly') document.getElementById('mainContent').innerHTML = '<div class="loading">載入中...</div>';
+  document.getElementById('mainContent').innerHTML = '<div class="loading">載入中...</div>';
   
   // Load all in parallel with timeout
   const loadBranch = async (b) => {
@@ -335,28 +307,19 @@ async function loadAll() {
       sheetData['cross'] = parseCrossSheet(rows);
     } catch(e) { sheetData['cross'] = { headers:[], data:[] }; }
   };
-const loadWeekly = async () => {
-    try {
-      const url = `https://docs.google.com/spreadsheets/d/${WEEKLY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=表單回覆 1`;
-      const r = await fetch(url);
-      const text = await r.text();
-      const rows = parseCSV(text);
-      sheetData['weekly'] = rows;
-    } catch(e) { sheetData['weekly'] = []; }
-  };
- try {
+
+  try {
     await Promise.all([
       ...BRANCHES.map(b => loadBranch(b)),
       loadPalms(),
-      loadCross(),
-      loadWeekly()
+      loadCross()
     ]);
     setSyncStatus('ok','資料已同步');
   } catch(e) {
     setSyncStatus('error','部分資料載入失敗');
   }
-  if (location.hash !== '#weekly') render();
-} 
+  render();
+}
 
 function setSyncStatus(s, t) {
   document.getElementById('syncDot').className = 'sync-dot ' + s;
@@ -426,53 +389,7 @@ function numClass(n) {
 // ============================================================
 // RENDER
 // ============================================================
-function showWeekly() {
-document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-document.getElementById('weeklyBtn').classList.add('active');
-  const rows = sheetData['weekly'] || [];
-  const headers = rows[0] || [];
-  const data = rows.slice(1);
-  const now = new Date();
-  const thisMonth = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
-  const idx = (name) => headers.indexOf(name);
-  const iCols = ['應到人數','實到人數','缺席人數','來賓應到(無則填0)','來賓實到(無則填0)','一對一次數(無則填0)','引薦單數(無則填0)'];
-  const latest = {};
-  const monthly = {};
-  BRANCHES.forEach(b => { latest[b.name] = null; monthly[b.name] = {}; iCols.forEach(c => monthly[b.name][c] = 0); });
-  data.forEach(row => {
-    const branch = row[idx('分會')];
-    const dateStr = row[idx('例會日期')] || '';
-    const parts = dateStr.split(/[-\/]/);
-    const rowMonth = parts[0] + String(parts[1]).padStart(2,'0');
-    if (branch) latest[branch] = row;
-    if (rowMonth === thisMonth && branch) {
-      iCols.forEach(c => { monthly[branch][c] = (monthly[branch][c]||0) + (parseFloat(row[idx(c)])||0); });
-    }
-  });
-  let html = `<div style="padding:16px"><h2 style="color:var(--red);margin-bottom:16px">📋 分會週報數據</h2>`;
-  BRANCHES.forEach(b => {
-    const l = latest[b.name];
-    const m = monthly[b.name];
-    html += `<div style="background:var(--surface);border-radius:12px;padding:16px;margin-bottom:16px">
-      <h3 style="color:#fff;margin-bottom:12px">${b.name}</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div style="background:#1e1e2e;border-radius:8px;padding:12px">
-          <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">最新一週</div>
-          ${l ? iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${l[idx(c)]||0}</span></div>`).join('') : '<div style="color:#555">尚無資料</div>'}
-        </div>
-        <div style="background:#1e1e2e;border-radius:8px;padding:12px">
-          <div style="color:#7a7a99;font-size:12px;margin-bottom:8px">本月累積</div>
-          ${iCols.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa;font-size:13px">${c}</span><span style="color:#fff;font-size:13px">${m[c]||0}</span></div>`).join('')}
-        </div>
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-  document.getElementById('mainContent').innerHTML = html;
-}
-  function render() {
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('dashboardBtn').classList.add('active');
+function render() {
   renderMonthBar();
   renderMain();
 }
@@ -744,10 +661,7 @@ function setMonth(m) { curMonth = m; renderMain(); }
 
 // Auto refresh every 3 min
 setInterval(loadAll, 180000);
-loadAll().then(() => {
-  if (location.hash === '#weekly') showWeekly();
-  else render();
-});
+loadAll();
 </script>
 </body>
 </html>
