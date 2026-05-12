@@ -16,7 +16,6 @@
 <style>
 :root {
   --gold: #C9A84C;
-  --gold-light: #E8C96A;
   --gold-dim: rgba(201,168,76,0.12);
   --double-gold: #FFD700;
   --red: #E8001D;
@@ -28,12 +27,7 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-serif; min-height:100vh; overflow-x:hidden; }
-body::before {
-  content:''; position:fixed; inset:0;
-  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse 40% 40% at 90% 90%, rgba(232,0,29,0.05) 0%, transparent 60%);
-  pointer-events:none; z-index:0;
-}
+body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%),radial-gradient(ellipse 40% 40% at 90% 90%, rgba(232,0,29,0.05) 0%, transparent 60%); pointer-events:none; z-index:0; }
 .header { position:relative; z-index:1; text-align:center; padding:48px 20px 40px; border-bottom:1px solid var(--border); overflow:hidden; }
 .header::after { content:'GOLD'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:'Oswald',sans-serif; font-size:180px; font-weight:900; color:rgba(201,168,76,0.04); letter-spacing:-4px; white-space:nowrap; pointer-events:none; }
 .header-eyebrow { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:5px; color:var(--gold); margin-bottom:12px; }
@@ -108,13 +102,14 @@ body::before {
     <div class="stat-chip">👥 累計推薦 <span>84+</span> 位</div>
   </div>
 
+  <!-- 雙金質 -->
   <div class="section-header">
     <div class="section-badge double">🏆 雙金質獎章｜12位以上</div>
     <div class="section-line"></div>
   </div>
 
   <div class="double-wrap">
-    <div class="member-card double-card" style="animation-delay:0.05s">
+    <div class="member-card double-card">
       <img class="member-photo" src="https://drive.google.com/thumbnail?id=1NUjPi3LbuajAPpnHJVa0nx0sbRJsjZ_8&sz=w400" alt="林綉蓉" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="photo-placeholder" style="display:none">👤</div>
       <div class="card-info">
@@ -127,6 +122,7 @@ body::before {
     </div>
   </div>
 
+  <!-- 金質：依推薦人數排序 -->
   <div class="section-header">
     <div class="section-badge single">🥇 金質獎章｜6-11位</div>
     <div class="section-line"></div>
@@ -134,18 +130,20 @@ body::before {
 
   <div class="cards-grid">
 
-    <div class="member-card" style="animation-delay:0.1s">
-      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1fD6UmFM8OyeAq2oREDoL-sErRpx8ko0n&sz=w300" alt="林佳靜" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <!-- 10位 -->
+    <div class="member-card" style="animation-delay:0.10s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1JyiQxpT-JhXDL_nC_clsvhh7pymvvy8D&sz=w300" alt="林碧蝦" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="photo-placeholder" style="display:none">👤</div>
       <div class="card-info">
         <div class="medal-badge single">🥇 GOLD</div>
-        <div class="member-name">林佳靜</div>
+        <div class="member-name">林碧蝦</div>
         <div class="member-chapter">聚財分會</div>
-        <div class="member-profession">勞資顧問</div>
-        <div class="member-count"><strong>6</strong> 位推薦</div>
+        <div class="member-profession">日本料理</div>
+        <div class="member-count"><strong>10</strong> 位推薦</div>
       </div>
     </div>
 
+    <!-- 8位 -->
     <div class="member-card" style="animation-delay:0.15s">
       <img class="member-photo" src="https://drive.google.com/thumbnail?id=1S9VXcCDHiyTfsp6PyH2kyPrbPkutY1CE&sz=w300" alt="江柏林" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="photo-placeholder" style="display:none">👤</div>
@@ -158,15 +156,15 @@ body::before {
       </div>
     </div>
 
-    <div class="member-card" style="animation-delay:0.2s">
-      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1BYRx8B-ePcm6mU5RlPXkELbG60KCzs2j&sz=w300" alt="楊韻蓁" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="member-card" style="animation-delay:0.20s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1ECOppbETIwShk9BJsn9xLXdzNJzsoYEz&sz=w300" alt="陳虹君" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="photo-placeholder" style="display:none">👤</div>
       <div class="card-info">
         <div class="medal-badge single">🥇 GOLD</div>
-        <div class="member-name">楊韻蓁</div>
+        <div class="member-name">陳虹君</div>
         <div class="member-chapter">聚財分會</div>
-        <div class="member-profession">人身保險</div>
-        <div class="member-count"><strong>6</strong> 位推薦</div>
+        <div class="member-profession">蒙古火鍋</div>
+        <div class="member-count"><strong>8</strong> 位推薦</div>
       </div>
     </div>
 
@@ -182,55 +180,8 @@ body::before {
       </div>
     </div>
 
-    <div class="member-card" style="animation-delay:0.3s">
-      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1JyiQxpT-JhXDL_nC_clsvhh7pymvvy8D&sz=w300" alt="林碧蝦" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="photo-placeholder" style="display:none">👤</div>
-      <div class="card-info">
-        <div class="medal-badge single">🥇 GOLD</div>
-        <div class="member-name">林碧蝦</div>
-        <div class="member-chapter">聚財分會</div>
-        <div class="member-profession">日本料理</div>
-        <div class="member-count"><strong>10</strong> 位推薦</div>
-      </div>
-    </div>
-
-    <div class="member-card" style="animation-delay:0.35s">
-      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1ECOppbETIwShk9BJsn9xLXdzNJzsoYEz&sz=w300" alt="陳虹君" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="photo-placeholder" style="display:none">👤</div>
-      <div class="card-info">
-        <div class="medal-badge single">🥇 GOLD</div>
-        <div class="member-name">陳虹君</div>
-        <div class="member-chapter">聚財分會</div>
-        <div class="member-profession">蒙古火鍋</div>
-        <div class="member-count"><strong>8</strong> 位推薦</div>
-      </div>
-    </div>
-
-    <div class="member-card" style="animation-delay:0.4s">
-      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1zxiD8SB-IhVbgGu98WECRgmDmXsnHX7s&sz=w300" alt="吳宗憲" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="photo-placeholder" style="display:none">👤</div>
-      <div class="card-info">
-        <div class="medal-badge single">🥇 GOLD</div>
-        <div class="member-name">吳宗憲</div>
-        <div class="member-chapter">聚財分會</div>
-        <div class="member-profession">商空設計</div>
-        <div class="member-count"><strong>7</strong> 位推薦</div>
-      </div>
-    </div>
-
-    <div class="member-card" style="animation-delay:0.45s">
-      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1205fBSi0YR7vWqzlLVPpmk4VjtR5_5eG&sz=w300" alt="羅畯宸" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="photo-placeholder" style="display:none">👤</div>
-      <div class="card-info">
-        <div class="medal-badge single">🥇 GOLD</div>
-        <div class="member-name">羅畯宸</div>
-        <div class="member-chapter">聚富分會</div>
-        <div class="member-profession">企業貸款</div>
-        <div class="member-count"><strong>7</strong> 位推薦</div>
-      </div>
-    </div>
-
-    <div class="member-card" style="animation-delay:0.5s">
+    <!-- 7位 -->
+    <div class="member-card" style="animation-delay:0.30s">
       <img class="member-photo" src="https://drive.google.com/thumbnail?id=161AEhkK5pC1uSG2mE2nYlllNwxIaB4IG&sz=w300" alt="詹蕎瑀" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="photo-placeholder" style="display:none">👤</div>
       <div class="card-info">
@@ -242,6 +193,56 @@ body::before {
       </div>
     </div>
 
+    <div class="member-card" style="animation-delay:0.35s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1zxiD8SB-IhVbgGu98WECRgmDmXsnHX7s&sz=w300" alt="吳宗憲" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">吳宗憲</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">商空設計</div>
+        <div class="member-count"><strong>7</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.40s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1205fBSi0YR7vWqzlLVPpmk4VjtR5_5eG&sz=w300" alt="羅畯宸" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">羅畯宸</div>
+        <div class="member-chapter">聚富分會</div>
+        <div class="member-profession">企業貸款</div>
+        <div class="member-count"><strong>7</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <!-- 6位 -->
+    <div class="member-card" style="animation-delay:0.45s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1fD6UmFM8OyeAq2oREDoL-sErRpx8ko0n&sz=w300" alt="林佳靜" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">林佳靜</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">勞資顧問</div>
+        <div class="member-count"><strong>6</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.50s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1BYRx8B-ePcm6mU5RlPXkELbG60KCzs2j&sz=w300" alt="楊韻蓁" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">楊韻蓁</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">人身保險</div>
+        <div class="member-count"><strong>6</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <!-- 柯建宇 待補照片 -->
     <div class="member-card" style="animation-delay:0.55s">
       <div class="photo-placeholder">👤</div>
       <div class="card-info">
