@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜金質獎章榮耀牆</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6R66G555ZY");
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --gold-dim: rgba(201,168,76,0.12);
+  --double-gold: #FFD700;
+  --double-gold-dim: rgba(255,215,0,0.15);
+  --red: #E8001D;
+  --bg: #0a0a0e;
+  --surface: #13131a;
+  --border: rgba(201,168,76,0.2);
+  --text: #f0f0f5;
+  --muted: #7a7a99;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+/* 背景粒子效果 */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(232,0,29,0.05) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Header */
+.header {
+  position:relative;
+  z-index:1;
+  text-align:center;
+  padding:48px 20px 40px;
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.header::after {
+  content:'GOLD';
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Oswald',sans-serif;
+  font-size:180px;
+  font-weight:900;
+  color:rgba(201,168,76,0.04);
+  letter-spacing:-4px;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.header-eyebrow {
+  font-family:'Oswald',sans-serif;
+  font-size:11px;
+  letter-spacing:5px;
+  color:var(--gold);
+  margin-bottom:12px;
+}
+.header-title {
+  font-family:'Oswald',sans-serif;
+  font-size:36px;
+  font-weight:900;
+  color:#fff;
+  line-height:1.1;
+  margin-bottom:8px;
+}
+.header-title em { color:var(--gold); font-style:normal; }
+.header-sub { font-size:13px; color:var(--muted); letter-spacing:2px; }
+
+/* Nav */
+.nav-bar {
+  position:relative; z-index:1;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;
+  display:flex; gap:8px; align-items:center;
+  overflow-x:auto; scrollbar-width:none;
+}
+.nav-bar::-webkit-scrollbar { display:none; }
+.nav-btn {
+  padding:6px 14px; border-radius:6px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:transparent; color:var(--muted);
+  font-size:12px; font-family:'Noto Sans TC',sans-serif;
+  font-weight:700; cursor:pointer; text-decoration:none;
+  transition:all 0.2s; white-space:nowrap;
+}
+.nav-btn:hover { border-color:var(--gold); color:var(--gold); }
+.nav-btn.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
+
+/* Main content */
+.main { position:relative; z-index:1; padding:32px 16px 60px; max-width:900px; margin:0 auto; }
+
+/* 統計列 */
+.stats-row {
+  display:flex; gap:12px; margin-bottom:40px;
+  justify-content:center; flex-wrap:wrap;
+}
+.stat-chip {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:99px;
+  padding:8px 20px;
+  font-size:13px;
+  display:flex; align-items:center; gap:8px;
+}
+.stat-chip span { color:var(--gold); font-weight:700; font-size:16px; }
+
+/* Section */
+.section-header {
+  display:flex; align-items:center; gap:16px;
+  margin-bottom:24px;
+}
+.section-badge {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 20px;
+  border-radius:99px;
+  font-family:'Oswald',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+  white-space:nowrap;
+}
+.section-badge.double {
+  background:rgba(255,215,0,0.12);
+  border:1px solid rgba(255,215,0,0.4);
+  color:var(--double-gold);
+}
+.section-badge.single {
+  background:var(--gold-dim);
+  border:1px solid rgba(201,168,76,0.4);
+  color:var(--gold);
+}
+.section-line { flex:1; height:1px; background:var(--border); }
+
+/* Cards grid */
+.cards-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+  gap:16px;
+  margin-bottom:48px;
+}
+
+/* Double gold - featured */
+.cards-grid.double-grid {
+  grid-template-columns:1fr;
+  max-width:360px;
+  margin:0 auto 48px;
+}
+
+.member-card {
+  background:var(--surface);
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  transition:all 0.3s;
+  position:relative;
+  animation:fadeUp 0.5s ease both;
+}
+.member-card:hover {
+  transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(201,168,76,0.15);
+  border-color:var(--gold);
+}
+.member-card.double-card {
+  border-color:rgba(255,215,0,0.3);
+  flex-direction:row;
+  display:flex;
+}
+.member-card.double-card:hover {
+  border-color:var(--double-gold);
+  box-shadow:0 12px 40px rgba(255,215,0,0.2);
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* Photo */
+.member-photo {
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  object-position:top center;
+  background:#1e1e2e;
+  display:block;
+}
+.double-card .member-photo {
+  width:140px;
+  height:140px;
+  aspect-ratio:auto;
+  flex-shrink:0;
+}
+.photo-placeholder {
+  width:100%;
+  aspect-ratio:1;
+  background:linear-gradient(135deg, #1e1e2e, #2a2a3e);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px;
+  color:var(--muted);
+}
+.double-card .photo-placeholder {
+  width:140px;
+  height:140px;
+  aspect-ratio:auto;
+  flex-shrink:0;
+}
+
+/* Card info */
+.card-info {
+  padding:14px 12px;
+}
+.double-card .card-info {
+  padding:20px 20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  flex:1;
+}
+.medal-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:10px; font-weight:700;
+  letter-spacing:1px;
+  padding:3px 8px;
+  border-radius:99px;
+  margin-bottom:8px;
+}
+.medal-badge.double {
+  background:rgba(255,215,0,0.15);
+  color:var(--double-gold);
+  border:1px solid rgba(255,215,0,0.3);
+}
+.medal-badge.single {
+  background:var(--gold-dim);
+  color:var(--gold);
+  border:1px solid rgba(201,168,76,0.3);
+}
+.member-name {
+  font-size:16px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:3px;
+}
+.double-card .member-name { font-size:20px; margin-bottom:6px; }
+.member-chapter {
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:3px;
+}
+.member-profession {
+  font-size:12px;
+  color:var(--gold);
+  margin-bottom:8px;
+}
+.double-card .member-profession { font-size:13px; margin-bottom:10px; }
+.member-count {
+  font-family:'Oswald',sans-serif;
+  font-size:13px;
+  color:var(--muted);
+}
+.member-count strong {
+  font-size:18px;
+  color:var(--gold);
+}
+.double-card .member-count strong { font-size:24px; color:var(--double-gold); }
+
+/* 裝飾角標 */
+.member-card::before {
+  content:'';
+  position:absolute;
+  top:0; right:0;
+  width:40px; height:40px;
+  background:linear-gradient(225deg, rgba(201,168,76,0.15) 0%, transparent 60%);
+  pointer-events:none;
+}
+.double-card::before {
+  background:linear-gradient(225deg, rgba(255,215,0,0.2) 0%, transparent 60%);
+}
+
+@media (max-width:500px) {
+  .cards-grid { grid-template-columns:repeat(2, 1fr); }
+  .double-card { flex-direction:column; }
+  .double-card .member-photo,
+  .double-card .photo-placeholder { width:100%; height:auto; aspect-ratio:1; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <div class="header-title">金質獎章 <em>榮耀牆</em></div>
+  <div class="header-sub">表彰卓越貢獻的聚團隊夥伴</div>
+</div>
+
+<div class="nav-bar">
+  <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
+  <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="/bni-jututeam/gold.html" class="nav-btn active">🥇 金質獎章</a>
+</div>
+
+<div class="main">
+
+  <!-- 統計 -->
+  <div class="stats-row">
+    <div class="stat-chip">🏆 雙金質獎章 <span>1</span> 位</div>
+    <div class="stat-chip">🥇 金質獎章 <span>9</span> 位（待補1）</div>
+    <div class="stat-chip">👥 累計推薦 <span>84+</span> 位</div>
+  </div>
+
+  <!-- 雙金質 -->
+  <div class="section-header">
+    <div class="section-badge double">🏆 雙金質獎章｜12位以上</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards-grid double-grid">
+    <div class="member-card double-card" style="animation-delay:0.05s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1NUjPi3LbuajAPpnHJVa0nx0sbRJsjZ_8&sz=w400" alt="林綉蓉" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge double">🏆 DOUBLE GOLD</div>
+        <div class="member-name">林綉蓉</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">中日貿易</div>
+        <div class="member-count"><strong>13</strong> 位推薦</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 金質 -->
+  <div class="section-header">
+    <div class="section-badge single">🥇 金質獎章｜6-11位</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards-grid">
+
+    <div class="member-card" style="animation-delay:0.1s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1JyiQxpT-JhXDL_nC_clsvhh7pymvvy8D&sz=w300" alt="林碧蝦" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">林碧蝦</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">日本料理</div>
+        <div class="member-count"><strong>10</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.15s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1S9VXcCDHiyTfsp6PyH2kyPrbPkutY1CE&sz=w300" alt="江柏林" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">江柏林</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">國內房仲</div>
+        <div class="member-count"><strong>8</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.2s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1ECOppbETIwShk9BJsn9xLXdzNJzsoYEz&sz=w300" alt="陳虹君" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">陳虹君</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">蒙古火鍋</div>
+        <div class="member-count"><strong>8</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.25s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1pm0mZkO5PXii0hx7JARYU0kocIo7O5aN&sz=w300" alt="吳舜豪" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">吳舜豪</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">產險顧問</div>
+        <div class="member-count"><strong>8</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.3s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1205fBSi0YR7vWqzlLVPpmk4VjtR5_5eG&sz=w300" alt="羅畯宸" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">羅畯宸</div>
+        <div class="member-chapter">聚富分會</div>
+        <div class="member-profession">企業貸款</div>
+        <div class="member-count"><strong>7</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.35s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1zxiD8SB-IhVbgGu98WECRgmDmXsnHX7s&sz=w300" alt="吳宗憲" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">吳宗憲</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">商空設計</div>
+        <div class="member-count"><strong>7</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.4s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=161AEhkK5pC1uSG2mE2nYlllNwxIaB4IG&sz=w300" alt="詹蕎瑀" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">詹蕎瑀</div>
+        <div class="member-chapter">聚道分會</div>
+        <div class="member-profession">商空設計</div>
+        <div class="member-count"><strong>7</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.45s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1BYRx8B-ePcm6mU5RlPXkELbG60KCzs2j&sz=w300" alt="楊韻蓁" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">楊韻蓁</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">人身保險</div>
+        <div class="member-count"><strong>6</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <div class="member-card" style="animation-delay:0.5s">
+      <img class="member-photo" src="https://drive.google.com/thumbnail?id=1fD6UmFM8OyeAq2oREDoL-sErRpx8ko0n&sz=w300" alt="林佳靜" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="photo-placeholder" style="display:none">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">林佳靜</div>
+        <div class="member-chapter">聚財分會</div>
+        <div class="member-profession">勞資顧問</div>
+        <div class="member-count"><strong>6</strong> 位推薦</div>
+      </div>
+    </div>
+
+    <!-- 柯建宇 待補照片 -->
+    <div class="member-card" style="animation-delay:0.55s">
+      <div class="photo-placeholder">👤</div>
+      <div class="card-info">
+        <div class="medal-badge single">🥇 GOLD</div>
+        <div class="member-name">柯建宇</div>
+        <div class="member-chapter">聚大分會</div>
+        <div class="member-profession">壽險業</div>
+        <div class="member-count"><strong>6</strong> 位推薦</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
