@@ -24,13 +24,13 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%); pointer-events:none; z-index:0; }
 .header { position:relative; z-index:1; text-align:center; padding:48px 20px 40px; border-bottom:1px solid var(--border); overflow:hidden; }
 .header::after { content:'GOLD'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:'Oswald',sans-serif; font-size:180px; font-weight:900; color:rgba(201,168,76,0.04); letter-spacing:-4px; white-space:nowrap; pointer-events:none; }
-.header-eyebrow { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:5px; color:var(--gold); margin-bottom:12px; }
+.header-eyebrow { font-family:'Oswald',sans-serif; font-size: 17px; letter-spacing:5px; color:var(--gold); margin-bottom:12px; }
 .header-title { font-family:'Oswald',sans-serif; font-size:36px; font-weight:900; color:#fff; line-height:1.1; margin-bottom:8px; }
 .header-title em { color:var(--gold); font-style:normal; }
-.header-sub { font-size:13px; color:var(--muted); letter-spacing:2px; }
-.nav-bar { position:relative; z-index:1; background:var(--surface); border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
+.header-sub { font-size: 17px; color:var(--muted); letter-spacing:2px; }
+.nav-bar { position:relative; z-index:1; background:var(--surface); border-bottom:1px solid rgba(255,255,255,0.08); padding:12px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
 .nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:6px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:var(--muted); font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.nav-btn { padding:8px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:var(--muted); font-size: 16px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .nav-btn:hover { border-color:var(--red); color:var(--red); }
 .nav-btn.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
 .main { position:relative; z-index:1; padding:32px 16px 60px; max-width:900px; margin:0 auto; }
@@ -38,7 +38,7 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
 
 .stat-chip span { color:var(--gold); font-weight:700; font-size:16px; }
 .section-header { display:flex; align-items:center; gap:16px; margin-bottom:24px; }
-.section-badge { display:flex; align-items:center; gap:8px; padding:8px 20px; border-radius:99px; font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; white-space:nowrap; }
+.section-badge { display:flex; align-items:center; gap:8px; padding:8px 20px; border-radius:99px; font-family:'Oswald',sans-serif; font-size: 16px; font-weight:700; letter-spacing:1px; white-space:nowrap; }
 .section-badge.double { background:rgba(255,215,0,0.12); border:1px solid rgba(255,215,0,0.4); color:var(--double-gold); }
 .section-badge.single { background:var(--gold-dim); border:1px solid rgba(201,168,76,0.4); color:var(--gold); }
 .section-line { flex:1; height:1px; background:rgba(255,255,255,0.08); }
@@ -60,10 +60,10 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
 .medal-badge.single { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(201,168,76,0.3); }
 .member-name { font-size:16px; font-weight:700; color:#fff; margin-bottom:3px; }
 .double-card .member-name { font-size:22px; margin-bottom:6px; }
-.member-chapter { font-size:11px; color:var(--muted); margin-bottom:3px; }
-.member-profession { font-size:12px; color:var(--gold); margin-bottom:8px; }
-.double-card .member-profession { font-size:13px; margin-bottom:10px; }
-.member-count { font-family:'Oswald',sans-serif; font-size:13px; color:var(--muted); }
+.member-chapter { font-size: 17px; color:var(--muted); margin-bottom:3px; }
+.member-profession { font-size: 16px; color:var(--gold); margin-bottom:8px; }
+.double-card .member-profession { font-size: 17px; margin-bottom:10px; }
+.member-count { font-family:'Oswald',sans-serif; font-size: 17px; color:var(--muted); }
 .member-count strong { font-size:18px; color:var(--gold); }
 .double-card .member-count strong { font-size:26px; color:var(--double-gold); }
 .member-card::before { content:''; position:absolute; top:0; right:0; width:40px; height:40px; background:linear-gradient(225deg,rgba(201,168,76,0.15) 0%,transparent 60%); pointer-events:none; }
@@ -83,9 +83,10 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
-  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 區域行事曆</a>
-  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 聚團隊成員介紹</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn active">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn">🧮 計算器</a>
 </div>
 
 <div class="main">
@@ -251,5 +252,19 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
   </div>
 </div>
 
+
+<script>
+// 導覽列 active 按鈕自動置中
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    var navW = nav.offsetWidth;
+    var btnL = active.offsetLeft;
+    var btnW = active.offsetWidth;
+    nav.scrollLeft = btnL - (navW / 2) + (btnW / 2);
+  }
+});
+</script>
 </body>
 </html>

@@ -32,21 +32,21 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 .header-eyebrow { font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:4px; color:var(--red); margin-bottom:6px; }
 h1 { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.1; }
 h1 em { color:var(--red); font-style:normal; }
-.header-sub { font-size:11px; color:var(--muted); margin-top:4px; }
-.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
+.header-sub { font-size: 17px; color:var(--muted); margin-top:4px; }
+.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
 .nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.nav-btn { padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size: 16px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .nav-btn:hover { border-color:var(--red); color:var(--red); }
 .nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
-.sync-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 16px; display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.sync-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 16px; display:flex; align-items:center; gap:8px; font-size: 17px; color:var(--muted); }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:var(--gray); flex-shrink:0; }
 .sync-dot.ok { background:var(--green); }
 .sync-dot.loading { background:var(--yellow); animation:pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-.refresh-btn { margin-left:auto; padding:4px 10px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; font-family:'Noto Sans TC',sans-serif; cursor:pointer; }
+.refresh-btn { margin-left:auto; padding:4px 10px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size: 17px; font-family:'Noto Sans TC',sans-serif; cursor:pointer; }
 .refresh-btn:hover { border-color:var(--red); color:var(--red); }
 #mainContent { padding:16px; max-width:900px; margin:0 auto; }
-.loading { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
+.loading { text-align:center; padding:40px; color:var(--muted); font-size: 17px; }
 
 /* Training card */
 .training-card { background:var(--surface); border-radius:12px; padding:20px; margin-bottom:20px; border-left:3px solid var(--border); transition:border-color 0.2s; }
@@ -55,12 +55,12 @@ h1 em { color:var(--red); font-style:normal; }
 
 .training-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
 .training-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:4px; }
-.training-meta { font-size:14px; color:var(--muted); }
+.training-meta { font-size: 16px; color:var(--muted); }
 .training-meta span { margin-right:12px; }
 
 /* Progress bar */
 .progress-wrap { margin:14px 0; }
-.progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+.progress-label { display:flex; justify-content:space-between; font-size: 16px; color:var(--muted); margin-bottom:6px; }
 .progress-label strong { color:#fff; }
 .progress-bar { background:rgba(255,255,255,0.08); border-radius:99px; height:10px; overflow:hidden; }
 .progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg, var(--red), #ff6b6b); transition:width 0.8s ease; }
@@ -69,31 +69,31 @@ h1 em { color:var(--red); font-style:normal; }
 
 /* 報名按鈕區 */
 .register-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); }
-.fee-info { font-size:13px; color:var(--muted); }
+.fee-info { font-size: 17px; color:var(--muted); }
 .fee-info strong { color:var(--gold); font-size:16px; }
-.fee-info .fee-free { color:var(--green); font-size:14px; font-weight:700; }
-.btn-register { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, var(--gold), #E8C96A); color:#000; border:none; border-radius:8px; padding:10px 20px; font-size:14px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.fee-info .fee-free { color:var(--green); font-size: 16px; font-weight:700; }
+.btn-register { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, var(--gold), #E8C96A); color:#000; border:none; border-radius:8px; padding:10px 20px; font-size: 16px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .btn-register:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(201,168,76,0.35); }
 .btn-register:active { transform:translateY(0); }
 .btn-register.full { background:linear-gradient(135deg,#444,#555); color:#888; cursor:not-allowed; }
 .btn-register.full:hover { transform:none; box-shadow:none; }
-.btn-album { display:inline-flex; align-items:center; gap:6px; background:rgba(124,124,255,0.15); color:#7c7cff; border:1px solid rgba(124,124,255,0.35); border-radius:8px; padding:9px 18px; font-size:14px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.btn-album { display:inline-flex; align-items:center; gap:6px; background:rgba(124,124,255,0.15); color:#7c7cff; border:1px solid rgba(124,124,255,0.35); border-radius:8px; padding:9px 18px; font-size: 16px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .btn-album:hover { background:rgba(124,124,255,0.25); transform:translateY(-1px); }
 
 /* Guests section */
-.guests-title { font-size:12px; color:var(--yellow); font-weight:700; letter-spacing:2px; margin:16px 0 12px; border-top:1px solid var(--border); padding-top:14px; }
+.guests-title { font-size: 16px; color:var(--yellow); font-weight:700; letter-spacing:2px; margin:16px 0 12px; border-top:1px solid var(--border); padding-top:14px; }
 .guests-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .guest-card { background:#1e1e2e; border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:8px; }
 .guest-top { display:flex; gap:12px; align-items:flex-start; }
 .guest-photo { width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--yellow); flex-shrink:0; background:#2a2a3e; display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--muted); overflow:hidden; }
 .guest-photo img { width:100%; height:100%; object-fit:cover; }
 .guest-info { flex:1; }
-.guest-name { font-size:15px; font-weight:700; color:#fff; margin-bottom:2px; }
-.guest-topic { font-size:15px; color:var(--yellow); margin-bottom:4px; }
-.guest-intro { font-size:14px; color:var(--muted); line-height:1.6; }
+.guest-name { font-size: 17px; font-weight:700; color:#fff; margin-bottom:2px; }
+.guest-topic { font-size: 17px; color:var(--yellow); margin-bottom:4px; }
+.guest-intro { font-size: 16px; color:var(--muted); line-height:1.6; }
 
 /* Badge */
-.badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700; margin-top:8px; }
+.badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size: 17px; font-weight:700; margin-top:8px; }
 .badge-general { background:rgba(122,122,153,0.2); color:var(--muted); border:1px solid var(--border); }
 .badge-featured { background:rgba(255,217,74,0.15); color:var(--yellow); border:1px solid rgba(255,217,74,0.3); }
 
@@ -120,9 +120,10 @@ h1 em { color:var(--red); font-style:normal; }
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn active">🎓 培訓公告</a>
-  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 區域行事曆</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
   <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn">🧮 計算器</a>
 </div>
 
 <div class="sync-bar">
@@ -345,6 +346,20 @@ function renderTraining(rows) {
 }
 
 loadTraining();
+</script>
+
+<script>
+// 導覽列 active 按鈕自動置中
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    var navW = nav.offsetWidth;
+    var btnL = active.offsetLeft;
+    var btnW = active.offsetWidth;
+    nav.scrollLeft = btnL - (navW / 2) + (btnW / 2);
+  }
+});
 </script>
 </body>
 </html>

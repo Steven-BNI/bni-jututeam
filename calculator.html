@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6R66G555ZY");
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜時間投資計算器</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0d0d;
+    color: #fff;
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    padding: 28px 16px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a1200, #2c1e00);
+    border-radius: 18px 18px 0 0;
+    padding: 32px 32px 24px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #2a2000;
+    border-bottom: none;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,163,65,0.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .header-tag {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #c9a341;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 7vw, 46px);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: #fff;
+  }
+  .header h1 span { color: #c9a341; }
+  .header-desc {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #777;
+    line-height: 1.6;
+  }
+  .header-fixed {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201,163,65,0.1);
+    border: 1px solid rgba(201,163,65,0.25);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    color: #c9a341;
+    font-weight: 700;
+  }
+  .header-fixed .bullet {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #c9a341;
+    flex-shrink: 0;
+  }
+
+  /* ── Form Card ── */
+  .form-card {
+    background: #141414;
+    border: 1px solid #222;
+    border-top: none;
+    padding: 28px 32px 32px;
+  }
+
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #555;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    background: #1a1a1a;
+    border: 1px solid #242424;
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color .2s;
+  }
+  .item:focus-within {
+    border-color: #3a2e00;
+  }
+  .item-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: #1e1800;
+    border: 1px solid #2e2200;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .item-info { flex: 1; min-width: 0; }
+  .item-label {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-note {
+    font-size: 11px;
+    color: #555;
+    margin-top: 2px;
+  }
+  .item-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .item-input {
+    width: 64px;
+    background: #0d0d0d;
+    border: 1.5px solid #2a2a2a;
+    border-radius: 8px;
+    color: #c9a341;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    text-align: center;
+    padding: 6px 4px;
+    outline: none;
+    transition: border-color .2s;
+    -moz-appearance: textfield;
+  }
+  .item-input::-webkit-outer-spin-button,
+  .item-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .item-input:focus { border-color: #c9a341; }
+  .item-unit {
+    font-size: 11px;
+    color: #555;
+    white-space: nowrap;
+  }
+
+  /* custom free item */
+  .item-custom-label {
+    background: #0d0d0d;
+    border: 1.5px solid #2a2a2a;
+    border-radius: 8px;
+    color: #aaa;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    padding: 7px 10px;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+    transition: border-color .2s;
+  }
+  .item-custom-label:focus { border-color: #c9a341; color: #fff; }
+  .item-custom-label::placeholder { color: #444; }
+
+  /* divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #222, transparent);
+    margin: 24px 0;
+  }
+
+  /* ── Result ── */
+  .result-card {
+    background: #141414;
+    border: 1px solid #222;
+    border-top: none;
+    padding: 0 32px 32px;
+  }
+
+  .result-bar-section {
+    background: #1a1a1a;
+    border: 1px solid #242424;
+    border-radius: 14px;
+    padding: 22px 20px;
+    margin-bottom: 20px;
+  }
+  .result-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .result-bar-title { font-size: 12px; color: #666; }
+  .result-bar-pct {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: #c9a341;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .result-bar-pct span { font-size: 20px; color: #666; }
+  .big-bar-bg {
+    height: 14px;
+    background: #111;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .big-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c9a341, #f0d070);
+    border-radius: 99px;
+    width: 0%;
+    transition: width .8s cubic-bezier(.4,0,.2,1);
+  }
+  .result-bar-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #444;
+  }
+
+  .result-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .summary-box {
+    background: #1a1a1a;
+    border: 1px solid #242424;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .summary-box-label { font-size: 10px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .summary-box-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    color: #fff;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .summary-box-val.gold { color: #c9a341; }
+  .summary-box-sub { font-size: 11px; color: #444; margin-top: 3px; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: linear-gradient(135deg, #1e1600, #2c2000);
+    border: 1px solid #3a2e00;
+    border-radius: 14px;
+    padding: 22px 22px;
+    margin-bottom: 0;
+  }
+  .cta-q-text {
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .cta-q-text em { font-style: normal; color: #c9a341; }
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .pct-btn {
+    background: #1e1800;
+    border: 1.5px solid #3a2e00;
+    color: #c9a341;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    padding: 9px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .pct-btn:hover { background: #2c2200; border-color: #c9a341; }
+  .pct-btn.active { background: #c9a341; color: #0d0d0d; border-color: #c9a341; }
+
+  .roi-result {
+    display: none;
+    background: #0d0d0d;
+    border-radius: 12px;
+    padding: 16px 18px;
+    border: 1px solid #2a2200;
+  }
+  .roi-result-label { font-size: 10px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .roi-result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: #c9a341;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .roi-result-body { font-size: 13px; color: #999; line-height: 1.7; }
+
+  /* ── Footer ── */
+  .footer-card {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-top: none;
+    border-radius: 0 0 18px 18px;
+    padding: 14px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .footer-brand { font-size: 10px; color: #333; letter-spacing: 2px; text-transform: uppercase; }
+  .footer-brand span { color: #c9a341; }
+  .footer-note { font-size: 10px; color: #2a2a2a; }
+
+  /* reset btn */
+  .reset-btn {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #444;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: 1px;
+  }
+  .reset-btn:hover { border-color: #555; color: #888; }
+
+  /* ── Nav Bar ── */
+  .nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; width:100%; position:fixed; top:0; left:0; z-index:100; }
+  .nav-bar::-webkit-scrollbar { display:none; }
+  .nav-btn { padding:6px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#7a7a99; font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+  .nav-btn:hover { border-color:#E8001D; color:#E8001D; }
+  .nav-btn.active { background:rgba(201,168,76,0.12); border-color:#C9A84C; color:#C9A84C; }
+  body { padding-top: 52px; }
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+  <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
+  <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
+  <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn active">🧮 計算器</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-tag">BNI 時間投資計算器</div>
+    <h1>你真正投入了<br><span>多少時間？</span></h1>
+    <div class="header-desc">填入你每週在 BNI 各項活動的實際時間，<br>立刻看見你的投資佔比與業績 ROI。</div>
+    <div class="header-fixed">
+      <div class="bullet"></div>
+      基準：每天 12 小時 × 7 天 = 每週 <strong>84 小時</strong>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <div class="section-title">每週投入項目 — 請填入小時數</div>
+
+    <!-- 1 -->
+    <div class="item">
+      <div class="item-icon">🤝</div>
+      <div class="item-info">
+        <div class="item-label">分會例會</div>
+        <div class="item-note">每週一次</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i1" value="3" min="0" max="24" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 週</span>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="item">
+      <div class="item-icon">☕</div>
+      <div class="item-info">
+        <div class="item-label">商務拜訪 1 對 1</div>
+        <div class="item-note">每週幾小時？（含往返）</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i2" value="3" min="0" max="24" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 週</span>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="item">
+      <div class="item-icon">💻</div>
+      <div class="item-info">
+        <div class="item-label">行政小組組聚</div>
+        <div class="item-note">每週一次（線上）</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i3" value="1" min="0" max="24" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 週</span>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="item">
+      <div class="item-icon">🔗</div>
+      <div class="item-info">
+        <div class="item-label">產業服務鏈組聚</div>
+        <div class="item-note">每週一次</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i4" value="1" min="0" max="24" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 週</span>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="item">
+      <div class="item-icon">📚</div>
+      <div class="item-info">
+        <div class="item-label">每月培訓</div>
+        <div class="item-note">填每月總時數，自動除以 4 週</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i5" value="4" min="0" max="48" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 月</span>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="item">
+      <div class="item-icon">🏅</div>
+      <div class="item-info">
+        <div class="item-label">擔任職務會議</div>
+        <div class="item-note">每週</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i6" value="0" min="0" max="24" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 週</span>
+      </div>
+    </div>
+
+    <!-- 7 custom -->
+    <div class="item">
+      <div class="item-icon">✏️</div>
+      <div class="item-info">
+        <input class="item-custom-label" type="text" id="i7label" placeholder="自訂項目名稱（選填）" maxlength="20">
+        <div class="item-note">其他 BNI 相關活動</div>
+      </div>
+      <div class="item-input-wrap">
+        <input class="item-input" type="number" id="i7" value="0" min="0" max="24" step="0.5" oninput="calc()">
+        <span class="item-unit">小時 / 週</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">你的投資結果</div>
+
+    <!-- Big bar -->
+    <div class="result-bar-section">
+      <div class="result-bar-label">
+        <span class="result-bar-title">BNI 佔每週工作時間</span>
+        <span class="result-bar-pct" id="pctDisplay">0<span>%</span></span>
+      </div>
+      <div class="big-bar-bg">
+        <div class="big-bar-fill" id="bigBar"></div>
+      </div>
+      <div class="result-bar-detail">
+        <span id="bniHrsLabel">BNI：0 小時</span>
+        <span>總工作：84 小時 / 週</span>
+      </div>
+    </div>
+
+    <!-- Summary boxes -->
+    <div class="result-summary">
+      <div class="summary-box">
+        <div class="summary-box-label">BNI 每週時數</div>
+        <div class="summary-box-val gold" id="totalHrs">0</div>
+        <div class="summary-box-sub">小時 / 週</div>
+      </div>
+      <div class="summary-box">
+        <div class="summary-box-label">每年投入估算</div>
+        <div class="summary-box-val" id="yearHrs">0</div>
+        <div class="summary-box-sub">小時 / 年（× 48 週）</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-q-text">
+        你投入了 <em id="ctaPct">0%</em> 的工作時間在 BNI<br>
+        你希望 BNI 帶來多少業績佔比？
+      </div>
+      <div class="btn-group">
+        <button class="pct-btn" onclick="selectPct(this,'10')">10%</button>
+        <button class="pct-btn" onclick="selectPct(this,'20')">20%</button>
+        <button class="pct-btn" onclick="selectPct(this,'30')">30%</button>
+        <button class="pct-btn" onclick="selectPct(this,'50')">50%</button>
+      </div>
+      <div class="roi-result" id="roiResult">
+        <div class="roi-result-label">你的 BNI 投資報酬分析</div>
+        <div class="roi-result-title" id="roiTitle"></div>
+        <div class="roi-result-body" id="roiBody"></div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">↺ 重新填寫</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-card">
+    <div class="footer-brand"><span>BNI</span> 時間投資計算器</div>
+    <div class="footer-note">Givers Gain® — 付出才有收穫</div>
+  </div>
+
+</div>
+
+<script>
+  const TOTAL = 84;
+
+  function getVal(id, divide) {
+    const v = parseFloat(document.getElementById(id).value) || 0;
+    return divide ? v / 4 : v;
+  }
+
+  function calc() {
+    const weekly =
+      getVal('i1') +
+      getVal('i2') +
+      getVal('i3') +
+      getVal('i4') +
+      getVal('i5', true) +  // monthly ÷ 4
+      getVal('i6') +
+      getVal('i7');
+
+    const pct = Math.min((weekly / TOTAL) * 100, 100);
+    const pctRound = Math.round(pct * 10) / 10;
+
+    document.getElementById('pctDisplay').innerHTML = pctRound + '<span>%</span>';
+    document.getElementById('bigBar').style.width = pct + '%';
+    document.getElementById('bniHrsLabel').textContent = 'BNI：' + (Math.round(weekly * 10) / 10) + ' 小時';
+    document.getElementById('totalHrs').textContent = Math.round(weekly * 10) / 10;
+    document.getElementById('yearHrs').textContent = Math.round(weekly * 48 * 10) / 10;
+    document.getElementById('ctaPct').textContent = pctRound + '%';
+
+    // reset ROI if recalculated
+    document.querySelectorAll('.pct-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('roiResult').style.display = 'none';
+  }
+
+  function selectPct(btn, target) {
+    document.querySelectorAll('.pct-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const weekly = parseFloat(document.getElementById('totalHrs').textContent) || 0;
+    const pct = Math.round((weekly / TOTAL) * 1000) / 10;
+    const roi = target / pct;
+    const roiRound = Math.round(roi * 10) / 10;
+
+    const msgs = {
+      '10': {
+        t: '期待值比投入還低！',
+        b: '你投入 ' + pct + '% 的時間，卻只期待帶來 10% 業績？\n其實 BNI 能給你的遠不止這樣。\n建議重新設定目標，讓每一分投入都發揮最大價值！'
+      },
+      '20': {
+        t: 'ROI 約 ' + roiRound + ' 倍 ✓',
+        b: '投入 ' + pct + '% 的時間，帶來 20% 的業績，\n這是非常合理且可達成的目標！\n持續出席、用心做 1 對 1，這個數字完全做得到。'
+      },
+      '30': {
+        t: 'ROI 約 ' + roiRound + ' 倍 🔥',
+        b: '投入 ' + pct + '% 的時間，帶來 30% 的業績，\n這是 BNI 高績效夥伴的真實成果！\n關鍵在於主動給予推薦——你給出去的，才會回來。'
+      },
+      '50': {
+        t: 'ROI 約 ' + roiRound + ' 倍 🚀',
+        b: '投入 ' + pct + '% 的時間，帶來 50% 的業績！\n這是頂尖成員的境界，完全有人做到過。\n從今天開始，讓每一次 1 對 1 都成為業績的種子。'
+      }
+    };
+
+    const m = msgs[target];
+    document.getElementById('roiTitle').textContent = m.t;
+    document.getElementById('roiBody').innerHTML = m.b.replace(/\n/g, '<br>');
+
+    const el = document.getElementById('roiResult');
+    el.style.display = 'block';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(8px)';
+    requestAnimationFrame(() => {
+      el.style.transition = 'opacity .35s, transform .35s';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+  }
+
+  function resetAll() {
+    ['i1','i2','i3','i4','i6','i7'].forEach(id => document.getElementById(id).value = 0);
+    document.getElementById('i1').value = 3;
+    document.getElementById('i2').value = 3;
+    document.getElementById('i3').value = 1;
+    document.getElementById('i4').value = 1;
+    document.getElementById('i5').value = 4;
+    document.getElementById('i7label').value = '';
+    document.querySelectorAll('.pct-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('roiResult').style.display = 'none';
+    calc();
+  }
+
+  // init
+  calc();
+</script>
+</body>
+</html>

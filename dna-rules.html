@@ -31,10 +31,10 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 .header-eyebrow { font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:4px; color:var(--red); margin-bottom:6px; }
 h1 { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.1; }
 h1 em { color:var(--red); font-style:normal; }
-.header-sub { font-size:11px; color:var(--muted); margin-top:4px; }
-.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
+.header-sub { font-size: 17px; color:var(--muted); margin-top:4px; }
+.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
 .nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.nav-btn { padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size: 16px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .nav-btn:hover { border-color:var(--red); color:var(--red); }
 .nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
 .content { padding:16px; max-width:800px; margin:0 auto; }
@@ -46,20 +46,20 @@ h1 em { color:var(--red); font-style:normal; }
 .foundation-card { background:var(--surface); border-radius:12px; padding:16px; margin-bottom:12px; border-left:3px solid var(--border); transition: border-color 0.2s; }
 .foundation-card:hover { border-left-color: var(--red); }
 .foundation-num { font-family:'Oswald',sans-serif; font-size:28px; font-weight:900; color:var(--red); opacity:0.3; float:left; margin-right:12px; line-height:1; }
-.foundation-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:4px; }
-.foundation-sub { font-size:11px; color:var(--yellow); margin-bottom:6px; }
-.foundation-rule { font-size:12px; color:#E8001D; line-height:1.6; clear:both; }
-.foundation-desc { font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:4px; }
+.foundation-title { font-size: 17px; font-weight:700; color:#fff; margin-bottom:4px; }
+.foundation-sub { font-size: 17px; color:var(--yellow); margin-bottom:6px; }
+.foundation-rule { font-size: 16px; color:#E8001D; line-height:1.6; clear:both; }
+.foundation-desc { font-size: 16px; color:var(--muted); line-height:1.6; margin-bottom:4px; }
 .clearfix::after { content:''; display:block; clear:both; }
 
 /* Promotion cards */
 .role-card { background:var(--surface); border-radius:12px; padding:16px; margin-bottom:12px; }
 .role-title { font-family:'Oswald',sans-serif; font-size:16px; font-weight:700; color:var(--red); margin-bottom:12px; }
 .role-section { margin-bottom:10px; }
-.role-label { font-size:11px; color:var(--muted); margin-bottom:4px; font-weight:700; letter-spacing:1px; }
-.role-item { font-size:13px; color:#ccc; line-height:1.7; padding-left:12px; position:relative; }
+.role-label { font-size: 17px; color:var(--muted); margin-bottom:4px; font-weight:700; letter-spacing:1px; }
+.role-item { font-size: 17px; color:#ccc; line-height:1.7; padding-left:12px; position:relative; }
 .role-item::before { content:'·'; position:absolute; left:0; color:var(--red); }
-.role-note { font-size:11px; color:var(--red); margin-top:6px; font-style:italic; }
+.role-note { font-size: 17px; color:var(--red); margin-top:6px; font-style:italic; }
 .divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
 </style>
 </head>
@@ -110,7 +110,7 @@ if (sessionStorage.getItem('dna_auth') === '1') {
 <div class="nav-bar">
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/dna-rules.html" class="nav-btn active">📜 規則與晉升</a>
-  <a href="/bni-jututeam/" class="nav-btn">📊 五大地基</a>
+  <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
   <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
 </div>
 
@@ -238,5 +238,19 @@ if (sessionStorage.getItem('dna_auth') === '1') {
   </div>
 
 </div>
+
+<script>
+// 導覽列 active 按鈕自動置中
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    var navW = nav.offsetWidth;
+    var btnL = active.offsetLeft;
+    var btnW = active.offsetWidth;
+    nav.scrollLeft = btnL - (navW / 2) + (btnW / 2);
+  }
+});
+</script>
 </body>
 </html>

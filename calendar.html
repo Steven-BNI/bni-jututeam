@@ -22,10 +22,10 @@ body { background: #f5f4f0; font-family: 'Noto Sans TC', sans-serif; color: #1a1
 .header-eyebrow { font-size: 10px; letter-spacing: 3px; color: #E8001D; font-weight: 700; margin-bottom: 6px; font-family: 'Oswald', sans-serif; }
 .header h1 { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px; line-height: 1.3; }
 .header h1 em { color: #E8001D; font-style: normal; }
-.header-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 1px; }
+.header-sub { font-size: 17px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 1px; }
 
 .nav-bar { background: #fff; border-bottom: 2px solid #e8e6e0; padding: 10px 16px; display: flex; gap: 10px; align-items: center; }
-.nav-btn { padding: 7px 16px; border-radius: 6px; border: 1.5px solid #e8e6e0; background: #fafaf8; color: #1a1a1a; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.nav-btn { padding: 9px 16px; border-radius: 6px; border: 1.5px solid #e8e6e0; background: #fafaf8; color: #1a1a1a; font-size: 16px; font-family: 'Noto Sans TC', sans-serif; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; }
 .nav-btn:hover { border-color: #E8001D; color: #E8001D; }
 .nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
 
@@ -33,14 +33,14 @@ body { background: #f5f4f0; font-family: 'Noto Sans TC', sans-serif; color: #1a1
 
 .info-bar { background: #fff; border-radius: 10px; border: 1.5px solid #e8e6e0; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .info-icon { font-size: 20px; }
-.info-text { flex: 1; font-size: 12px; color: #888; line-height: 1.6; }
+.info-text { flex: 1; font-size: 16px; color: #888; line-height: 1.6; }
 .info-text strong { color: #1a1a1a; font-weight: 700; }
-.info-link { padding: 7px 14px; border-radius: 6px; background: #E8001D; color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; font-family: 'Noto Sans TC', sans-serif; }
+.info-link { padding: 7px 14px; border-radius: 6px; background: #E8001D; color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; white-space: nowrap; font-family: 'Noto Sans TC', sans-serif; }
 
 .calendar-wrap { background: #fff; border-radius: 10px; border: 1.5px solid #e8e6e0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .calendar-wrap iframe { width: 100%; height: calc(100vh - 280px); min-height: 500px; border: none; display: block; }
 
-.footer-note { text-align: center; padding: 16px; font-size: 11px; color: #aaa; }
+.footer-note { text-align: center; padding: 16px; font-size: 17px; color: #aaa; }
 </style>
 </head>
 <body>
@@ -55,9 +55,10 @@ body { background: #f5f4f0; font-family: 'Noto Sans TC', sans-serif; color: #1a1
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
-  <a href="/bni-jututeam/calendar.html" class="nav-btn active">📅 區域行事曆</a>
-  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 聚團隊成員介紹</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn active">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn">🧮 計算器</a>
 </div>
 
 <div class="content">
@@ -106,5 +107,19 @@ body { background: #f5f4f0; font-family: 'Noto Sans TC', sans-serif; color: #1a1
   </div>
 </div>
 
+
+<script>
+// 導覽列 active 按鈕自動置中
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    var navW = nav.offsetWidth;
+    var btnL = active.offsetLeft;
+    var btnW = active.offsetWidth;
+    nav.scrollLeft = btnL - (navW / 2) + (btnW / 2);
+  }
+});
+</script>
 </body>
 </html>
