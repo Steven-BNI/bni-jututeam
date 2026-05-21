@@ -100,6 +100,11 @@ h1 em { color:var(--red); font-style:normal; }
 /* Month section */
 .month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
 .month-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.training-card.expired { opacity: 0.4; filter: grayscale(60%); }
+.training-card.expired .training-name { color: #888; }
+.expired-badge { display:inline-block; background:rgba(255,255,255,0.08); color:#666; font-size:12px; padding:3px 10px; border-radius:20px; margin-left:8px; }
+.month-title.expired-month { color: #555; }
+.month-title.expired-month::after { background: #333; }
 
 @media (max-width:500px) {
   .guests-grid { grid-template-columns:1fr; }
@@ -206,7 +211,20 @@ function renderTraining(rows) {
     return;
   }
 
-  // Group by month
+  // 今天日期
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  // 判斷是否過期
+  function isExpired(dateStr) {
+    if (!dateStr) return false;
+    var p = dateStr.split('/');
+    if (p.length < 3) return false;
+    var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    return d < today;
+  }
+
+  // Group by month，分未來/過去
   var months = {};
   var monthOrder = [];
   data.forEach(function(row) {
@@ -217,13 +235,23 @@ function renderTraining(rows) {
     months[monthKey].push(row);
   });
 
+  // 排序：未來月份在前，過去月份在後
+  monthOrder.sort(function(a, b) {
+    var aExpired = months[a].every(function(r){ return isExpired((r[idx('培訓日期')]||'').trim()); });
+    var bExpired = months[b].every(function(r){ return isExpired((r[idx('培訓日期')]||'').trim()); });
+    if (aExpired && !bExpired) return 1;
+    if (!aExpired && bExpired) return -1;
+    return a > b ? 1 : -1;
+  });
+
   var html = '';
 
   monthOrder.forEach(function(monthKey) {
     var monthRows = months[monthKey];
     var parts = monthKey.split('/');
     var monthLabel = parts.length >= 2 ? parts[0] + ' 年 ' + parts[1] + ' 月' : monthKey;
-    html += '<div class="month-title">📅 ' + monthLabel + '</div>';
+    var monthExpired = monthRows.every(function(r){ return isExpired((r[idx('培訓日期')]||'').trim()); });
+    html += '<div class="month-title' + (monthExpired ? ' expired-month' : '') + '">📅 ' + monthLabel + (monthExpired ? ' <span class="expired-badge">已結束</span>' : '') + '</div>';
 
     monthRows.forEach(function(row) {
       var date       = (row[idx('培訓日期')]||'').trim();
@@ -247,7 +275,8 @@ function renderTraining(rows) {
       var fillClass = pct >= 100 ? 'full' : (pct >= 70 ? 'warn' : '');
       var isFull = target > 0 && current >= target;
 
-      html += '<div class="training-card' + (hasFeatured ? ' featured' : '') + '">';
+      var expired = isExpired(date);
+      html += '<div class="training-card' + (hasFeatured ? ' featured' : '') + (expired ? ' expired' : '') + '">';
 
       // Header
       html += '<div class="training-header">';
@@ -325,7 +354,9 @@ function renderTraining(rows) {
       html += '</div>';
 
       // 報名按鈕
-      if (isFull) {
+      if (expired) {
+        html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
+      } else if (isFull) {
         html += '<a class="btn-register full">⛔ 報名已額滿</a>';
       } else {
         html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>';
