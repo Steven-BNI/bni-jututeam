@@ -100,9 +100,12 @@ h1 em { color:var(--red); font-style:normal; }
 /* Month section */
 .month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
 .month-title::after { content:''; flex:1; height:1px; background:var(--border); }
-.training-card.expired { opacity: 0.4; filter: grayscale(60%); }
-.training-card.expired .album-section { opacity: 1 !important; filter: none !important; }
-.training-card.expired .btn-album { opacity: 1 !important; filter: none !important; background:rgba(124,124,255,0.4) !important; border-color:rgba(124,124,255,0.8) !important; color:#aaaaff !important; font-weight:900 !important; }
+.training-card.expired { position: relative; }
+.training-card.expired::after { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.6); border-radius:inherit; pointer-events:none; z-index:1; }
+.training-card.expired .album-section { position:relative; z-index:2; }
+.training-card.expired .training-name { color: #666; }
+.training-card.expired .training-meta { color: #444; }
+.training-card.expired .btn-album { background:rgba(124,124,255,0.5); border-color:rgba(124,124,255,0.9); color:#bbbbff; }
 .training-card.expired .training-name { color: #888; }
 .expired-badge { display:inline-block; background:rgba(255,255,255,0.08); color:#666; font-size:12px; padding:3px 10px; border-radius:20px; margin-left:8px; }
 .month-title.expired-month { color: #555; }
