@@ -34,27 +34,27 @@ h1 em { color:var(--red); font-style:normal; }
 .header-sub { font-size:11px; color:var(--muted); margin-top:4px; }
 .nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
 .nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.nav-btn { padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .nav-btn:hover { border-color:var(--red); color:var(--red); }
 .nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
-.sync-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 16px; display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.sync-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:var(--gray); flex-shrink:0; }
 .sync-dot.ok { background:var(--green); }
 .sync-dot.loading { background:var(--yellow); animation:pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 .refresh-btn { margin-left:auto; padding:4px 10px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; font-family:'Noto Sans TC',sans-serif; cursor:pointer; }
 .refresh-btn:hover { border-color:var(--red); color:var(--red); }
-#mainContent { padding:16px; }
-.loading { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
-.branch-card { background:var(--surface); border-radius:12px; padding:16px; margin-bottom:16px; }
-.branch-title { color:#fff; font-size:16px; font-weight:700; margin-bottom:4px; }
-.branch-people { color:var(--muted); font-size:11px; margin-bottom:12px; }
+#mainContent { padding:16px; max-width:900px; margin:0 auto; }
+.loading { text-align:center; padding:40px; color:var(--muted); font-size:15px; }
+.branch-card { background:var(--surface); border-radius:12px; padding:18px; margin-bottom:18px; }
+.branch-title { color:#fff; font-size:18px; font-weight:700; margin-bottom:4px; }
+.branch-people { color:var(--muted); font-size:13px; margin-bottom:12px; }
 .two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.inner-card { background:#1e1e2e; border-radius:8px; padding:12px; }
-.inner-title { color:#7a7a99; font-size:14px; margin-bottom:8px; }
+.inner-card { background:#1e1e2e; border-radius:8px; padding:14px; }
+.inner-title { color:#7a7a99; font-size:15px; margin-bottom:8px; }
 .data-row { display:flex; justify-content:space-between; margin-bottom:4px; }
-.data-label { color:#aaa; font-size:15px; }
-.data-value { color:#fff; font-size:15px; }
+.data-label { color:#aaa; font-size:16px; }
+.data-value { color:#fff; font-size:16px; }
 .data-value.target { color:#ffd94a; }
 .no-data { color:#555; font-size:15px; }
 .lights-section { margin-bottom:20px; }
@@ -75,6 +75,7 @@ h1 em { color:var(--red); font-style:normal; }
   <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 區域行事曆</a>
   <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn">🧮 計算器</a>
 </div>
 <div class="sync-bar">
   <div class="sync-dot loading" id="syncDot"></div>

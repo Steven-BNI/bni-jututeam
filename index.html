@@ -33,22 +33,22 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 .header-eyebrow { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:6px; color:var(--red); margin-bottom:12px; position:relative; }
 .header-title { font-family:'Oswald',sans-serif; font-size:42px; font-weight:700; color:#fff; line-height:1.1; margin-bottom:8px; position:relative; }
 .header-title em { color:var(--red); font-style:normal; }
-.header-sub { font-size:13px; color:var(--muted); position:relative; letter-spacing:2px; }
+.header-sub { font-size:15px; color:var(--muted); position:relative; letter-spacing:2px; }
 
 /* Main content */
 .main { padding:24px 16px 40px; max-width:600px; margin:0 auto; }
 
 /* Section label */
-.section-label { font-size:11px; color:var(--muted); letter-spacing:3px; margin:24px 0 12px; }
+.section-label { font-size:13px; color:var(--muted); letter-spacing:3px; margin:24px 0 12px; }
 
 /* Menu cards */
-.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:8px; }
-.menu-card { background:var(--surface); border-radius:14px; padding:20px 16px; text-decoration:none; color:#fff; display:flex; flex-direction:column; gap:10px; border:1px solid var(--border); transition:all 0.2s; position:relative; overflow:hidden; }
+.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px; }
+.menu-card { background:var(--surface); border-radius:14px; padding:22px 18px; text-decoration:none; color:#fff; display:flex; flex-direction:column; gap:10px; border:1px solid var(--border); transition:all 0.2s; position:relative; overflow:hidden; }
 .menu-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent,var(--border)); transition:opacity 0.2s; }
 .menu-card:hover { border-color:var(--accent,var(--red)); transform:translateY(-2px); }
-.menu-icon { font-size:28px; }
-.menu-name { font-size:15px; font-weight:700; color:#fff; }
-.menu-desc { font-size:11px; color:var(--muted); line-height:1.6; }
+.menu-icon { font-size:32px; }
+.menu-name { font-size:17px; font-weight:700; color:#fff; }
+.menu-desc { font-size:13px; color:var(--muted); line-height:1.6; }
 
 /* Card accent colors */
 .card-weekly { --accent: #00d97e; }
@@ -67,12 +67,12 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 .dna-card:hover { border-color:var(--red); background:#1a0a0f; }
 .dna-icon { font-size:28px; flex-shrink:0; }
 .dna-info { flex:1; }
-.dna-name { font-size:15px; font-weight:700; color:var(--red); margin-bottom:4px; }
-.dna-desc { font-size:11px; color:var(--muted); line-height:1.6; }
+.dna-name { font-size:17px; font-weight:700; color:var(--red); margin-bottom:4px; }
+.dna-desc { font-size:13px; color:var(--muted); line-height:1.6; }
 .dna-arrow { color:var(--red); font-size:20px; flex-shrink:0; }
 
 /* Footer */
-.footer { text-align:center; padding:24px 16px; color:var(--muted); font-size:11px; letter-spacing:2px; border-top:1px solid var(--border); }
+.footer { text-align:center; padding:24px 16px; color:var(--muted); font-size:13px; letter-spacing:2px; border-top:1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -112,10 +112,16 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
       <div class="menu-desc">聚團隊成員資料<br>專業別・聯絡資訊</div>
     </a>
 
-    <a href="/bni-jututeam/gold.html" class="menu-card" style="--accent:#C9A84C;grid-column:1/-1">
+    <a href="/bni-jututeam/gold.html" class="menu-card" style="--accent:#C9A84C">
       <div class="menu-icon">🥇</div>
       <div class="menu-name">金質獎章榮耀牆</div>
-      <div class="menu-desc">表彰卓越貢獻的聚團隊夥伴・雙金質・金質獎章得主</div>
+      <div class="menu-desc">雙金質・金質<br>獎章得主</div>
+    </a>
+
+    <a href="/bni-jututeam/calculator.html" class="menu-card" style="--accent:#00d9ff">
+      <div class="menu-icon">🧮</div>
+      <div class="menu-name">時間投資計算器</div>
+      <div class="menu-desc">BNI 時間回報<br>投資效益試算</div>
     </a>
   </div>
 
