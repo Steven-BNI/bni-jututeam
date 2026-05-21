@@ -21,16 +21,13 @@
     color: #fff;
     font-family: 'Noto Sans TC', sans-serif;
     min-height: 100vh;
-    padding: 28px 16px 48px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 0;
   }
 
   .wrap {
     width: 100%;
     max-width: 100%;
-    margin: 0 auto;
+    margin: 0;
     padding: 0;
   }
 
@@ -38,10 +35,12 @@
   .header {
     background: linear-gradient(135deg, #1a1200, #2c1e00);
     border-radius: 0;
-    padding: 32px 24px 24px;
+    padding: 48px 10% 40px;
     position: relative;
     overflow: hidden;
     border: none;
+    width: 100%;
+    text-align: left;
   }
   .header::after {
     content: '';
@@ -62,17 +61,19 @@
   }
   .header h1 {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(28px, 7vw, 46px);
+    font-size: clamp(40px, 6vw, 72px);
     letter-spacing: 2px;
     line-height: 1;
     color: #fff;
+    max-width: 600px;
   }
   .header h1 span { color: #c9a341; }
   .header-desc {
     margin-top: 10px;
     font-size: 13px;
-    color: #777;
+    color: #999;
     line-height: 1.6;
+    max-width: 100%;
   }
   .header-fixed {
     margin-top: 14px;
@@ -96,6 +97,7 @@
 
   /* ── Form Card ── */
   .form-card {
+    max-width: 100%;
     background: #141414;
     border: 1px solid #222;
     border-top: none;
