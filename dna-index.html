@@ -153,6 +153,44 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
 .loading-wrap { padding: 40px; text-align: center; color: var(--muted); font-size: 17px; }
 
 @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── 統一導覽列 ── */
+.nav-bar {
+  background: #13131a;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.nav-bar::-webkit-scrollbar { display: none; }
+.nav-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #7a7a99;
+  font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
+.nav-btn.active {
+  background: #E8001D;
+  border-color: #E8001D;
+  color: #fff;
+}
+
 </style>
 </head>
 <body>
@@ -787,6 +825,16 @@ async function initApp() {
 setInterval(() => { loadAllData(); }, 120000);
 
 initApp();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth / 2) + (active.offsetWidth / 2);
+  }
+});
 </script>
 </body>
 </html>

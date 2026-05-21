@@ -69,6 +69,44 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
 .member-card::before { content:''; position:absolute; top:0; right:0; width:40px; height:40px; background:linear-gradient(225deg,rgba(201,168,76,0.15) 0%,transparent 60%); pointer-events:none; }
 .double-card::before { background:linear-gradient(225deg,rgba(255,215,0,0.2) 0%,transparent 60%); }
 @media(max-width:500px){ .cards-grid{grid-template-columns:repeat(2,1fr)} .double-card{flex-direction:column} .double-card .member-photo,.double-card .photo-placeholder{width:100%;height:auto;aspect-ratio:1} }
+
+/* ── 統一導覽列 ── */
+.nav-bar {
+  background: #13131a;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.nav-bar::-webkit-scrollbar { display: none; }
+.nav-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #7a7a99;
+  font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
+.nav-btn.active {
+  background: #E8001D;
+  border-color: #E8001D;
+  color: #fff;
+}
+
 </style>
 </head>
 <body>
@@ -79,15 +117,14 @@ body::before { content:''; position:fixed; inset:0; background:radial-gradient(e
   <div class="header-sub">表彰卓越貢獻的聚團隊夥伴</div>
 </div>
 
-<div class="nav-bar">
-  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+<nav class="nav-bar">
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
   <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
-  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" class="nav-btn" target="_blank">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn active">🥇 金質獎章</a>
   <a href="/bni-jututeam/calculator.html" class="nav-btn">📊 時間效益試算</a>
-</div>
+</nav>
 
 <div class="main">
   </div>

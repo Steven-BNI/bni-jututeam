@@ -60,6 +60,44 @@ h1 em { color:var(--red); font-style:normal; }
 .lights-section { margin-bottom:20px; }
 .lights-label { font-size:12px; color:var(--muted); letter-spacing:3px; margin-bottom:12px; }
 .lights-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+
+/* ── 統一導覽列 ── */
+.nav-bar {
+  background: #13131a;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.nav-bar::-webkit-scrollbar { display: none; }
+.nav-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #7a7a99;
+  font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
+.nav-btn.active {
+  background: #E8001D;
+  border-color: #E8001D;
+  color: #fff;
+}
+
 </style>
 </head>
 <body>
@@ -68,15 +106,14 @@ h1 em { color:var(--red); font-style:normal; }
   <h1>分會 <em>週報數據</em></h1>
   <div class="header-sub">例會出席｜來賓｜一對一｜引薦</div>
 </div>
-<div class="nav-bar">
-  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+<nav class="nav-bar">
   <a href="/bni-jututeam/weekly.html" class="nav-btn active">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
-  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 區域行事曆</a>
-  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" class="nav-btn" target="_blank">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
   <a href="/bni-jututeam/calculator.html" class="nav-btn">📊 時間效益試算</a>
-</div>
+</nav>
 <div class="sync-bar">
   <div class="sync-dot loading" id="syncDot"></div>
   <span id="syncText">載入資料中...</span>
@@ -334,6 +371,16 @@ function render(lightsRows,weeklyRows,thisMonth){
 }
 
 loadAll();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth / 2) + (active.offsetWidth / 2);
+  }
+});
 </script>
 </body>
 </html>
