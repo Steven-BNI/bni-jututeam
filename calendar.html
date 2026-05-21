@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #1a1a1a; min-height: 100vh; }
+body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #fff; min-height: 100vh; }
 
 .header { background: #1a1a1a; padding: 20px 20px 18px; position: relative; overflow: hidden; }
 .header::after { content: 'BNI'; position: absolute; right: -10px; top: -10px; font-family: 'Oswald', sans-serif; font-size: 90px; font-weight: 700; color: rgba(255,255,255,0.04); pointer-events: none; line-height: 1; }
@@ -29,18 +29,18 @@ body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #1a1
 
 
 
-.content { padding: 16px; }
+.content { padding: 16px; max-width: 1200px; margin: 0 auto; }
 
-.info-bar { background: #fff; border-radius: 10px; border: 1.5px solid #e8e6e0; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.info-bar { background: #16161f; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.08); padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .info-icon { font-size: 20px; }
-.info-text { flex: 1; font-size: 16px; color: #888; line-height: 1.6; }
-.info-text strong { color: #1a1a1a; font-weight: 700; }
+.info-text { flex: 1; font-size: 15px; color: #aaa; line-height: 1.6; }
+.info-text strong { color: #fff; font-weight: 700; }
 .info-link { padding: 7px 14px; border-radius: 6px; background: #E8001D; color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; white-space: nowrap; font-family: 'Noto Sans TC', sans-serif; }
 
-.calendar-wrap { background: #fff; border-radius: 10px; border: 1.5px solid #e8e6e0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.calendar-wrap { background: #16161f; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.08); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .calendar-wrap iframe { width: 100%; height: calc(100vh - 280px); min-height: 500px; border: none; display: block; }
 
-.footer-note { text-align: center; padding: 16px; font-size: 17px; color: #aaa; }
+.footer-note { text-align: center; padding: 16px; font-size: 15px; color: #555; }
 
 /* ── 統一導覽列 ── */
 .nav-bar {
@@ -84,6 +84,7 @@ body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #1a1
 <body>
 
 <div class="header">
+  <a href="/bni-jututeam/" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,0.35);font-size:12px;text-decoration:none;margin-bottom:8px;font-family:'Noto Sans TC',sans-serif;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">🏠 返回首頁</a>
   <div class="header-eyebrow">BNI 聚團隊</div>
   <h1>區域 <em>行事曆</em></h1>
   <div class="header-sub">新北市西A區｜板橋區</div>

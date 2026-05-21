@@ -30,6 +30,7 @@
   .wrap {
     width: 100%;
     max-width: 640px;
+    margin: 0 auto;
   }
 
   /* ── Header ── */
@@ -417,6 +418,26 @@
   color: #fff;
 }
 
+
+@media (min-width: 768px) {
+  .wrap { max-width: 800px !important; }
+  body { padding: 28px 40px 48px; }
+}
+@media (min-width: 1024px) {
+  .wrap { max-width: 960px !important; }
+}
+/* 手機截字修正 */
+.item-name {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+.item-desc {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
 </style>
 </head>
 <body>

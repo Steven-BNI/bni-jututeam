@@ -37,14 +37,14 @@ h1 em { color:var(--red); font-style:normal; }
 .nav-btn { padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .nav-btn:hover { border-color:var(--red); color:var(--red); }
 .nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
-.sync-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+.sync-bar { font-size: 15px; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:var(--gray); flex-shrink:0; }
 .sync-dot.ok { background:var(--green); }
 .sync-dot.loading { background:var(--yellow); animation:pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-.refresh-btn { margin-left:auto; padding:4px 10px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; font-family:'Noto Sans TC',sans-serif; cursor:pointer; }
+.refresh-btn { margin-left:auto; padding:6px 14px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:14px; font-family:'Noto Sans TC',sans-serif; cursor:pointer; }
 .refresh-btn:hover { border-color:var(--red); color:var(--red); }
-#mainContent { padding:16px; max-width:900px; margin:0 auto; }
+#mainContent { padding:16px 24px; max-width:1200px; margin:0 auto; }
 .loading { text-align:center; padding:40px; color:var(--muted); font-size:15px; }
 .branch-card { background:var(--surface); border-radius:12px; padding:18px; margin-bottom:18px; }
 .branch-title { color:#fff; font-size:18px; font-weight:700; margin-bottom:4px; }
@@ -114,6 +114,7 @@ h1 em { color:var(--red); font-style:normal; }
 </head>
 <body>
 <div class="header">
+  <a href="/bni-jututeam/" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,0.35);font-size:12px;text-decoration:none;margin-bottom:8px;font-family:'Noto Sans TC',sans-serif;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">🏠 返回首頁</a>
   <div class="header-eyebrow">BNI 聚團隊</div>
   <h1>分會 <em>週報數據</em></h1>
   <div class="header-sub">例會出席｜來賓｜一對一｜引薦</div>
