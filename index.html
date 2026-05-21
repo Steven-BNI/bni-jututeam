@@ -73,6 +73,27 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 
 /* Footer */
 .footer { text-align:center; padding:24px 16px; color:var(--muted); font-size:13px; letter-spacing:2px; border-top:1px solid var(--border); }
+
+/* ── 電腦版優化 ── */
+@media (min-width: 768px) {
+  .main { max-width: 900px; padding: 40px 32px; }
+  .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .menu-card { padding: 28px 24px; }
+  .menu-icon { font-size: 40px; }
+  .menu-name { font-size: 19px; }
+  .menu-desc { font-size: 14px; }
+  .header { padding: 60px 40px 50px; }
+  .header-title { font-size: 64px; }
+  .header-sub { font-size: 18px; letter-spacing: 4px; }
+  .dna-card { padding: 28px 24px; }
+  .dna-name { font-size: 20px; }
+  .dna-desc { font-size: 14px; }
+  .section-label { font-size: 15px; margin: 36px 0 16px; }
+}
+@media (min-width: 1100px) {
+  .main { max-width: 1100px; }
+  .menu-grid { grid-template-columns: repeat(4, 1fr); }
+}
 </style>
 </head>
 <body>
