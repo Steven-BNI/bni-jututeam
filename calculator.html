@@ -29,20 +29,19 @@
 
   .wrap {
     width: 100%;
-    max-width: 640px;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0;
   }
 
   /* ── Header ── */
   .header {
     background: linear-gradient(135deg, #1a1200, #2c1e00);
-    border-radius: 18px 18px 0 0;
-    padding: 32px 32px 24px;
+    border-radius: 0;
+    padding: 32px 24px 24px;
     position: relative;
     overflow: hidden;
-    border: 1px solid #2a2000;
-    border-bottom: none;
+    border: none;
   }
   .header::after {
     content: '';
@@ -335,7 +334,7 @@
     background: #0d0d0d;
     border: 1px solid #1a1a1a;
     border-top: none;
-    border-radius: 0 0 18px 18px;
+    border-radius: 0;
     padding: 14px 32px;
     display: flex;
     justify-content: space-between;
@@ -366,12 +365,12 @@
   .reset-btn:hover { border-color: #555; color: #888; }
 
   /* ── Nav Bar ── */
-  .nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; width:100%; position:fixed; top:0; left:0; z-index:100; }
+  .nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:100; }
   .nav-bar::-webkit-scrollbar { display:none; }
   .nav-btn { padding:6px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#7a7a99; font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
   .nav-btn:hover { border-color:#E8001D; color:#E8001D; }
   .nav-btn.active { background:rgba(201,168,76,0.12); border-color:#C9A84C; color:#C9A84C; }
-  body { padding-top: 52px; }
+  
 
 @media (max-width: 480px) {
   .item-name { font-size: 15px !important; white-space: normal !important; word-break: break-word !important; }
@@ -420,11 +419,11 @@
 
 
 @media (min-width: 768px) {
-  .wrap { max-width: 800px !important; }
+  .wrap { max-width: 100% !important; padding: 0 !important; }
   body { padding: 28px 40px 48px; }
 }
 @media (min-width: 1024px) {
-  .wrap { max-width: 960px !important; }
+  .wrap { max-width: 100% !important; }
 }
 /* 手機截字修正 */
 .item-name {
@@ -449,6 +448,11 @@
 </style>
 </head>
 <body>
+<div style="background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%);padding:28px 20px 24px;border-bottom:2px solid #E8001D;position:relative;overflow:hidden;text-align:left;">
+  <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:4px;color:#E8001D;margin-bottom:6px;">BNI 聚團隊</div>
+  <div style="font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:4px;">時間 <span style="color:#C9A84C;">效益試算</span></div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:1px;">每週時間投資 × BNI 業績 ROI</div>
+</div>
 <nav class="nav-bar">
   <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
