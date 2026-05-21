@@ -101,6 +101,7 @@ h1 em { color:var(--red); font-style:normal; }
 .month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
 .month-title::after { content:''; flex:1; height:1px; background:var(--border); }
 .training-card.expired { opacity: 0.4; filter: grayscale(60%); }
+.training-card.expired .btn-album { opacity: 2.5; filter: none; background:rgba(124,124,255,0.3); border-color:rgba(124,124,255,0.6); color:#9999ff; }
 .training-card.expired .training-name { color: #888; }
 .expired-badge { display:inline-block; background:rgba(255,255,255,0.08); color:#666; font-size:12px; padding:3px 10px; border-radius:20px; margin-left:8px; }
 .month-title.expired-month { color: #555; }
@@ -319,7 +320,8 @@ function renderTraining(rows) {
       // Header
       html += '<div class="training-header">';
       html += '<div>';
-      html += '<div class="training-name">' + name + '</div>';
+      var cancelBadge = name.includes('已取消') ? ' <span style="background:rgba(232,0,29,0.2);color:#ff4444;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:700;vertical-align:middle;">⚠️ 已取消</span>' : '';
+      html += '<div class="training-name">' + name + cancelBadge + '</div>';
       html += '<div class="training-meta">';
       html += '<span>📅 ' + formatDate(date) + '</span>';
       if (location) html += '<span>📍 ' + location + '</span>';
@@ -392,7 +394,9 @@ function renderTraining(rows) {
       html += '</div>';
 
       // 報名按鈕
-      if (expired) {
+      if (name.includes('已取消')) {
+        html += '<span style="font-size:13px;color:#ff4444;">⚠️ 活動已取消</span>';
+      } else if (expired) {
         html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
       } else if (isFull) {
         html += '<a class="btn-register full">⛔ 報名已額滿</a>';
