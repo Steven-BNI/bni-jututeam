@@ -101,7 +101,8 @@ h1 em { color:var(--red); font-style:normal; }
 .month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
 .month-title::after { content:''; flex:1; height:1px; background:var(--border); }
 .training-card.expired { opacity: 0.4; filter: grayscale(60%); }
-.training-card.expired .btn-album { opacity: 2.5; filter: none; background:rgba(124,124,255,0.3); border-color:rgba(124,124,255,0.6); color:#9999ff; }
+.training-card.expired .album-section { opacity: 1 !important; filter: none !important; }
+.training-card.expired .btn-album { opacity: 1 !important; filter: none !important; background:rgba(124,124,255,0.4) !important; border-color:rgba(124,124,255,0.8) !important; color:#aaaaff !important; font-weight:900 !important; }
 .training-card.expired .training-name { color: #888; }
 .expired-badge { display:inline-block; background:rgba(255,255,255,0.08); color:#666; font-size:12px; padding:3px 10px; border-radius:20px; margin-left:8px; }
 .month-title.expired-month { color: #555; }
@@ -406,7 +407,7 @@ function renderTraining(rows) {
 
       // 相簿按鈕
       if (albumUrl) {
-        html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
+        html += '<div class="album-section" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
         html += '<a href="' + albumUrl + '" target="_blank" class="btn-album">📷 查看活動照片</a>';
         html += '</div>';
       }
