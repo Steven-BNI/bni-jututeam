@@ -279,9 +279,14 @@ function renderTraining(rows) {
   });
 
   // 排序：未來月份在前，過去月份在後
+  function isEffectivelyDone(r) {
+    var name = (r[idx('培訓名稱')]||'').trim();
+    return isExpired((r[idx('培訓日期')]||'').trim()) || name.includes('已取消');
+  }
+
   monthOrder.sort(function(a, b) {
-    var aExpired = months[a].every(function(r){ return isExpired((r[idx('培訓日期')]||'').trim()); });
-    var bExpired = months[b].every(function(r){ return isExpired((r[idx('培訓日期')]||'').trim()); });
+    var aExpired = months[a].every(function(r){ return isEffectivelyDone(r); });
+    var bExpired = months[b].every(function(r){ return isEffectivelyDone(r); });
     if (aExpired && !bExpired) return 1;
     if (!aExpired && bExpired) return -1;
     return a > b ? 1 : -1;
@@ -293,7 +298,7 @@ function renderTraining(rows) {
     var monthRows = months[monthKey];
     var parts = monthKey.split('/');
     var monthLabel = parts.length >= 2 ? parts[0] + ' 年 ' + parts[1] + ' 月' : monthKey;
-    var monthExpired = monthRows.every(function(r){ return isExpired((r[idx('培訓日期')]||'').trim()); });
+    var monthExpired = monthRows.every(function(r){ return isEffectivelyDone(r); });
     html += '<div class="month-title' + (monthExpired ? ' expired-month' : '') + '">📅 ' + monthLabel + (monthExpired ? ' <span class="expired-badge">已結束</span>' : '') + '</div>';
 
     monthRows.forEach(function(row) {
