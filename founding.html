@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜籌備分會進度</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6R66G555ZY");
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8001D;
+  --bg: #0a0a0f;
+  --surface: #13131c;
+  --surface2: #1a1a26;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0f0f5;
+  --muted: #6b6b8a;
+  --green: #00d97e;
+  --green-dim: rgba(0,217,126,0.1);
+  --yellow: #ffd94a;
+  --yellow-dim: rgba(255,217,74,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-serif; min-height:100vh; }
+
+/* Header */
+.header {
+  background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%);
+  padding:28px 20px 24px;
+  border-bottom:2px solid var(--red);
+  position:relative; overflow:hidden;
+}
+.header::after { content:'2026'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-family:'Oswald',sans-serif; font-size:100px; font-weight:900; color:rgba(232,0,29,0.04); letter-spacing:-2px; pointer-events:none; }
+.header-eyebrow { font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:4px; color:var(--red); margin-bottom:6px; }
+.header-title { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.2; margin-bottom:4px; }
+.header-title em { color:var(--red); font-style:normal; }
+.header-sub { font-size:13px; color:rgba(255,255,255,0.4); letter-spacing:1px; }
+
+/* Nav */
+.nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:50; }
+.nav-bar::-webkit-scrollbar { display:none; }
+.nav-btn { padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:#7a7a99; font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; flex-shrink:0; }
+.nav-btn:hover { border-color:var(--red); color:var(--red); }
+.nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
+
+/* 副標題列 */
+.subtitle-bar {
+  padding:16px 20px 12px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.subtitle-bar p { font-size:13px; color:var(--muted); }
+.subtitle-bar strong { color:var(--yellow); }
+
+/* Main */
+.main { padding:20px 16px 60px; max-width:600px; margin:0 auto; }
+
+/* 週期標籤 */
+.week-label {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:20px;
+}
+.week-badge {
+  background:rgba(232,0,29,0.15);
+  border:1px solid rgba(232,0,29,0.3);
+  color:var(--red);
+  font-size:11px; font-weight:700;
+  padding:4px 12px; border-radius:99px;
+  font-family:'Oswald',sans-serif; letter-spacing:1px;
+}
+.week-line { flex:1; height:1px; background:var(--border); }
+
+/* 分會卡片 */
+.branch-card {
+  background:var(--surface);
+  border-radius:16px;
+  border:1.5px solid var(--border);
+  margin-bottom:16px;
+  overflow:hidden;
+  transition:border-color 0.2s;
+  animation:fadeUp 0.4s ease both;
+}
+.branch-card.lead { border-color:rgba(0,217,126,0.35); }
+.branch-card:nth-child(2) { animation-delay:0.08s; }
+.branch-card:nth-child(3) { animation-delay:0.16s; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* 卡片頂部 */
+.card-top {
+  padding:18px 18px 14px;
+  display:flex; align-items:center; gap:14px;
+}
+.avatar {
+  width:48px; height:48px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Oswald',sans-serif; font-size:18px; font-weight:700;
+  flex-shrink:0;
+}
+.avatar.lead { background:rgba(0,217,126,0.15); color:var(--green); border:1.5px solid rgba(0,217,126,0.3); }
+.avatar.prep { background:rgba(255,255,255,0.05); color:#fff; border:1.5px solid rgba(255,255,255,0.1); }
+
+.card-title { flex:1; }
+.branch-name { font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:#fff; letter-spacing:0.5px; }
+.branch-lead { font-size:12px; color:var(--muted); margin-top:2px; }
+
+.status-badge {
+  font-size:11px; font-weight:700; padding:4px 12px; border-radius:99px;
+  white-space:nowrap;
+}
+.status-badge.lead { background:var(--green-dim); color:var(--green); border:1px solid rgba(0,217,126,0.3); }
+.status-badge.prep { background:rgba(255,255,255,0.05); color:var(--muted); border:1px solid var(--border); }
+
+/* 繳費人數 */
+.fee-section {
+  padding:0 18px 16px;
+  display:flex; align-items:baseline; gap:8px;
+}
+.fee-label { font-size:12px; color:var(--muted); }
+.fee-number {
+  font-family:'Oswald',sans-serif; font-weight:900; line-height:1;
+}
+.fee-number.big { font-size:48px; color:var(--green); }
+.fee-number.zero { font-size:48px; color:rgba(255,255,255,0.15); }
+.fee-unit { font-size:14px; color:var(--muted); }
+
+/* 說明會 */
+.meetings-section { padding:0 18px 14px; }
+.meeting-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 0;
+  border-top:1px solid var(--border);
+  font-size:13px;
+}
+.meeting-label { color:var(--muted); }
+.meeting-status { font-weight:700; }
+.meeting-status.done { color:var(--green); }
+.meeting-status.upcoming { color:var(--yellow); }
+.meeting-status.pending { color:rgba(255,255,255,0.2); }
+
+/* 週活動 */
+.week-section {
+  background:var(--surface2);
+  border-top:1px solid var(--border);
+}
+.week-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 18px;
+  border-bottom:1px solid var(--border);
+}
+.week-row:last-child { border-bottom:none; }
+.week-info { flex:1; }
+.week-tag {
+  font-size:11px; font-weight:700;
+  font-family:'Oswald',sans-serif; letter-spacing:1px;
+  margin-bottom:3px;
+}
+.week-tag.current { color:var(--green); }
+.week-tag.next { color:var(--muted); }
+.week-tag.next-alert { color:var(--yellow); }
+.week-date { font-size:11px; color:var(--muted); }
+.week-result {
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:700;
+}
+.week-count { font-family:'Oswald',sans-serif; font-size:20px; font-weight:900; }
+.week-count.active { color:var(--green); }
+.week-count.yellow { color:var(--yellow); }
+.week-count.zero { color:rgba(255,255,255,0.15); }
+.week-desc { font-size:11px; color:var(--muted); }
+
+/* 底部 */
+.footer-note {
+  text-align:center; padding:20px;
+  font-size:12px; color:var(--muted);
+  border-top:1px solid var(--border);
+  line-height:1.8;
+}
+
+@media(min-width:640px){
+  .main { padding:24px 24px 60px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <div class="header-title">籌備分會 <em>進度看板</em></div>
+  <div class="header-sub">2026 年度｜互相加油，一起衝！</div>
+</div>
+
+<nav class="nav-bar">
+  <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
+  <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="https://drive.google.com/drive/folders/1vmewX4mzVlNzeEDZ9Bm759n_0ojYAK57?usp=drive_link" target="_blank" class="nav-btn">👥 成員介紹</a>
+  <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn">📊 時間效益試算</a>
+  <a href="/bni-jututeam/founding.html" class="nav-btn active">🚀 籌備進度</a>
+</nav>
+
+<div class="subtitle-bar">
+  <p>本週活動追蹤 <strong>（週六 ～ 週五）</strong></p>
+</div>
+
+<div class="main">
+
+  <div class="week-label">
+    <div class="week-badge">🗓 本週 05/18 – 05/22</div>
+    <div class="week-line"></div>
+  </div>
+
+  <!-- 聚美好 -->
+  <div class="branch-card lead">
+    <div class="card-top">
+      <div class="avatar lead">明興</div>
+      <div class="card-title">
+        <div class="branch-name">聚美好</div>
+        <div class="branch-lead">負責人：余明興</div>
+      </div>
+      <div class="status-badge lead">🏆 領先中</div>
+    </div>
+
+    <div class="fee-section">
+      <div class="fee-label">已繳費人數</div>
+      <div class="fee-number big">2</div>
+      <div class="fee-unit">人</div>
+    </div>
+
+    <div class="meetings-section">
+      <div class="meeting-row">
+        <div class="meeting-label">第一次說明會</div>
+        <div class="meeting-status done">✅ 04.23 已完成</div>
+      </div>
+      <div class="meeting-row">
+        <div class="meeting-label">第二次說明會</div>
+        <div class="meeting-status done">✅ 05.08 已完成</div>
+      </div>
+    </div>
+
+    <div class="week-section">
+      <div class="week-row">
+        <div class="week-info">
+          <div class="week-tag current">本週</div>
+          <div class="week-date">05/18（六）～ 05/22（五）</div>
+        </div>
+        <div class="week-result">
+          <div class="week-desc">線上聊一下</div>
+          <div class="week-count active">1</div>
+          <div class="week-desc">場</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-info">
+          <div class="week-tag next">下週</div>
+          <div class="week-date">05/23（六）～ 05/29（五）</div>
+        </div>
+        <div class="week-result">
+          <div class="week-count zero">—</div>
+          <div class="week-desc">0 場</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 聚國際 -->
+  <div class="branch-card">
+    <div class="card-top">
+      <div class="avatar prep">宗憲</div>
+      <div class="card-title">
+        <div class="branch-name">聚國際</div>
+        <div class="branch-lead">負責人：吳宗憲</div>
+      </div>
+      <div class="status-badge prep">籌備中</div>
+    </div>
+
+    <div class="fee-section">
+      <div class="fee-label">已繳費人數</div>
+      <div class="fee-number zero">0</div>
+      <div class="fee-unit">人</div>
+    </div>
+
+    <div class="meetings-section">
+      <div class="meeting-row">
+        <div class="meeting-label">第一次說明會</div>
+        <div class="meeting-status done">✅ 03.02 已完成</div>
+      </div>
+      <div class="meeting-row">
+        <div class="meeting-label">第二次說明會</div>
+        <div class="meeting-status done">✅ 05.08 已完成</div>
+      </div>
+    </div>
+
+    <div class="week-section">
+      <div class="week-row">
+        <div class="week-info">
+          <div class="week-tag next">本週</div>
+          <div class="week-date">05/18（六）～ 05/22（五）</div>
+        </div>
+        <div class="week-result">
+          <div class="week-count zero">—</div>
+          <div class="week-desc">0 場</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-info">
+          <div class="week-tag next">下週</div>
+          <div class="week-date">05/23（六）～ 05/29（五）</div>
+        </div>
+        <div class="week-result">
+          <div class="week-count zero">—</div>
+          <div class="week-desc">0 場</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 聚安全 -->
+  <div class="branch-card">
+    <div class="card-top">
+      <div class="avatar prep">道然</div>
+      <div class="card-title">
+        <div class="branch-name">聚安全</div>
+        <div class="branch-lead">負責人：林道然</div>
+      </div>
+      <div class="status-badge prep">籌備中</div>
+    </div>
+
+    <div class="fee-section">
+      <div class="fee-label">已繳費人數</div>
+      <div class="fee-number zero">0</div>
+      <div class="fee-unit">人</div>
+    </div>
+
+    <div class="meetings-section">
+      <div class="meeting-row">
+        <div class="meeting-label">第一次說明會</div>
+        <div class="meeting-status upcoming">🗓 05.28 晚上 8 點</div>
+      </div>
+      <div class="meeting-row">
+        <div class="meeting-label">第二次說明會</div>
+        <div class="meeting-status pending">— 待排定</div>
+      </div>
+    </div>
+
+    <div class="week-section">
+      <div class="week-row">
+        <div class="week-info">
+          <div class="week-tag next">本週</div>
+          <div class="week-date">05/18（六）～ 05/22（五）</div>
+        </div>
+        <div class="week-result">
+          <div class="week-count zero">—</div>
+          <div class="week-desc">0 場</div>
+        </div>
+      </div>
+      <div class="week-row">
+        <div class="week-info">
+          <div class="week-tag next-alert">下週</div>
+          <div class="week-date">05/23（六）～ 05/29（五）</div>
+        </div>
+        <div class="week-result">
+          <div class="week-desc">第一次說明會</div>
+          <div class="week-count yellow">1</div>
+          <div class="week-desc">場</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  明興先開胡啦 🎉 宗憲、道然加油！💪<br>
+  每週更新進度，持續追蹤中 🔥
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth/2) + (active.offsetWidth/2);
+  }
+});
+</script>
+
+</body>
+</html>
