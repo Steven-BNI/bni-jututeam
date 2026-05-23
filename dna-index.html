@@ -33,7 +33,7 @@
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; }
+body { background: #0d0d14; color: #fff; font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; }
 
 .header { background: var(--text); padding: 20px 20px 18px; position: relative; overflow: hidden; }
 .header::after { content: 'DNA'; position: absolute; right: -10px; top: -10px; font-family: 'Oswald', sans-serif; font-size: 90px; font-weight: 700; color: rgba(255,255,255,0.04); pointer-events: none; line-height: 1; }
@@ -143,7 +143,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
 .inactive-note { padding: 20px; text-align: center; font-size: 16px; color: var(--muted); }
 
 /* READONLY MODE */
-.readonly-notice { background: #fffbe6; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; font-size: 16px; color: var(--yellow); margin: 10px 16px 0; display: flex; align-items: center; gap: 8px; }
+.readonly-notice { background: #16161fbe6; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; font-size: 16px; color: var(--yellow); margin: 10px 16px 0; display: flex; align-items: center; gap: 8px; }
 
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 17px; font-weight: 700; z-index: 9999; transition: transform 0.25s ease; pointer-events: none; }
 .toast.show { transform: translateX(-50%) translateY(0); }
@@ -235,7 +235,6 @@ if (sessionStorage.getItem('dna_auth') === '1') {
   <div class="header-eyebrow">BNI 聚團隊</div>
 <nav class="nav-bar">
   <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
-  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/dna-index.html" class="nav-btn active">📊 五大地基</a>
   <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
   <a href="/bni-jututeam/dna-rules.html" class="nav-btn">📜 地基與晉升說明</a>
