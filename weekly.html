@@ -32,11 +32,7 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 h1 { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.1; }
 h1 em { color:var(--red); font-style:normal; }
 .header-sub { font-size:11px; color:var(--muted); margin-top:4px; }
-.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
-.nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
-.nav-btn:hover { border-color:var(--red); color:var(--red); }
-.nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
+
 .sync-bar { font-size: 15px; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
 .sync-dot { width:7px; height:7px; border-radius:50%; background:var(--gray); flex-shrink:0; }
 .sync-dot.ok { background:var(--green); }
@@ -61,6 +57,20 @@ h1 em { color:var(--red); font-style:normal; }
 .lights-label { font-size:12px; color:var(--muted); letter-spacing:3px; margin-bottom:12px; }
 .lights-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
 
+
+
+
+/* ── 統一內容字體 ── */
+.branch-title { font-size: 17px !important; }
+.inner-title { font-size: 15px !important; }
+.data-label { font-size: 15px !important; }
+.data-value { font-size: 15px !important; }
+.branch-people { font-size: 14px !important; }
+.lights-label { font-size: 13px !important; }
+
+@media (min-width: 640px) {
+  .lights-grid { grid-template-columns: repeat(4, 1fr); }
+}
 /* ── 統一導覽列 ── */
 .nav-bar {
   background: #13131a;
@@ -92,24 +102,7 @@ h1 em { color:var(--red); font-style:normal; }
   flex-shrink: 0;
 }
 .nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active {
-  background: #E8001D;
-  border-color: #E8001D;
-  color: #fff;
-}
-
-
-/* ── 統一內容字體 ── */
-.branch-title { font-size: 17px !important; }
-.inner-title { font-size: 15px !important; }
-.data-label { font-size: 15px !important; }
-.data-value { font-size: 15px !important; }
-.branch-people { font-size: 14px !important; }
-.lights-label { font-size: 13px !important; }
-
-@media (min-width: 640px) {
-  .lights-grid { grid-template-columns: repeat(4, 1fr); }
-}
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
 </style>
 </head>
 <body>
@@ -118,8 +111,18 @@ h1 em { color:var(--red); font-style:normal; }
   <h1 class="header-title">分會 <em>週報數據</em></h1>
   <div class="header-sub">例會出席｜來賓｜一對一｜引薦</div>
 </div>
+
+<div class="sync-bar">
+  <div class="sync-dot loading" id="syncDot"></div>
+  <span id="syncText">載入資料中...</span>
+  <button class="refresh-btn" onclick="loadAll()">🔄 重新整理</button>
+</div>
 <nav class="nav-bar">
   <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+  <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
+  <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
+  <a href="/bni-jututeam/dna-rules.html" class="nav-btn">📜 地基與晉升說明</a>
   <a href="/bni-jututeam/founding.html" class="nav-btn">🚀 籌備進度</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn active">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
@@ -128,11 +131,7 @@ h1 em { color:var(--red); font-style:normal; }
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
   <a href="/bni-jututeam/calculator.html" class="nav-btn">📊 時間效益試算</a>
 </nav>
-<div class="sync-bar">
-  <div class="sync-dot loading" id="syncDot"></div>
-  <span id="syncText">載入資料中...</span>
-  <button class="refresh-btn" onclick="loadAll()">🔄 重新整理</button>
-</div>
+
 <div id="mainContent"><div class="loading">載入中...</div></div>
 <script>
 var WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
@@ -387,12 +386,13 @@ function render(lightsRows,weeklyRows,thisMonth){
 loadAll();
 </script>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var nav = document.querySelector('.nav-bar');
   var active = document.querySelector('.nav-btn.active');
   if (nav && active) {
-    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth / 2) + (active.offsetWidth / 2);
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth/2) + (active.offsetWidth/2);
   }
 });
 </script>

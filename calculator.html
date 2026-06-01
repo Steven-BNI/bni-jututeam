@@ -367,11 +367,7 @@
   .reset-btn:hover { border-color: #555; color: #888; }
 
   /* ── Nav Bar ── */
-  .nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:100; }
-  .nav-bar::-webkit-scrollbar { display:none; }
-  .nav-btn { padding:6px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#7a7a99; font-size:12px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
-  .nav-btn:hover { border-color:#E8001D; color:#E8001D; }
-  .nav-btn.active { background:rgba(201,168,76,0.12); border-color:#C9A84C; color:#C9A84C; }
+  
   
 
 @media (max-width: 480px) {
@@ -382,6 +378,36 @@
   .stepper { flex-shrink: 0 !important; }
 }
 
+
+
+
+@media (min-width: 768px) {
+  .wrap { max-width: 100% !important; padding: 0 !important; }
+  body { padding: 28px 40px 48px; }
+}
+@media (min-width: 1024px) {
+  .wrap { max-width: 100% !important; }
+}
+/* 手機截字修正 */
+.item-name {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+.item-desc {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+@media (min-width: 768px) {
+  .item-label { font-size: 18px !important; }
+  .item-note { font-size: 15px !important; }
+  .item-icon { width: 52px !important; height: 52px !important; font-size: 26px !important; }
+  .item-input { width: 80px !important; font-size: 30px !important; }
+  .item-unit { font-size: 15px !important; }
+}
 /* ── 統一導覽列 ── */
 .nav-bar {
   background: #13131a;
@@ -413,53 +439,11 @@
   flex-shrink: 0;
 }
 .nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active {
-  background: #E8001D;
-  border-color: #E8001D;
-  color: #fff;
-}
-
-
-@media (min-width: 768px) {
-  .wrap { max-width: 100% !important; padding: 0 !important; }
-  body { padding: 28px 40px 48px; }
-}
-@media (min-width: 1024px) {
-  .wrap { max-width: 100% !important; }
-}
-/* 手機截字修正 */
-.item-name {
-  white-space: normal !important;
-  word-break: break-word !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-}
-.item-desc {
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-}
-
-@media (min-width: 768px) {
-  .item-label { font-size: 18px !important; }
-  .item-note { font-size: 15px !important; }
-  .item-icon { width: 52px !important; height: 52px !important; font-size: 26px !important; }
-  .item-input { width: 80px !important; font-size: 30px !important; }
-  .item-unit { font-size: 15px !important; }
-}
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
 </style>
 </head>
 <body>
-  <nav class="nav-bar">
-  <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
-  <a href="/bni-jututeam/founding.html" class="nav-btn">🚀 籌備進度</a>
-  <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
-  <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
-  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
-  <a href="/bni-jututeam/members.html" class="nav-btn">👥 成員介紹</a>
-  <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
-  <a href="/bni-jututeam/calculator.html" class="nav-btn active">📊 時間效益試算</a>
-</nav>
+  
 
 <div class="wrap">
 
@@ -475,6 +459,21 @@
       基準：每天 12 小時 × 7 天 = 每週 <strong>84 小時</strong>
     </div>
   </div>
+
+<nav class="nav-bar">
+  <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+  <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
+  <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
+  <a href="/bni-jututeam/dna-rules.html" class="nav-btn">📜 地基與晉升說明</a>
+  <a href="/bni-jututeam/founding.html" class="nav-btn">🚀 籌備進度</a>
+  <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
+  <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="/bni-jututeam/members.html" class="nav-btn">👥 成員介紹</a>
+  <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
+  <a href="/bni-jututeam/calculator.html" class="nav-btn active">📊 時間效益試算</a>
+</nav>
 
   <!-- Form -->
   <div class="form-card">
@@ -726,12 +725,13 @@
   calc();
 </script>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var nav = document.querySelector('.nav-bar');
   var active = document.querySelector('.nav-btn.active');
   if (nav && active) {
-    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth / 2) + (active.offsetWidth / 2);
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth/2) + (active.offsetWidth/2);
   }
 });
 </script>

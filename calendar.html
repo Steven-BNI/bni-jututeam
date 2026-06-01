@@ -42,6 +42,8 @@ body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #fff
 
 .footer-note { text-align: center; padding: 16px; font-size: 15px; color: #555; }
 
+
+
 /* ── 統一導覽列 ── */
 .nav-bar {
   background: #13131a;
@@ -73,12 +75,7 @@ body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #fff
   flex-shrink: 0;
 }
 .nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active {
-  background: #E8001D;
-  border-color: #E8001D;
-  color: #fff;
-}
-
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
 </style>
 </head>
 <body>
@@ -89,8 +86,14 @@ body { background: #0d0d14; font-family: 'Noto Sans TC', sans-serif; color: #fff
   <div class="header-sub">新北市西A區｜板橋區</div>
 </div>
 
+
+
 <nav class="nav-bar">
   <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+  <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
+  <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
+  <a href="/bni-jututeam/dna-rules.html" class="nav-btn">📜 地基與晉升說明</a>
   <a href="/bni-jututeam/founding.html" class="nav-btn">🚀 籌備進度</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
@@ -157,6 +160,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnL = active.offsetLeft;
     var btnW = active.offsetWidth;
     nav.scrollLeft = btnL - (navW / 2) + (btnW / 2);
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth/2) + (active.offsetWidth/2);
   }
 });
 </script>

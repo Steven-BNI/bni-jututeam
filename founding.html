@@ -44,11 +44,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 .header-sub { font-size:13px; color:rgba(255,255,255,0.4); letter-spacing:1px; }
 
 /* Nav */
-.nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:50; }
-.nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:#7a7a99; font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; flex-shrink:0; }
-.nav-btn:hover { border-color:var(--red); color:var(--red); }
-.nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
+
 
 /* 副標題列 */
 .subtitle-bar {
@@ -187,6 +183,38 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 @media(min-width:640px){
   .main { padding:24px 24px 60px; }
 }
+/* ── 統一導覽列 ── */
+.nav-bar {
+  background: #13131a;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.nav-bar::-webkit-scrollbar { display: none; }
+.nav-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #7a7a99;
+  font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
 </style>
 </head>
 <body>
@@ -197,8 +225,18 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
   <div class="header-sub">用夢想組建團隊｜用團隊實現夢想</div>
 </div>
 
+
+
+<div class="subtitle-bar">
+  <p>本週活動追蹤 <strong>（週六 ～ 週五）</strong></p>
+</div>
+
 <nav class="nav-bar">
   <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
+  <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
+  <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
+  <a href="/bni-jututeam/dna-rules.html" class="nav-btn">📜 地基與晉升說明</a>
   <a href="/bni-jututeam/founding.html" class="nav-btn active">🚀 籌備進度</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
@@ -207,10 +245,6 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
   <a href="/bni-jututeam/calculator.html" class="nav-btn">📊 時間效益試算</a>
 </nav>
-
-<div class="subtitle-bar">
-  <p>本週活動追蹤 <strong>（週六 ～ 週五）</strong></p>
-</div>
 
 <div class="main">
 
@@ -383,6 +417,8 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
   每週更新進度，持續追蹤中 🔥
 </div>
 
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var nav = document.querySelector('.nav-bar');
@@ -392,6 +428,5 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
-
 </body>
 </html>

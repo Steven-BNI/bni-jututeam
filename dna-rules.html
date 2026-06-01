@@ -32,11 +32,7 @@ body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; 
 h1 { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.1; }
 h1 em { color:var(--red); font-style:normal; }
 .header-sub { font-size: 17px; color:var(--muted); margin-top:4px; }
-.nav-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; }
-.nav-bar::-webkit-scrollbar { display:none; }
-.nav-btn { padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size: 16px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
-.nav-btn:hover { border-color:var(--red); color:var(--red); }
-.nav-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
+
 .content { padding:16px; max-width:800px; margin:0 auto; }
 
 /* Section titles */
@@ -61,6 +57,8 @@ h1 em { color:var(--red); font-style:normal; }
 .role-item::before { content:'·'; position:absolute; left:0; color:var(--red); }
 .role-note { font-size: 17px; color:var(--red); margin-top:6px; font-style:italic; }
 .divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
+
+
 
 /* ── 統一導覽列 ── */
 .nav-bar {
@@ -93,12 +91,7 @@ h1 em { color:var(--red); font-style:normal; }
   flex-shrink: 0;
 }
 .nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active {
-  background: #E8001D;
-  border-color: #E8001D;
-  color: #fff;
-}
-
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
 </style>
 </head>
 <body>
@@ -145,14 +138,19 @@ if (sessionStorage.getItem('dna_auth') === '1') {
   <div class="header-sub">五大地基規則｜資格與晉升原則</div>
 </div>
 
+
+
 <nav class="nav-bar">
   <a href="/bni-jututeam/" class="nav-btn">🏠 首頁</a>
+  <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
   <a href="/bni-jututeam/dna-index.html" class="nav-btn">📊 五大地基</a>
   <a href="/bni-jututeam/dashboard.html" class="nav-btn">📈 分會儀表板</a>
   <a href="/bni-jututeam/dna-rules.html" class="nav-btn active">📜 地基與晉升說明</a>
   <a href="/bni-jututeam/founding.html" class="nav-btn">🚀 籌備進度</a>
   <a href="/bni-jututeam/weekly.html" class="nav-btn">📋 分會週報</a>
   <a href="/bni-jututeam/training.html" class="nav-btn">🎓 培訓公告</a>
+  <a href="/bni-jututeam/calendar.html" class="nav-btn">📅 行事曆</a>
+  <a href="/bni-jututeam/members.html" class="nav-btn">👥 成員介紹</a>
   <a href="/bni-jututeam/gold.html" class="nav-btn">🥇 金質獎章</a>
   <a href="/bni-jututeam/calculator.html" class="nav-btn">📊 時間效益試算</a>
 </nav>
@@ -292,6 +290,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnL = active.offsetLeft;
     var btnW = active.offsetWidth;
     nav.scrollLeft = btnL - (navW / 2) + (btnW / 2);
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var nav = document.querySelector('.nav-bar');
+  var active = document.querySelector('.nav-btn.active');
+  if (nav && active) {
+    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth/2) + (active.offsetWidth/2);
   }
 });
 </script>
