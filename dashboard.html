@@ -221,7 +221,7 @@ const BRANCHES = [
 const MONTHS = [];
 const MONTH_LABELS = [];
 // PALMS month is always current month
-const PALMS_MONTH = '202604';
+const now = new Date(); const PALMS_MONTH = String(now.getFullYear()) + String(now.getMonth()+1).padStart(2,'0');
 
 // State
 let curMonth = '';
