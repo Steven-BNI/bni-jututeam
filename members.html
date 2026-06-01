@@ -83,22 +83,22 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 .vacancy-placeholder p { font-size:11px; }
 
 /* 卡片資訊 */
-.card-info { padding:10px 10px 12px; }
-.card-role { font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:4px; }
+.card-info { padding:12px 12px 14px; }
+.card-role { font-size:13px; font-weight:700; letter-spacing:1px; margin-bottom:4px; }
 .card-role.dc { color:#FFD700; }
 .card-role.amb { color:#C9A84C; }
 .card-role.asst { color:#9999cc; }
 .card-role.launch { color:#00d97e; }
 .card-role.coord { color:#ff9f40; }
-.card-name { font-size:15px; font-weight:700; color:#fff; margin-bottom:2px; }
-.card-branch { font-size:11px; color:var(--muted); margin-bottom:2px; }
-.card-profession { font-size:12px; color:var(--gold); margin-bottom:4px; }
-.card-award { display:inline-flex; align-items:center; gap:3px; font-size:10px; padding:2px 7px; border-radius:99px; margin-bottom:4px; }
-.card-award.double { background:rgba(255,215,0,0.12); color:#FFD700; border:1px solid rgba(255,215,0,0.3); }
-.card-award.single { background:rgba(201,168,76,0.12); color:var(--gold); border:1px solid rgba(201,168,76,0.3); }
-.card-ppt { display:flex; align-items:center; gap:4px; font-size:11px; color:#7a7a99; margin-top:4px; }
+.card-name { font-size:18px; font-weight:700; color:#fff; margin-bottom:2px; }
+.card-branch { font-size:13px; color:var(--muted); margin-bottom:2px; }
+.card-profession { font-size:14px; color:var(--gold); margin-bottom:4px; }
+.card-award { display:inline-flex; align-items:center; gap:3px; font-size:13px; padding:4px 10px; border-radius:99px; margin-bottom:4px; }
+.card-award.double { background:rgba(255,215,0,0.18); color:#FFD700; border:1.5px solid rgba(255,215,0,0.5); font-size:14px !important; font-weight:900; padding:5px 12px !important; }
+.card-award.single { background:rgba(201,168,76,0.15); color:var(--gold); border:1.5px solid rgba(201,168,76,0.4); font-size:13px !important; font-weight:700; padding:4px 10px !important; }
+.card-ppt { display:flex; align-items:center; gap:4px; font-size:13px; color:#7a7a99; margin-top:4px; }
 .card-ppt.has-ppt { color:#6699ff; }
-.card-no-ppt { font-size:10px; color:#444; margin-top:4px; }
+.card-no-ppt { font-size:12px; color:#444; margin-top:4px; }
 
 /* 分會資料夾區 */
 .branches-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:8px; }
@@ -116,8 +116,8 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 }
 .branch-card:hover { transform:translateY(-3px); border-color:var(--red); box-shadow:0 8px 24px rgba(232,0,29,0.15); }
 .branch-icon { font-size:32px; }
-.branch-name { font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#fff; }
-.branch-desc { font-size:11px; color:var(--muted); }
+.branch-name { font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:#fff; }
+.branch-desc { font-size:13px; color:var(--muted); }
 
 @media(min-width:600px) { .members-grid { grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); } }
 @media(min-width:900px) { .members-grid { grid-template-columns:repeat(auto-fill, minmax(170px,1fr)); } }
@@ -182,9 +182,9 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
       <img class="card-photo" src="https://drive.google.com/thumbnail?id=1NUjPi3LbuajAPpnHJVa0nx0sbRJsjZ_8&sz=w300" alt="林綉蓉" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-placeholder" style="display:none">👤</div>
       <div class="card-info">
-        <div class="card-role dc">董事顧問</div>
+        <div class="card-role dc">聚大分會 董事顧問</div>
         <div class="card-name">林綉蓉</div>
-        <div class="card-branch">聚財→聚大分會</div>
+        <div class="card-branch">聚財分會</div>
         <div class="card-profession">中日貿易</div>
         <div class="card-award double">🏆 雙金質</div>
         <div class="card-ppt has-ppt">📊 查看簡報</div>
@@ -194,9 +194,9 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
       <img class="card-photo" src="https://drive.google.com/thumbnail?id=1dYf_GWjm2HEyobrO_px2RFp5wCP_qzVZ&sz=w300" alt="吳宗憲" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-placeholder" style="display:none">👤</div>
       <div class="card-info">
-        <div class="card-role dc">董事顧問</div>
+        <div class="card-role dc">聚富分會 董事顧問</div>
         <div class="card-name">吳宗憲</div>
-        <div class="card-branch">聚財→聚富分會</div>
+        <div class="card-branch">聚財分會</div>
         <div class="card-profession">商空設計</div>
         <div class="card-award single">🥇 金質</div>
         <div class="card-ppt has-ppt">📊 查看簡報</div>
@@ -214,7 +214,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
       <img class="card-photo" src="https://drive.google.com/thumbnail?id=1zqRQ3bckDTY-VVyjWLDBhPyyv6sqaNJY&sz=w300" alt="陳虹君" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-placeholder" style="display:none">👤</div>
       <div class="card-info">
-        <div class="card-role amb">區域培訓大使</div>
+        <div class="card-role amb">大使｜區域培訓</div>
         <div class="card-name">陳虹君</div>
         <div class="card-branch">聚財分會</div>
         <div class="card-profession">蒙古火鍋</div>
@@ -226,7 +226,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
       <img class="card-photo" src="https://drive.google.com/thumbnail?id=1pYmWykqaOV2JjysP-O7W0IWWnKqMgsjw&sz=w300" alt="陳世祥" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-placeholder" style="display:none">👤</div>
       <div class="card-info">
-        <div class="card-role amb">政勤大使</div>
+        <div class="card-role amb">大使</div>
         <div class="card-name">陳世祥</div>
         <div class="card-branch">聚財分會</div>
         <div class="card-profession">科技驗屋</div>
@@ -237,7 +237,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
       <img class="card-photo" src="https://drive.google.com/thumbnail?id=16zYXOR1M1nz9IYE55RSYl-h_DCQVg-gd&sz=w300" alt="李佩玲" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-placeholder" style="display:none">👤</div>
       <div class="card-info">
-        <div class="card-role amb">聚道分會大使</div>
+        <div class="card-role amb">大使｜聚道分會</div>
         <div class="card-name">李佩玲</div>
         <div class="card-branch">聚財分會</div>
         <div class="card-profession">和牛銷售</div>
