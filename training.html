@@ -317,8 +317,12 @@ function renderTraining(rows) {
       var g2photo = convertGDriveUrl((row[idx('嘉賓2照片連結')]||'').trim());
       var g2topic = (row[idx('嘉賓2主題')]||'').trim();
       var g2intro = (row[idx('嘉賓2介紹')]||'').trim().replace(/\n/g,'<br>');
+      var g3name  = (row[idx('嘉賓3姓名')]||'').trim();
+      var g3photo = convertGDriveUrl((row[idx('嘉賓3照片連結')]||'').trim());
+      var g3topic = (row[idx('嘉賓3主題')]||'').trim();
+      var g3intro = (row[idx('嘉賓3介紹')]||'').trim().replace(/\n/g,'<br>');
       var albumUrl = (row[idx('活動相簿連結')]||'').trim();
-      var hasFeatured = g1name || g2name;
+      var hasFeatured = g1name || g2name || g3name;
       var pct = target > 0 ? Math.min(100, Math.round(current / target * 100)) : 0;
       var fillClass = pct >= 100 ? 'full' : (pct >= 70 ? 'warn' : '');
       var isFull = target > 0 && current >= target;
@@ -351,32 +355,50 @@ function renderTraining(rows) {
       // Guests
       if (hasFeatured) {
         html += '<div class="guests-title">🌟 特別嘉賓介紹</div>';
-        html += '<div class="guests-grid">';
-        if (g1name) {
-          html += '<div class="guest-card"><div class="guest-top">';
-          html += '<div class="guest-photo">';
-          if (g1photo) html += '<img src="' + g1photo + '" alt="' + g1name + '" onerror="this.parentNode.innerHTML=\'👤\'">';
-          else html += '👤';
-          html += '</div><div class="guest-info">';
-          html += '<div class="guest-name">' + g1name + '</div>';
-          if (g1topic) html += '<div class="guest-topic">「' + g1topic + '」</div>';
-          html += '</div></div>';
-          if (g1intro) html += '<div class="guest-intro">' + g1intro + '</div>';
-          html += '</div>';
+
+        function guestCardHtml(gname, gphoto, gtopic, gintro) {
+          var s = '<div class="guest-card"><div class="guest-top">';
+          s += '<div class="guest-photo">';
+          if (gphoto) s += '<img src="' + gphoto + '" alt="' + gname + '" onerror="this.parentNode.innerHTML=\'👤\'">';
+          else s += '👤';
+          s += '</div><div class="guest-info">';
+          s += '<div class="guest-name">' + gname + '</div>';
+          if (gtopic) s += '<div class="guest-topic">「' + gtopic + '」</div>';
+          s += '</div></div>';
+          if (gintro) s += '<div class="guest-intro">' + gintro + '</div>';
+          s += '</div>';
+          return s;
         }
-        if (g2name) {
-          html += '<div class="guest-card"><div class="guest-top">';
-          html += '<div class="guest-photo">';
-          if (g2photo) html += '<img src="' + g2photo + '" alt="' + g2name + '" onerror="this.parentNode.innerHTML=\'👤\'">';
-          else html += '👤';
-          html += '</div><div class="guest-info">';
-          html += '<div class="guest-name">' + g2name + '</div>';
-          if (g2topic) html += '<div class="guest-topic">「' + g2topic + '」</div>';
-          html += '</div></div>';
-          if (g2intro) html += '<div class="guest-intro">' + g2intro + '</div>';
+
+        // 情境1：只有嘉賓1（全寬）
+        // 情境2：嘉賓1 + 嘉賓2（並排）
+        // 情境3：嘉賓1 + 嘉賓2 + 嘉賓3（嘉賓1全寬，嘉賓2+3並排）
+        if (g1name && !g2name && !g3name) {
+          // 只有一位：全寬
+          html += '<div class="guests-grid" style="grid-template-columns:1fr">';
+          html += guestCardHtml(g1name, g1photo, g1topic, g1intro);
           html += '</div>';
+        } else if (g1name && (g2name || g3name) && !g3name) {
+          // 兩位：並排
+          html += '<div class="guests-grid">';
+          html += guestCardHtml(g1name, g1photo, g1topic, g1intro);
+          if (g2name) html += guestCardHtml(g2name, g2photo, g2topic, g2intro);
+          html += '</div>';
+        } else {
+          // 三位：嘉賓1全寬，嘉賓2+3並排（含各自標籤）
+          if (g1name) {
+            html += '<div class="guests-grid" style="grid-template-columns:1fr">';
+            html += guestCardHtml(g1name, g1photo, g1topic, g1intro);
+            html += '</div>';
+          }
+          if (g2name || g3name) {
+            html += '<div class="guests-sub-label" style="font-size:12px;color:var(--muted);letter-spacing:2px;margin:10px 0 8px;font-family:\'Oswald\',sans-serif;">同台分享</div>';
+            html += '<div class="guests-grid">';
+            if (g2name) html += guestCardHtml(g2name, g2photo, g2topic, g2intro);
+            if (g3name) html += guestCardHtml(g3name, g3photo, g3topic, g3intro);
+            html += '</div>';
+          }
         }
-        html += '</div>';
       }
 
       // ── 報名按鈕區 ──
