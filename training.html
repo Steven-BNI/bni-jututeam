@@ -267,6 +267,18 @@ function renderTraining(rows) {
     return d < today;
   }
 
+  function isRegistrationClosed(dateStr) {
+    // 培訓日前第3天 23:59:59 為報名截止
+    if (!dateStr) return false;
+    var p = dateStr.split('/');
+    if (p.length < 3) return false;
+    var trainingDate = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    var deadline = new Date(trainingDate);
+    deadline.setDate(deadline.getDate() - 3);
+    deadline.setHours(23, 59, 59, 999);
+    return new Date() > deadline;
+  }
+
   // Group by month，分未來/過去
   var months = {};
   var monthOrder = [];
@@ -307,8 +319,18 @@ function renderTraining(rows) {
       var location   = (row[idx('地點')]||'').trim();
       var current    = parseFloat(row[idx('報名人數')]) || 0;
       var target     = parseFloat(row[idx('目標人數')]) || 0;
-      var feeGeneral = parseFloat(row[idx('報名費用')]) || 0;
-      var feeMentor  = parseFloat(row[idx('認證導師費用')]) || 0;
+      var feeGeneral    = parseFloat(row[idx('報名費用')]) || 0;
+      var feeEarly      = parseFloat(row[idx('早鳥價')]) || 0;
+      var earlyDeadline = (row[idx('早鳥截止日')]||'').trim();
+      var timeSlot      = (row[idx('培訓時段')]||'').trim();
+      var feeMentor     = parseFloat(row[idx('認證導師費用')]) || 0;
+      // 判斷早鳥期間
+      var isEarly = false; var feeActive = feeGeneral;
+      if (feeEarly > 0 && earlyDeadline) {
+        var dp = earlyDeadline.replace(/\//g,'-').split('-');
+        var dlDate = new Date(parseInt(dp[0]), parseInt(dp[1])-1, parseInt(dp[2]), 23, 59, 59);
+        if (new Date() <= dlDate) { isEarly = true; feeActive = feeEarly; }
+      }
       var g1name  = (row[idx('嘉賓1姓名')]||'').trim();
       var g1photo = convertGDriveUrl((row[idx('嘉賓1照片連結')]||'').trim());
       var g1topic = (row[idx('嘉賓1主題')]||'').trim();
@@ -337,6 +359,7 @@ function renderTraining(rows) {
       html += '<div class="training-name">' + name + cancelBadge + '</div>';
       html += '<div class="training-meta">';
       html += '<span>📅 ' + formatDate(date) + '</span>';
+      if (timeSlot) html += '<span>🕐 ' + timeSlot + '</span>';
       if (location) html += '<span>📍 ' + location + '</span>';
       html += '</div>';
       html += '</div>';
@@ -405,8 +428,11 @@ function renderTraining(rows) {
       var registerUrl = 'register.html'
         + '?name=' + encodeURIComponent(name)
         + '&date=' + encodeURIComponent(date)
+        + '&slot=' + encodeURIComponent(timeSlot)
         + '&loc='  + encodeURIComponent(location)
         + '&fee='  + feeGeneral
+        + '&efee=' + feeEarly
+        + '&edl='  + encodeURIComponent(earlyDeadline)
         + '&mfee=' + feeMentor
         + '&type=' + encodeURIComponent(name);
 
@@ -415,7 +441,13 @@ function renderTraining(rows) {
       // 費用顯示
       html += '<div class="fee-info">';
       if (feeGeneral > 0) {
-        html += '費用：<strong>NT$ ' + feeGeneral.toLocaleString() + '</strong>';
+        if (isEarly) {
+          html += '早鳥價：<strong style="color:var(--green)">NT$ ' + feeActive.toLocaleString() + '</strong>'
+                + '&nbsp;<span style="text-decoration:line-through;color:var(--muted);font-size:13px">NT$ ' + feeGeneral.toLocaleString() + '</span>'
+                + '&nbsp;<span style="font-size:12px;background:rgba(61,186,138,0.15);color:var(--green);padding:2px 8px;border-radius:20px;font-weight:700">🐤 截止 ' + earlyDeadline + '</span>';
+        } else {
+          html += '費用：<strong>NT$ ' + feeGeneral.toLocaleString() + '</strong>';
+        }
         if (feeMentor > 0 && isMSP(name)) {
           html += '&nbsp;&nbsp;導師：<strong>NT$ ' + feeMentor.toLocaleString() + '</strong>';
         }
@@ -429,6 +461,8 @@ function renderTraining(rows) {
         html += '<span style="font-size:13px;color:#ff4444;">⚠️ 活動已取消</span>';
       } else if (expired) {
         html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
+      } else if (isRegistrationClosed(date)) {
+        html += '<a class="btn-register full" style="background:rgba(255,255,255,0.06);cursor:default;">🔒 報名已截止</a>';
       } else if (isFull) {
         html += '<a class="btn-register full">⛔ 報名已額滿</a>';
       } else {

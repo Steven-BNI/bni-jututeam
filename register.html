@@ -742,22 +742,51 @@ let state = {
 function init() {
   const params = new URLSearchParams(location.search);
 
+  // 早鳥判斷
+  var _feeGeneral  = parseInt(params.get('fee')  || '0');
+  var _feeEarly    = parseInt(params.get('efee') || '0');
+  var _earlyDL     = params.get('edl') || '';
+  var _isEarly     = false;
+  var _feeActive   = _feeGeneral;
+  if (_feeEarly > 0 && _earlyDL) {
+    var _dp = _earlyDL.replace(/\//g,'-').split('-');
+    var _dlDate = new Date(parseInt(_dp[0]), parseInt(_dp[1])-1, parseInt(_dp[2]), 23, 59, 59);
+    if (new Date() <= _dlDate) { _isEarly = true; _feeActive = _feeEarly; }
+  }
+
   state.training = {
     date:        params.get('date')     || '日期待定',
     name:        params.get('name')     || '培訓活動',
     location:    params.get('loc')      || '地點待定',
-    feeGeneral:  parseInt(params.get('fee') || '0'),
+    timeSlot:    params.get('slot')     || '',
+    feeGeneral:  _feeGeneral,
+    feeEarly:    _feeEarly,
+    earlyDL:     _earlyDL,
+    isEarly:     _isEarly,
+    feeActive:   _feeActive,   // 實際收費（早鳥或原價）
     feeMentor:   parseInt(params.get('mfee') || '0'),
-    type:        params.get('type')     || '',   // 用於判斷是否顯示導師價
-    rowIndex:    params.get('row')      || '',   // 試算表列號（for GAS 寫入）
+    type:        params.get('type')     || '',
+    rowIndex:    params.get('row')      || '',
   };
 
   // 填入培訓資訊
   document.getElementById('display-training-name').textContent = state.training.name;
-  document.getElementById('display-training-date').textContent = state.training.date;
+  var dateDisplay = state.training.date + (state.training.timeSlot ? '　' + state.training.timeSlot : '');
+  document.getElementById('display-training-date').textContent = dateDisplay;
   document.getElementById('display-training-location').textContent = state.training.location;
-  document.getElementById('price-general').textContent =
-    state.training.feeGeneral > 0 ? `NT$ ${state.training.feeGeneral.toLocaleString()}` : 'NT$ —';
+  // 費用顯示（含早鳥）
+  var priceEl = document.getElementById('price-general');
+  if (state.training.feeActive > 0) {
+    if (state.training.isEarly) {
+      priceEl.innerHTML = '<span style="color:#3dba8a;font-weight:700">NT$ ' + state.training.feeActive.toLocaleString() + '</span>'
+        + ' <span style="text-decoration:line-through;color:#7a7a99;font-size:13px">NT$ ' + state.training.feeGeneral.toLocaleString() + '</span>'
+        + '<br><span style="font-size:12px;color:#3dba8a">🐤 早鳥優惠，截止 ' + state.training.earlyDL + '</span>';
+    } else {
+      priceEl.textContent = 'NT$ ' + state.training.feeActive.toLocaleString();
+    }
+  } else {
+    priceEl.textContent = 'NT$ —';
+  }
 
   // 判斷是否顯示認證導師選項
   const isMSP = CONFIG.MENTOR_TRAINING_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
@@ -776,7 +805,7 @@ function selectIdentity(card) {
   state.identity = card.dataset.identity;
 
   switch (state.identity) {
-    case 'general': state.fee = state.training.feeGeneral; break;
+    case 'general': state.fee = state.training.feeActive; break;
     case 'mentor':  state.fee = state.training.feeMentor;  break;
     case 'staff':   state.fee = 0; break;
   }
@@ -955,25 +984,39 @@ function goBack(toStep) {
 }
 
 // 啟動
-// init();  ← 開放時取消註解，並刪除下方 comingSoon()
-
-function comingSoon() {
-  // 測試模式：網址加 ?test=bni2026 可繞過
-  const params = new URLSearchParams(location.search);
-  if (params.get('test') === 'bni2026') {
-    init();
-    return;
-  }
-  document.querySelector('.page-wrap').innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:20px;padding:32px 16px;">
-      <div style="font-size:52px;">🔧</div>
-      <div style="font-size:22px;font-weight:700;color:#fff;">線上報名功能即將開放</div>
-      <div style="font-size:14px;color:#888;line-height:1.9;">目前報名系統正在建置中<br>請直接聯繫您的分會聯絡人完成報名<br>感謝您的耐心等候 🙏</div>
-      <a href="training.html" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#C9A84C,#E8C96A);color:#000;text-decoration:none;padding:13px 28px;border-radius:10px;font-size:15px;font-weight:700;">← 返回培訓公告</a>
-    </div>
-  `;
+function checkRegistrationDeadline(dateStr) {
+  // 培訓日前第3天 23:59:59 為報名截止
+  // 例：10/15 培訓 → 10/12 23:59:59 截止
+  if (!dateStr) return false;
+  var parts = dateStr.replace(/\//g,'-').split('-');
+  if (parts.length < 3) return false;
+  var trainingDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var deadline = new Date(trainingDate);
+  deadline.setDate(deadline.getDate() - 3);
+  deadline.setHours(23, 59, 59, 999);
+  return new Date() > deadline;
 }
-comingSoon();
+
+function showClosed(reason) {
+  document.querySelector('.page-wrap').innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:20px;padding:32px 16px;">'
+    + '<div style="font-size:52px;">🔒</div>'
+    + '<div style="font-size:22px;font-weight:700;color:#fff;">' + reason + '</div>'
+    + '<div style="font-size:14px;color:#888;line-height:1.9;">如有疑問請聯繫您的分會聯絡人</div>'
+    + '<a href="training.html" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#C9A84C,#E8C96A);color:#000;text-decoration:none;padding:13px 28px;border-radius:10px;font-size:15px;font-weight:700;">← 返回培訓公告</a>'
+    + '</div>';
+}
+
+// 啟動：檢查報名截止後再 init
+(function() {
+  var params = new URLSearchParams(location.search);
+  var dateStr = params.get('date') || '';
+  if (checkRegistrationDeadline(dateStr)) {
+    showClosed('此場培訓報名已截止');
+  } else {
+    init();
+  }
+})();
 
 
 </script>
