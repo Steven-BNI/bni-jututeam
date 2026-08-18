@@ -93,6 +93,15 @@ h1 em { color:var(--red); font-style:normal; }
 .badge-general { background:rgba(122,122,153,0.2); color:var(--muted); border:1px solid var(--border); }
 .badge-featured { background:rgba(255,217,74,0.15); color:var(--yellow); border:1px solid rgba(255,217,74,0.3); }
 
+/* Month tab */
+.month-tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:12px 16px 0; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; }
+.month-tabs::-webkit-scrollbar { display:none; }
+.month-tab { flex-shrink:0; padding:8px 16px; border-radius:8px 8px 0 0; font-size:13px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; border:none; background:transparent; color:var(--muted); transition:all 0.2s; border-bottom:3px solid transparent; margin-bottom:-1px; }
+.month-tab:hover { color:var(--text); }
+.month-tab.active { color:var(--red); border-bottom-color:var(--red); }
+.month-tab.expired-tab { color:#444; }
+.month-section { scroll-margin-top: 90px; }
+
 /* Month section */
 .month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
 .month-title::after { content:''; flex:1; height:1px; background:var(--border); }
@@ -304,6 +313,17 @@ function renderTraining(rows) {
     return a > b ? 1 : -1;
   });
 
+  // 建立月份 tab
+  var tabHtml = '<div class="month-tabs" id="monthTabs">';
+  monthOrder.forEach(function(mk) {
+    var mp = mk.split('/');
+    var mlabel = mp.length >= 2 ? parseInt(mp[1]) + '月' : mk;
+    var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
+    tabHtml += '<button class="month-tab' + (mExpired ? ' expired-tab' : '') + '" onclick="scrollToMonth('' + mk + '')" id="tab-' + mk.replace('/','_') + '">' + mlabel + '</button>';
+  });
+  tabHtml += '</div>';
+  document.getElementById('trainingContainer').insertAdjacentHTML('beforebegin', tabHtml);
+
   var html = '';
 
   monthOrder.forEach(function(monthKey) {
@@ -311,7 +331,7 @@ function renderTraining(rows) {
     var parts = monthKey.split('/');
     var monthLabel = parts.length >= 2 ? parts[0] + ' 年 ' + parts[1] + ' 月' : monthKey;
     var monthExpired = monthRows.every(function(r){ return isEffectivelyDone(r); });
-    html += '<div class="month-title' + (monthExpired ? ' expired-month' : '') + '">📅 ' + monthLabel + (monthExpired ? ' <span class="expired-badge">已結束</span>' : '') + '</div>';
+    html += '<div class="month-section month-title' + (monthExpired ? ' expired-month' : '') + '" id="month-' + monthKey.replace('/','_') + '">📅 ' + monthLabel + (monthExpired ? ' <span class="expired-badge">已結束</span>' : '') + '</div>';
 
     monthRows.forEach(function(row) {
       var date       = (row[idx('培訓日期')]||'').trim();
@@ -481,6 +501,45 @@ function renderTraining(rows) {
   });
 
   document.getElementById('mainContent').innerHTML = html;
+
+  // 月份 tab 點擊跳轉
+  window.scrollToMonth = function(mk) {
+    var el = document.getElementById('month-' + mk.replace('/','_'));
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    document.querySelectorAll('.month-tab').forEach(function(t){ t.classList.remove('active'); });
+    var btn = document.getElementById('tab-' + mk.replace('/','_'));
+    if (btn) btn.classList.add('active');
+  };
+
+  // 自動 active 最近的未來月份
+  var found = false;
+  for (var mi = 0; mi < monthOrder.length; mi++) {
+    var mk = monthOrder[mi];
+    var mAllExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
+    if (!mAllExpired) {
+      var activeBtn = document.getElementById('tab-' + mk.replace('/','_'));
+      if (activeBtn) activeBtn.classList.add('active');
+      found = true;
+      break;
+    }
+  }
+  if (!found && monthOrder.length > 0) {
+    var lastBtn = document.getElementById('tab-' + monthOrder[monthOrder.length-1].replace('/','_'));
+    if (lastBtn) lastBtn.classList.add('active');
+  }
+
+  // 滑動時同步 tab active
+  window.addEventListener('scroll', function() {
+    var sections = document.querySelectorAll('.month-section');
+    var scrollY = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(s) { if (s.offsetTop <= scrollY) current = s; });
+    if (current) {
+      document.querySelectorAll('.month-tab').forEach(function(t){ t.classList.remove('active'); });
+      var b = document.getElementById('tab-' + current.id.replace('month-',''));
+      if (b) b.classList.add('active');
+    }
+  }, {passive:true});
 }
 
 loadTraining();
