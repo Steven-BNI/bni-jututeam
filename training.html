@@ -322,7 +322,7 @@ function renderTraining(rows) {
     tabHtml += '<button class="month-tab' + (mExpired ? ' expired-tab' : '') + '" onclick="scrollToMonth('' + mk + '')" id="tab-' + mk.replace('/','_') + '">' + mlabel + '</button>';
   });
   tabHtml += '</div>';
-  document.getElementById('trainingContainer').insertAdjacentHTML('beforebegin', tabHtml);
+  // tab 在 innerHTML 設定後再插入
 
   var html = '';
 
@@ -501,6 +501,11 @@ function renderTraining(rows) {
   });
 
   document.getElementById('mainContent').innerHTML = html;
+
+  // 插入月份 tab 到 mainContent 前面
+  var existingTabs = document.getElementById('monthTabs');
+  if (existingTabs) existingTabs.remove();
+  document.getElementById('mainContent').insertAdjacentHTML('beforebegin', tabHtml);
 
   // 月份 tab 點擊跳轉
   window.scrollToMonth = function(mk) {
