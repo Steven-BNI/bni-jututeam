@@ -97,10 +97,20 @@ h1 em { color:var(--red); font-style:normal; }
 .month-title { font-family:'Oswald',sans-serif; font-size:16px; color:var(--red); margin:24px 0 12px; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
 .month-title::after { content:''; flex:1; height:1px; background:var(--border); }
 /* 月份下拉選單 */
-.month-selector-wrap { padding:12px 16px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:10px; }
+.month-selector-wrap { padding:12px 16px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; align-items:center; gap:10px; }
 .month-selector-wrap label { font-size:12px; color:var(--muted); font-weight:700; letter-spacing:1px; font-family:'Oswald',sans-serif; white-space:nowrap; }
-.month-selector { background:var(--surface2); border:1.5px solid var(--gold-border,rgba(201,168,76,0.3)); border-radius:8px; color:var(--text); font-size:14px; font-weight:700; font-family:'Noto Sans TC',sans-serif; padding:7px 32px 7px 12px; outline:none; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23C9A84C' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; min-width:120px; }
-.month-selector:focus { border-color:var(--gold,#C9A84C); }
+/* 自製下拉選單 */
+.custom-select { position:relative; min-width:130px; }
+.custom-select-btn { background:var(--surface2); border:1.5px solid rgba(201,168,76,0.3); border-radius:8px; color:var(--text); font-size:14px; font-weight:700; font-family:'Noto Sans TC',sans-serif; padding:7px 32px 7px 12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; user-select:none; }
+.custom-select-btn::after { content:''; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid #C9A84C; flex-shrink:0; transition:transform 0.2s; }
+.custom-select.open .custom-select-btn { border-color:#C9A84C; }
+.custom-select.open .custom-select-btn::after { transform:rotate(180deg); }
+.custom-select-dropdown { position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--surface2); border:1.5px solid rgba(201,168,76,0.3); border-radius:8px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.4); display:none; z-index:200; min-width:140px; }
+.custom-select.open .custom-select-dropdown { display:block; }
+.custom-select-option { padding:10px 14px; font-size:13px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; color:var(--text); transition:background 0.15s; }
+.custom-select-option:hover { background:rgba(201,168,76,0.12); }
+.custom-select-option.selected { color:#C9A84C; background:rgba(201,168,76,0.08); }
+.custom-select-option.expired { color:#555; font-weight:400; }
 .month-block { display:none; }
 .month-block.active { display:block; }
 .training-card.expired { position: relative; }
@@ -329,18 +339,19 @@ function renderTraining(rows) {
   }
 
   // 建立下拉選單
-  var selectHtml = '<div class="month-selector-wrap">'
-    + '<label>📅 月份</label>'
-    + '<select class="month-selector" id="monthSelect" onchange="switchMonth(this.value)">';
+  var curLabel = '';
+  var selectHtml = '<div class="month-selector-wrap"><label>📅 月份</label><div class="custom-select" id="customSelect"><div class="custom-select-btn" id="customSelectBtn">--</div><div class="custom-select-dropdown" id="customSelectDropdown">';
   monthOrder.forEach(function(mk) {
     var mp = mk.split('/');
     var mlabel = mp.length >= 2 ? parseInt(mp[1]) + ' 月' : mk;
     var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
-    var optStyle = mExpired ? ' style="color:#555"' : '';
-    if (mExpired) mlabel = mlabel + ' （已結束）';
-    selectHtml += '<option value="' + mk + '"' + (mk === defaultMk ? ' selected' : '') + optStyle + '>' + mlabel + '</option>';
+    var cls = 'custom-select-option' + (mk === defaultMk ? ' selected' : '') + (mExpired ? ' expired' : '');
+    var displayLabel = mExpired ? mlabel + '（已結束）' : mlabel;
+    if (mk === defaultMk) curLabel = mlabel;
+    selectHtml += '<div class="' + cls + '" data-value="' + mk + '" onclick="selectMonth(\'' + mk + '\', \'' + mlabel + '\')">'
+      + displayLabel + '</div>';
   });
-  selectHtml += '</select></div>';
+  selectHtml += '</div></div></div>';
 
   var html = selectHtml;
 
@@ -524,12 +535,37 @@ function renderTraining(rows) {
   document.getElementById('mainContent').innerHTML = html;
 
   // 切換月份函數
-  window.switchMonth = function(mk) {
+  // 初始化按鈕文字
+  setTimeout(function(){
+    var btn = document.getElementById('customSelectBtn');
+    if (btn) btn.textContent = curLabel || (defaultMk.split('/')[1]|0) + ' 月';
+  }, 0);
+
+  // 自製下拉開關
+  document.addEventListener('click', function(e){
+    var sel = document.getElementById('customSelect');
+    if (!sel) return;
+    if (sel.contains(e.target)) {
+      sel.classList.toggle('open');
+    } else {
+      sel.classList.remove('open');
+    }
+  });
+
+  window.selectMonth = function(mk, label) {
     document.querySelectorAll('.month-block').forEach(function(b){ b.classList.remove('active'); });
     var block = document.getElementById('mb-' + mk.replace('/','_'));
     if (block) block.classList.add('active');
+    var btn = document.getElementById('customSelectBtn');
+    if (btn) btn.textContent = label;
+    document.querySelectorAll('.custom-select-option').forEach(function(o){ o.classList.remove('selected'); });
+    var opt = document.querySelector('.custom-select-option[data-value="' + mk + '"]');
+    if (opt) opt.classList.add('selected');
+    document.getElementById('customSelect').classList.remove('open');
     window.scrollTo(0, 0);
   };
+
+  window.switchMonth = window.selectMonth;
 }
 
 loadTraining();
