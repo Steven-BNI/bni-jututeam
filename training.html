@@ -340,8 +340,15 @@ function renderTraining(rows) {
 
   // 建立下拉選單
   var curLabel = '';
-  // 選單按時間順序排
-  var menuOrder = monthOrder.slice().sort(function(a,b){ return a > b ? 1 : -1; });
+  // 選單排序：未來/當月 升冪，過期 降到底
+  var menuOrder = monthOrder.slice().sort(function(a,b){
+    var aExp = months[a].every(function(r){ return isEffectivelyDone(r); });
+    var bExp = months[b].every(function(r){ return isEffectivelyDone(r); });
+    if (aExp && !bExp) return 1;
+    if (!aExp && bExp) return -1;
+    if (!aExp && !bExp) return a > b ? 1 : -1;  // 未來按時間升冪
+    return a < b ? 1 : -1;  // 已結束按時間降冪（最近的在上）
+  });
   var selectHtml = '<div class="month-selector-wrap"><label>📅 月份</label><div class="custom-select" id="customSelect"><div class="custom-select-btn" id="customSelectBtn">--</div><div class="custom-select-dropdown" id="customSelectDropdown">';
   menuOrder.forEach(function(mk) {
     var mp = mk.split('/');
@@ -349,6 +356,9 @@ function renderTraining(rows) {
     var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
     var cls = 'custom-select-option' + (mk === defaultMk ? ' selected' : '') + (mExpired ? ' expired' : '');
     var displayLabel = mExpired ? mlabel + '（已結束）' : mlabel;
+    // 第一個已結束月份前加分隔線
+    var isFirstExpired = mExpired && !menuOrder.slice(0, menuOrder.indexOf(mk)).some(function(pmk){ return months[pmk].every(function(r){ return isEffectivelyDone(r); }); });
+    if (isFirstExpired) selectHtml += '<div style="border-top:1px solid rgba(255,255,255,0.08);margin:4px 0"></div>';
     if (mk === defaultMk) curLabel = mlabel;
     selectHtml += '<div class="' + cls + '" data-value="' + mk + '" onclick="selectMonth(\'' + mk + '\', \'' + mlabel + '\')">'
       + displayLabel + '</div>';
