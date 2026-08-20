@@ -319,7 +319,7 @@ function renderTraining(rows) {
     var mp = mk.split('/');
     var mlabel = mp.length >= 2 ? parseInt(mp[1]) + '月' : mk;
     var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
-    tabHtml += '<button class="month-tab' + (mExpired ? ' expired-tab' : '') + '" onclick="scrollToMonth('' + mk + '')" id="tab-' + mk.replace('/','_') + '">' + mlabel + '</button>';
+    tabHtml += '<button class="month-tab' + (mExpired ? ' expired-tab' : '') + '" onclick="scrollToMonth(\'' + mk + '\')" id="tab-' + mk.replace('/','_') + '">' + mlabel + '</button>';
   });
   tabHtml += '</div>';
   // tab 在 innerHTML 設定後再插入
