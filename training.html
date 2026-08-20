@@ -384,6 +384,8 @@ function renderTraining(rows) {
       var earlyDeadline = (row[idx('早鳥截止日')]||'').trim();
       var timeSlot      = (row[idx('培訓時段')]||'').trim();
       var feeMentor     = parseFloat(row[idx('認證導師費用')]) || 0;
+      var needMeal      = (row[idx('需要餐點')]||'').trim();
+      var mealFlag      = (needMeal.toUpperCase() === 'Y' || needMeal === '是') ? '1' : '0';
       // 判斷早鳥期間
       var isEarly = false; var feeActive = feeGeneral;
       if (feeEarly > 0 && earlyDeadline) {
@@ -494,6 +496,7 @@ function renderTraining(rows) {
         + '&efee=' + feeEarly
         + '&edl='  + encodeURIComponent(earlyDeadline)
         + '&mfee=' + feeMentor
+        + '&meal=' + mealFlag
         + '&type=' + encodeURIComponent(name);
 
       html += '<div class="register-row">';

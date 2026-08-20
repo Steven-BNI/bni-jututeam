@@ -685,6 +685,15 @@
       <input type="email" class="form-input" id="input-email" placeholder="yourname@example.com" />
     </div>
 
+    <div class="form-group" id="meal-group" style="display:none">
+      <label class="form-label">餐點葷素<span class="required">*</span></label>
+      <select class="form-input" id="input-meal" style="cursor:pointer">
+        <option value="">請選擇餐點</option>
+        <option value="葷">葷食</option>
+        <option value="素">素食</option>
+      </select>
+    </div>
+
     <!-- 費用摘要 -->
     <div class="fee-summary">
       <div class="fee-row">
@@ -842,7 +851,11 @@ function init() {
     feeMentor:   parseInt(params.get('mfee') || '0'),
     type:        params.get('type')     || '',
     rowIndex:    params.get('row')      || '',
+    needMeal:    params.get('meal')     === '1',
   };
+
+  // 顯示/隱藏餐點葷素欄位
+  document.getElementById('meal-group').style.display = state.training.needMeal ? 'block' : 'none';
 
   // 填入培訓資訊
   document.getElementById('display-training-name').textContent = state.training.name;
@@ -911,6 +924,7 @@ function goToConfirm() {
   const chapter = document.getElementById('input-chapter').value.trim();
   const phone   = document.getElementById('input-phone').value.trim();
   const email   = document.getElementById('input-email').value.trim();
+  const meal    = state.training.needMeal ? document.getElementById('input-meal').value.trim() : '';
 
   let valid = true;
 
@@ -926,6 +940,12 @@ function goToConfirm() {
     if (!rule(val)) valid = false;
   });
 
+  if (state.training.needMeal) {
+    const mealEl = document.getElementById('input-meal');
+    mealEl.classList.toggle('error', !meal);
+    if (!meal) valid = false;
+  }
+
   if (!valid) {
     // 滾動到第一個錯誤
     const first = document.querySelector('.form-input.error');
@@ -933,7 +953,7 @@ function goToConfirm() {
     return;
   }
 
-  state.formData = { name, chapter, phone, email };
+  state.formData = { name, chapter, phone, email, meal };
 
   // 填入確認頁
   const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
@@ -947,6 +967,7 @@ function goToConfirm() {
     <div class="confirm-row"><div class="confirm-row-key">分會</div><div class="confirm-row-val">${chapter}</div></div>
     <div class="confirm-row"><div class="confirm-row-key">電話</div><div class="confirm-row-val">${phone}</div></div>
     <div class="confirm-row"><div class="confirm-row-key">Email</div><div class="confirm-row-val">${email}</div></div>
+    ${state.training.needMeal ? `<div class="confirm-row"><div class="confirm-row-key">餐點</div><div class="confirm-row-val">${meal}</div></div>` : ''}
     <div class="confirm-row"><div class="confirm-row-key">身份</div><div class="confirm-row-val">${identityLabel}</div></div>
     <div class="confirm-row"><div class="confirm-row-key">費用</div><div class="confirm-row-val highlight">${feeText}</div></div>
   `;
@@ -1014,6 +1035,7 @@ async function submitRegistration() {
     chapter:      state.formData.chapter,
     phone:        state.formData.phone,
     email:        state.formData.email,
+    meal:         state.formData.meal || '',
     identity:     state.identity,
     fee:          state.fee,
     payMethod:    state.payMethod || 'card',
