@@ -15,76 +15,71 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --red: #E8001D;
-  --bg: #0a0a0f;
-  --surface: #13131c;
-  --border: rgba(255,255,255,0.07);
-  --text: #f0f0f5;
-  --muted: #6b6b8a;
+  --red:#E8001D; --bg:#0a0a0f; --surface:#13131c; --border:rgba(255,255,255,0.07);
+  --text:#f0f0f5; --muted:#8a8a96; --gold:#C9A84C; --green:#1D9E75; --orange:#EF9F27; --blue:#5B9BD5;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-serif; min-height:100vh; }
 
-/* Header */
-.header {
-  background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%);
-  padding:28px 20px 24px;
-  border-bottom:2px solid var(--red);
-  position:relative; overflow:hidden;
-}
+.header { background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%); padding:28px 20px 24px; border-bottom:2px solid var(--red); position:relative; overflow:hidden; }
 .header::after { content:'2026'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-family:'Oswald',sans-serif; font-size:100px; font-weight:900; color:rgba(232,0,29,0.04); letter-spacing:-2px; pointer-events:none; }
 .header-eyebrow { font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:4px; color:var(--red); margin-bottom:6px; }
 .header-title { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:#fff; line-height:1.2; margin-bottom:4px; }
 .header-title em { color:var(--red); font-style:normal; }
 .header-sub { font-size:13px; color:rgba(255,255,255,0.4); letter-spacing:1px; }
 
-/* Main */
-.main { padding:24px 16px 60px; max-width:700px; margin:0 auto; text-align:center; }
-.progress-img { width:100%; max-width:700px; border-radius:16px; display:block; margin:0 auto; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
+.nav-bar { background:#13131a; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; gap:8px; align-items:center; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:50; }
+.nav-bar::-webkit-scrollbar { display:none; }
+.nav-btn { padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:#7a7a99; font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; flex-shrink:0; }
+.nav-btn:hover { border-color:#E8001D; color:#E8001D; }
+.nav-btn.active { background:#E8001D; border-color:#E8001D; color:#fff; }
 
-.footer-note {
-  text-align:center; padding:20px;
-  font-size:14px; color:var(--muted);
-  border-top:1px solid var(--border);
-  line-height:1.8;
+.main { padding:24px 16px 60px; max-width:760px; margin:0 auto; }
+
+/* 總覽列 */
+.stats-row { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom:28px; }
+.stat-pill { border:1.5px solid; border-radius:99px; padding:7px 16px; font-size:14px; font-weight:700; }
+
+/* 分會卡片 */
+.branch-card { background:var(--surface); border-radius:16px; border-left:5px solid var(--accent,var(--orange)); border-top:1.5px solid var(--border); border-right:1.5px solid var(--border); border-bottom:1.5px solid var(--border); margin-bottom:20px; padding:24px 22px; animation:fadeUp 0.4s ease both; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.card-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.branch-name-row { display:flex; align-items:baseline; gap:10px; }
+.branch-name { font-family:'Oswald',sans-serif; font-size:26px; font-weight:700; color:var(--gold); }
+.branch-tag { font-size:13px; color:var(--muted); }
+.branch-roles { text-align:right; font-size:14px; color:var(--text); line-height:1.6; }
+.new-badge { display:inline-block; border:1.5px solid var(--green); color:var(--green); border-radius:99px; padding:4px 12px; font-size:13px; font-weight:700; margin-bottom:6px; }
+
+.pill-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+.pill { border:1.5px solid; border-radius:99px; padding:5px 14px; font-size:13px; font-weight:700; }
+
+.progress-num-row { display:flex; justify-content:flex-end; align-items:baseline; gap:4px; margin-bottom:8px; }
+.progress-num { font-family:'Oswald',sans-serif; font-size:36px; font-weight:900; color:var(--accent,var(--orange)); }
+.progress-denom { font-size:18px; color:var(--muted); }
+.progress-track { width:100%; height:9px; border-radius:5px; background:#1a1a26; overflow:hidden; margin-bottom:8px; }
+.progress-fill { height:100%; background:var(--accent,var(--orange)); border-radius:5px; transition:width 0.6s ease; }
+.progress-meta { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:18px; }
+
+.member-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.member-row { background:#1a1a26; border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; font-size:14px; }
+.member-row.is-new { background:#15332a; }
+.member-name { font-weight:700; }
+.member-name.new { color:var(--green); }
+.member-role { color:var(--muted); font-size:12px; }
+
+.dna-label { font-size:13px; color:var(--muted); font-weight:700; margin-bottom:10px; }
+.dna-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; }
+.dna-chip { border:1.5px solid var(--blue); color:var(--blue); border-radius:8px; padding:9px 6px; text-align:center; font-size:13px; font-weight:700; }
+
+@media(max-width:480px){
+  .member-grid { grid-template-columns:1fr; }
+  .branch-roles { text-align:left; }
+  .card-head { flex-direction:column; }
 }
 
-@media(min-width:640px){
-  .main { padding:28px 24px 60px; }
-}
-
-/* ── 統一導覽列 ── */
-.nav-bar {
-  background: #13131a;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 10px 16px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  overflow-x: auto;
-  scrollbar-width: none;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.nav-bar::-webkit-scrollbar { display: none; }
-.nav-btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: transparent;
-  color: #7a7a99;
-  font-size: 13px;
-  font-family: 'Noto Sans TC', sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
+.footer-note { text-align:center; padding:20px; font-size:13px; color:var(--muted); border-top:1px solid var(--border); line-height:1.8; }
 </style>
 </head>
 <body>
@@ -111,15 +106,127 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 </nav>
 
 <div class="main">
-  <img class="progress-img" src="founding-progress.png" alt="三大籌備分會 成員進度">
+  <div class="stats-row" id="statsRow"></div>
+  <div id="cardsWrap"></div>
 </div>
 
-<div class="footer-note">
-  聚美好、聚安全、聚盛，三會齊發 🚀<br>
-  每週更新進度，持續追蹤中 🔥
-</div>
+<div class="footer-note" id="footerNote"></div>
 
 <script>
+/* ════════════════════════════════════════════════════════
+   ✏️ 每次更新，只要改這裡的資料就好，改完 Commit 即完成
+   ════════════════════════════════════════════════════════ */
+const REPORT_DATE = "2026.08.20";
+const TARGET_DATE = "8/20";
+
+const chapters = [
+  {
+    name: "聚美好", tag: "全線上分會",
+    director: "吳宗憲", ambassador: "余明興",
+    target: 18, briefing: "8/25 說明會",
+    newMember: null,  // 沒有新加入的話設 null
+    members: [
+      ["周淑芬","花藝設計與教學"], ["周元德","風水命理"],
+      ["周明松","產物保險"],       ["夏權衛","雙北不動產仲介"],
+      ["劉彥彤","幹細胞外泌體"],   ["吳依凡","舞蹈表演與教學"],
+    ],
+    dna: ["余明興","陳臣勝","江宜真","林瑞營","林裕珵"],
+  },
+  {
+    name: "聚安全", tag: "全線上分會",
+    director: "Steven", ambassador: "林道然",
+    target: 18, briefing: "8/13 說明會",
+    newMember: null,
+    members: [
+      ["陳遵傑","包租代管平台"], ["游尚勳","北區系統櫃工程"],
+    ],
+    dna: ["林道然","周虹邑","江天昱"],
+  },
+  {
+    name: "聚盛", tag: "全線上分會",
+    director: "Steven", ambassador: "李佩玲",
+    target: 15, briefing: "8/20 說明會",
+    newMember: null,
+    members: [
+      ["張嘉仁","精品眼鏡"], ["宋恩廷","會計服務業"],
+    ],
+    dna: ["李佩玲","陳虹君","萬翎甄","黃郁婷","陳力銓","朱唯良","詹蕎瑀"],
+  },
+];
+/* ════════════════════════════════════════════════════════
+   以下為渲染邏輯，不需要修改
+   ════════════════════════════════════════════════════════ */
+
+const GREEN = "#1D9E75", ORANGE = "#EF9F27";
+
+function accentColor(pct) { return pct >= 25 ? GREEN : ORANGE; }
+
+function render() {
+  const totalMembers = chapters.reduce((s,c)=>s+c.members.length,0);
+  const totalTarget = chapters.reduce((s,c)=>s+c.target,0);
+  const remain = totalTarget - totalMembers;
+
+  const statsRow = document.getElementById('statsRow');
+  const stats = [
+    [`${chapters.length} 籌備分會`, "#8a8a96"],
+    [`${totalMembers} 位成員`, GREEN],
+    [`${TARGET_DATE} 目標 ${totalTarget} 人`, "#E05555"],
+    [`尚需 ${remain} 位`, ORANGE],
+  ];
+  statsRow.innerHTML = stats.map(([t,c]) =>
+    `<div class="stat-pill" style="color:${c};border-color:${c}">${t}</div>`
+  ).join('');
+
+  const wrap = document.getElementById('cardsWrap');
+  wrap.innerHTML = chapters.map(ch => {
+    const n = ch.members.length;
+    const pct = Math.round(n / ch.target * 100);
+    const accent = accentColor(pct);
+    const membersHtml = ch.members.map(([name, role]) => {
+      const isNew = ch.newMember === name;
+      return `<div class="member-row ${isNew?'is-new':''}">
+        <span class="member-name ${isNew?'new':''}">${name}</span>
+        <span class="member-role">${role}</span>
+      </div>`;
+    }).join('');
+    const dnaHtml = ch.dna.map(d => `<div class="dna-chip">${d}</div>`).join('');
+    const newBadge = ch.newMember ? `<div class="new-badge">今日加入 ${ch.newMember} ✓</div>` : '';
+
+    return `
+    <div class="branch-card" style="--accent:${accent}">
+      <div class="card-head">
+        <div class="branch-name-row">
+          <span class="branch-name">${ch.name}</span>
+          <span class="branch-tag">${ch.tag}</span>
+        </div>
+        <div class="branch-roles">
+          ${newBadge}
+          <div>董顧 ${ch.director}</div>
+          <div>大使 ${ch.ambassador}</div>
+        </div>
+      </div>
+      <div class="pill-row">
+        <div class="pill" style="color:#E05555;border-color:#E05555">${TARGET_DATE} 目標 ${ch.target} 人</div>
+        ${ch.briefing ? `<div class="pill" style="color:#5B9BD5;border-color:#5B9BD5">${ch.briefing}</div>` : ''}
+      </div>
+      <div class="progress-num-row">
+        <span class="progress-num">${n}</span>
+        <span class="progress-denom">/${ch.target}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${Math.min(pct,100)}%"></div></div>
+      <div class="progress-meta"><span>${pct}%　達成</span><span>尚需 ${ch.target - n} 位</span></div>
+      <div class="member-grid">${membersHtml}</div>
+      <div class="dna-label">DnA 籌備團隊</div>
+      <div class="dna-grid">${dnaHtml}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('footerNote').innerHTML =
+    `聚團隊　BNI 新北市西A區　·　${REPORT_DATE}`;
+}
+
+render();
+
 document.addEventListener('DOMContentLoaded', function() {
   var nav = document.querySelector('.nav-bar');
   var active = document.querySelector('.nav-btn.active');
