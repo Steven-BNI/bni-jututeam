@@ -18,8 +18,8 @@ const SETTINGS = {
 
   // 黑貓PAY API 設定
   PAYUNI_USERNAME: '934900020001',
-  PAYUNI_PASSWORD: '93490002Aa@',
-  PAYUNI_CUST_ID:  'CCAT934900020001',
+  PAYUNI_PASSWORD: 'O9241627H^',
+  PAYUNI_CUST_ID:  '934900020001',
   PAYUNI_BASE_URL: 'https://cocs.4128888card.com.tw',
   // 測試環境（測試時改用這個）：
   // PAYUNI_BASE_URL: 'https://test.4128888card.com.tw/app',
@@ -52,9 +52,16 @@ function doPost(e) {
 
     // 黑貓PAY APN 回傳（JSON 格式，含 cust_order_no）
     let data;
-    try { data = JSON.parse(raw); } catch(err) { data = {}; }
+    try { data = JSON.parse(raw); } catch(err) {
+      // 嘗試 form-urlencoded 格式（黑貓PAY APN 可能用此格式）
+      data = {};
+      raw.split('&').forEach(function(pair) {
+        var parts = pair.split('=');
+        if (parts[0]) data[decodeURIComponent(parts[0].replace(/\+/g,' '))] = decodeURIComponent((parts[1]||'').replace(/\+/g,' '));
+      });
+    }
 
-    if (data.cust_order_no && data.status !== undefined) {
+    if (raw && !data.action && !data.trainingName) {
       return handlePayUniAPN(data);
     }
 
@@ -96,7 +103,7 @@ function handleRegistration(data) {
     data.email,
     identityLabel,
     data.fee,
-    data.fee > 0 ? '待付款' : '免費（已完成）',
+    data.fee === 0 ? '免費（已完成）' : (data.payMethod === 'atm' ? 'ATM待確認' : '待付款'),
     tradeNo,
     '',   // 付款時間
     '',   // 付款網址
@@ -110,10 +117,24 @@ function handleRegistration(data) {
     return jsonResponse({ status: 'ok', free: true });
   }
 
-  // 付費：取得 Token → 建立刷卡訂單 → 回傳付款網址
+  // ATM 轉帳：記錄末五碼，不建立刷卡訂單
+  if (data.payMethod === 'atm') {
+    updatePaymentStatus(tradeNo, 'ATM待確認（末五碼：' + (data.atmLast5||'未填') + '）', '');
+    return jsonResponse({ status: 'ok', free: false, atm: true });
+  }
+
+  // 信用卡：取得 Token → 建立刷卡訂單 → 回傳付款網址
   try {
-    const token      = getPayUniToken();
-    const paymentUrl = createCocsOrder(token, tradeNo, data.fee, data.trainingName);
+    const token  = getPayUniToken();
+    const result = createCocsOrder(token, tradeNo, data.fee, data.trainingName);
+    const paymentUrl   = result.url;
+    const cocsOrderNo  = result.cocsOrderNo;
+
+    // 用黑貓PAY 的訂單編號覆蓋原本的 BNI 編號，確保 APN 回傳時能對應
+    if (cocsOrderNo && cocsOrderNo !== tradeNo) {
+      updateTradeNo(tradeNo, cocsOrderNo);
+      tradeNo = cocsOrderNo;
+    }
 
     // 把付款網址存回試算表
     updatePaymentUrl(tradeNo, paymentUrl);
@@ -177,10 +198,12 @@ function createCocsOrder(token, tradeNo, amount, trainingName) {
   });
 
   const result = JSON.parse(response.getContentText());
+  console.log('建單回傳：' + JSON.stringify(result));
   if (result.status !== 'OK' || !result.url) {
     throw new Error(result.msg || '建立刷卡訂單失敗');
   }
-  return result.url;
+  // 回傳 url 和黑貓PAY 的訂單編號（order_no 或 cust_order_no）
+  return { url: result.url, cocsOrderNo: result.order_no || result.cust_order_no || tradeNo };
 }
 
 // ══════════════════════════════════════
@@ -191,7 +214,7 @@ function handlePayUniAPN(data) {
     // Log 完整回傳內容以便 debug
     console.log('APN 收到：' + JSON.stringify(data));
 
-    const tradeNo = data.cust_order_no || data.order_no || '';
+    const tradeNo = data.cust_order_no || data.order_no || data.OrderNo || data.MerchantOrderNo || '';
     const paidAt  = data.pay_date || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
 
     if (!tradeNo) {
@@ -263,6 +286,17 @@ function updateRegistrationCount(trainingName, trainingDate) {
 // ══════════════════════════════════════
 // 工具函數
 // ══════════════════════════════════════
+function updateTradeNo(oldNo, newNo) {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][11] === oldNo) {
+      sheet.getRange(i + 1, 12).setValue(newNo);
+      break;
+    }
+  }
+}
+
 function updatePaymentStatus(tradeNo, status, paidAt) {
   const sheet = getOrCreateSheet();
   const data  = sheet.getDataRange().getValues();

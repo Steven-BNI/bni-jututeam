@@ -451,6 +451,38 @@
     }
     .confirm-row-val.highlight { color: var(--gold); font-weight: 700; }
 
+    /* ── 付款方式選擇 ── */
+    .pay-method-wrap { margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+    .pay-method-card {
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .pay-method-card:hover { border-color: var(--gold-border); }
+    .pay-method-card.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .pay-method-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    .pay-method-card.selected .pay-method-radio { border-color: var(--gold); background: var(--gold); }
+    .pay-method-radio::after { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #000; display: none; }
+    .pay-method-card.selected .pay-method-radio::after { display: block; }
+    .pay-method-label { font-size: 15px; font-weight: 700; color: var(--text); }
+    .pay-method-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ATM 轉帳說明 */
+    .atm-box { background: rgba(201,168,76,0.06); border: 1.5px solid rgba(201,168,76,0.3); border-radius: 12px; padding: 16px; margin-top: 12px; display: none; }
+    .atm-box.show { display: block; }
+    .atm-title { font-size: 12px; letter-spacing: 2px; color: var(--gold); font-weight: 700; margin-bottom: 12px; font-family: 'Oswald', sans-serif; }
+    .atm-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; }
+    .atm-row:last-of-type { border-bottom: none; }
+    .atm-key { color: var(--muted); }
+    .atm-val { font-weight: 700; color: var(--text); font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+    .atm-note { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.7; }
+    .atm-input-wrap { margin-top: 14px; }
+    .atm-input-label { font-size: 13px; color: var(--text); font-weight: 700; margin-bottom: 8px; }
+    .atm-input { width: 100%; padding: 12px 14px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; color: var(--text); font-size: 18px; font-weight: 700; letter-spacing: 4px; outline: none; text-align: center; font-family: 'Oswald', sans-serif; transition: border-color 0.2s; }
+    .atm-input:focus { border-color: var(--gold); }
+    .atm-input::placeholder { letter-spacing: 2px; font-size: 14px; color: var(--muted); font-weight: 400; }
+
     /* ── 付款中 Loading ── */
     .loading-section {
       display: none;
@@ -675,6 +707,39 @@
       <!-- 動態填入 -->
     </div>
 
+    <div id="pay-method-section" style="display:none">
+      <div class="section-title" style="margin-top:20px">選擇 <span>付款方式</span></div>
+      <div class="pay-method-wrap">
+        <div class="pay-method-card selected" id="pm-card" onclick="selectPayMethod('card')">
+          <div class="pay-method-radio"></div>
+          <div>
+            <div class="pay-method-label">💳 信用卡 ／ 電子支付</div>
+            <div class="pay-method-desc">Visa、MasterCard、Apple Pay、Google Pay、Samsung Pay</div>
+          </div>
+        </div>
+        <div class="pay-method-card" id="pm-atm" onclick="selectPayMethod('atm')">
+          <div class="pay-method-radio"></div>
+          <div>
+            <div class="pay-method-label">🏦 ATM 轉帳</div>
+            <div class="pay-method-desc">國泰世華銀行，轉帳後請填入末五碼</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATM 資訊 -->
+      <div class="atm-box" id="atm-box">
+        <div class="atm-title">ATM 轉帳資訊</div>
+        <div class="atm-row"><span class="atm-key">銀行</span><span class="atm-val">國泰世華（013）</span></div>
+        <div class="atm-row"><span class="atm-key">帳號</span><span class="atm-val">265-03-500266-2</span></div>
+        <div class="atm-row"><span class="atm-key">戶名</span><span class="atm-val">佳訊達國際開發有限公司</span></div>
+        <div class="atm-note">⚠️ 請在 <strong>3 個工作天內</strong>完成轉帳，並填入轉帳末五碼供核對。</div>
+        <div class="atm-input-wrap">
+          <div class="atm-input-label">請輸入轉帳末五碼 <span style="color:var(--red)">*</span></div>
+          <input class="atm-input" type="tel" id="atm-last5" maxlength="5" placeholder="例：12345" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        </div>
+      </div>
+    </div>
+
     <div class="notice notice-gold" id="payment-notice">
       <!-- 動態填入 -->
     </div>
@@ -754,6 +819,7 @@ function init() {
     if (new Date() <= _dlDate) { _isEarly = true; _feeActive = _feeEarly; }
   }
 
+  state.payMethod = 'card'; state.atmLast5 = '';
   state.training = {
     date:        params.get('date')     || '日期待定',
     name:        params.get('name')     || '培訓活動',
@@ -883,13 +949,45 @@ function goToConfirm() {
     notice.innerHTML = `✅ 您的身份為<strong>免費</strong>，報名成功後系統將直接完成登記，無需付款。`;
   }
 
+  // 有費用才顯示付款方式選擇
+  const pmSection = document.getElementById('pay-method-section');
+  if (pmSection) pmSection.style.display = state.fee > 0 ? 'block' : 'none';
+
   switchSection(3);
+}
+
+// 付款方式切換
+function selectPayMethod(method) {
+  state.payMethod = method;
+  document.getElementById('pm-card').classList.toggle('selected', method === 'card');
+  document.getElementById('pm-atm').classList.toggle('selected', method === 'atm');
+  document.getElementById('atm-box').classList.toggle('show', method === 'atm');
+
+  const btn = document.getElementById('btn-submit');
+  const notice = document.getElementById('payment-notice');
+  if (method === 'atm') {
+    btn.textContent = '確認送出（ATM 轉帳）→';
+    notice.innerHTML = '🏦 送出後請依照帳號資訊完成 ATM 轉帳，並確認已填入末五碼。';
+  } else {
+    btn.textContent = '確認送出並前往付款 →';
+    notice.innerHTML = '💳 點擊「確認送出」後將跳轉至<strong>統一金流</strong>進行線上付款，請準備信用卡或其他支付方式。';
+  }
 }
 
 // ═══════════════════════════════════════
 // 送出報名（呼叫 GAS 寫入試算表）
 // ═══════════════════════════════════════
 async function submitRegistration() {
+  // ATM：驗證末五碼
+  if (state.payMethod === 'atm') {
+    const last5 = document.getElementById('atm-last5').value.trim();
+    if (last5.length !== 5 || !/^\d{5}$/.test(last5)) {
+      alert('請填入正確的轉帳末五碼（5位數字）');
+      return;
+    }
+    state.atmLast5 = last5;
+  }
+
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
 
@@ -909,6 +1007,8 @@ async function submitRegistration() {
     email:        state.formData.email,
     identity:     state.identity,
     fee:          state.fee,
+    payMethod:    state.payMethod || 'card',
+    atmLast5:     state.atmLast5 || '',
     timestamp:    new Date().toISOString(),
   };
 
@@ -922,8 +1022,17 @@ async function submitRegistration() {
 
     if (data.status !== 'ok') throw new Error(data.message || '寫入失敗');
 
-    if (state.fee > 0) {
-      // 付費：跳轉黑貓PAY 付款網址
+    if (state.payMethod === 'atm') {
+      // ATM 轉帳：直接顯示成功頁
+      document.getElementById('success-desc').innerHTML =
+        '報名已登記，請依以下資訊完成 ATM 轉帳：<br><br>'
+        + '<strong>國泰世華（013）</strong><br>'
+        + '帳號：265-03-500266-2<br>'
+        + '戶名：佳訊達國際開發有限公司<br><br>'
+        + '⚠️ 請在 3 個工作天內完成轉帳';
+      showSuccess();
+    } else if (state.fee > 0) {
+      // 信用卡：跳轉黑貓PAY 付款網址
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
