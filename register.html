@@ -663,7 +663,16 @@
 
     <div class="form-group">
       <label class="form-label">分會名稱<span class="required">*</span></label>
-      <input type="text" class="form-input" id="input-chapter" placeholder="例：BNI 聚創分會" />
+      <select class="form-input" id="input-chapter" style="cursor:pointer">
+        <option value="">請選擇分會</option>
+        <option value="聚財分會">聚財分會</option>
+        <option value="聚大分會">聚大分會</option>
+        <option value="聚富分會">聚富分會</option>
+        <option value="聚道分會">聚道分會</option>
+        <option value="聚安全分會">聚安全分會</option>
+        <option value="聚美好分會">聚美好分會</option>
+        <option value="聚盛分會">聚盛分會</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -732,7 +741,7 @@
         <div class="atm-row"><span class="atm-key">銀行</span><span class="atm-val">國泰世華（013）</span></div>
         <div class="atm-row"><span class="atm-key">帳號</span><span class="atm-val">265-03-500266-2</span></div>
         <div class="atm-row"><span class="atm-key">戶名</span><span class="atm-val">佳訊達國際開發有限公司</span></div>
-        <div class="atm-note">⚠️ 請在 <strong>3 個工作天內</strong>完成轉帳，並填入轉帳末五碼供核對。</div>
+        <div class="atm-note">⚠️ 請確認轉帳完成後，填入轉帳末五碼供核對。</div>
         <div class="atm-input-wrap">
           <div class="atm-input-label">請輸入轉帳末五碼 <span style="color:var(--red)">*</span></div>
           <input class="atm-input" type="tel" id="atm-last5" maxlength="5" placeholder="例：12345" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
@@ -908,7 +917,7 @@ function goToConfirm() {
   // 簡易驗證
   [
     { id: 'input-name',    val: name,    rule: v => v.length >= 2 },
-    { id: 'input-chapter', val: chapter, rule: v => v.length >= 2 },
+    { id: 'input-chapter', val: chapter, rule: v => v.length >= 1 },
     { id: 'input-phone',   val: phone,   rule: v => /^09\d{8}$/.test(v) },
     { id: 'input-email',   val: email,   rule: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
   ].forEach(({ id, val, rule }) => {
@@ -1025,11 +1034,10 @@ async function submitRegistration() {
     if (state.payMethod === 'atm') {
       // ATM 轉帳：直接顯示成功頁
       document.getElementById('success-desc').innerHTML =
-        '報名已登記，請依以下資訊完成 ATM 轉帳：<br><br>'
+        '報名已登記，請依以下資訊完成 ATM 轉帳後填入末五碼：<br><br>'
         + '<strong>國泰世華（013）</strong><br>'
         + '帳號：265-03-500266-2<br>'
-        + '戶名：佳訊達國際開發有限公司<br><br>'
-        + '⚠️ 請在 3 個工作天內完成轉帳';
+        + '戶名：佳訊達國際開發有限公司';
       showSuccess();
     } else if (state.fee > 0) {
       // 信用卡：跳轉黑貓PAY 付款網址
