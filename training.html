@@ -342,8 +342,9 @@ function renderTraining(rows) {
   var curLabel = '';
   // 選單排序：未來月份升冪在上，已結束降冪在下
   function mkToNum(mk){ var p=mk.split('/'); return parseInt(p[0])*100+parseInt(p[1]); }
-  var futureMonths = monthOrder.filter(function(mk){ return !months[mk].every(function(r){ return isEffectivelyDone(r); }); }).sort(function(a,b){ return mkToNum(a)-mkToNum(b); });
-  var expiredMonths = monthOrder.filter(function(mk){ return months[mk].every(function(r){ return isEffectivelyDone(r); }); }).sort(function(a,b){ return mkToNum(b)-mkToNum(a); });
+  var nowNum = (new Date().getFullYear())*100 + (new Date().getMonth()+1);
+  var futureMonths = monthOrder.filter(function(mk){ return mkToNum(mk) >= nowNum; }).sort(function(a,b){ return mkToNum(a)-mkToNum(b); });
+  var expiredMonths = monthOrder.filter(function(mk){ return mkToNum(mk) < nowNum; }).sort(function(a,b){ return mkToNum(b)-mkToNum(a); });
   var menuOrder = futureMonths.concat(expiredMonths);
   var selectHtml = '<div class="month-selector-wrap"><label>📅 月份</label><div class="custom-select" id="customSelect"><div class="custom-select-btn" id="customSelectBtn">--</div><div class="custom-select-dropdown" id="customSelectDropdown">';
   menuOrder.forEach(function(mk) {
