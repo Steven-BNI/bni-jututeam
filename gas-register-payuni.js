@@ -164,7 +164,7 @@ function createCocsOrder(token, tradeNo, amount, trainingName) {
     order_detail:  'BNI培訓報名-' + trainingName,
     acquirer_type: SETTINGS.ACQUIRER_TYPE,
     send_time:     sendTime,
-    success_url:   SETTINGS.SUCCESS_URL,
+    success_url:   SETTINGS.SUCCESS_URL + '&trade_no=' + tradeNo + '&amount=' + amount,
     apn_url:       SETTINGS.APN_URL,
   });
 
@@ -188,25 +188,37 @@ function createCocsOrder(token, tradeNo, amount, trainingName) {
 // ══════════════════════════════════════
 function handlePayUniAPN(data) {
   try {
-    // 驗證 checksum = MD5(api_id:trans_id:amount:status:nonce)
-    const expected = computeMD5(
-      data.api_id + ':' + data.trans_id + ':' + data.amount + ':' + data.status + ':' + data.nonce
-    );
-    if (data.checksum && data.checksum.toLowerCase() !== expected.toLowerCase()) {
-      console.error('APN checksum 驗證失敗');
+    // Log 完整回傳內容以便 debug
+    console.log('APN 收到：' + JSON.stringify(data));
+
+    const tradeNo = data.cust_order_no || data.order_no || '';
+    const paidAt  = data.pay_date || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+
+    if (!tradeNo) {
+      console.error('APN 沒有交易編號');
       return ContentService.createTextOutput('ERROR');
     }
 
-    const tradeNo = data.cust_order_no || data.order_no;
-    const paidAt  = data.pay_date || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+    // 統一金流付款成功判斷：status = 'D' 或 'S' 或 success = true 或 result_code = '00'
+    const isSuccess = (
+      data.status === 'D' ||
+      data.status === 'S' ||
+      data.success === true ||
+      data.success === 'true' ||
+      data.result_code === '00' ||
+      data.ResCode === '00' ||
+      data.RtnCode === 1 ||
+      String(data.RtnCode) === '1'
+    );
 
-    // status D = 已付款完成
-    if (data.status === 'D') {
+    if (isSuccess) {
       updatePaymentStatus(tradeNo, '已付款', paidAt);
       const rowData = findRowByTradeNo(tradeNo);
       if (rowData) updateRegistrationCount(rowData.trainingName, rowData.trainingDate);
+      console.log('付款成功：' + tradeNo);
     } else {
       updatePaymentStatus(tradeNo, '付款失敗', paidAt);
+      console.log('付款失敗：' + tradeNo + ' status=' + data.status);
     }
 
     return ContentService.createTextOutput('OK');

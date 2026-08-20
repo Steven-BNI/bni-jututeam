@@ -1,108 +1,99 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-6R66G555ZY");
-</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>付款結果 | BNI 聚團隊</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --gold: #C9A84C;
-      --dark: #0D0D0D;
-      --dark2: #161616;
-      --border: rgba(201,168,76,0.25);
-      --text: #E8E8E0;
-      --green: #52C07A;
-      --red: #E05252;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--dark);
-      color: var(--text);
-      font-family: 'Noto Sans TC', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .card {
-      background: var(--dark2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 32px;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-    }
-    .icon {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 36px;
-      margin: 0 auto 24px;
-    }
-    .icon.success { background: rgba(82,192,122,0.15); border: 2px solid var(--green); }
-    .icon.fail    { background: rgba(224,82,82,0.15);  border: 2px solid var(--red); }
-    .title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-    .desc  { font-size: 16px; color: #888; line-height: 1.8; margin-bottom: 32px; }
-    .btn {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--gold), #E8C96A);
-      color: #000;
-      text-decoration: none;
-      padding: 14px 32px;
-      border-radius: 10px;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-    .trade-no {
-      background: rgba(255,255,255,0.04);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 24px;
-      word-break: break-all;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 聚團隊｜報名結果</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root { --gold:#C9A84C; --bg:#0d0d14; --surface:#13131f; --green:#3dba8a; --red:#E8001D; --text:#f0ede6; --muted:#7a7a99; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:var(--surface);border-radius:20px;padding:48px 32px;max-width:420px;width:100%;text-align:center;border:1.5px solid rgba(255,255,255,0.07)}
+.icon{font-size:64px;margin-bottom:20px}
+.title{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;margin-bottom:12px}
+.title.success{color:var(--green)}
+.title.fail{color:var(--red)}
+.desc{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:32px}
+.info-box{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;margin-bottom:28px;text-align:left}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--muted)}
+.info-value{font-weight:700;color:var(--text)}
+.info-value.green{color:var(--green)}
+.btn{display:inline-block;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;font-family:'Noto Sans TC',sans-serif;transition:opacity 0.2s}
+.btn:hover{opacity:0.85}
+.btn-gold{background:linear-gradient(135deg,#C9A84C,#E8C96A);color:#000}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:var(--muted);margin-top:12px;display:block}
+.footer{margin-top:24px;font-size:12px;color:var(--muted)}
+</style>
 </head>
 <body>
-<div class="card" id="card">
-  <!-- 由 JS 填入 -->
+<div class="card" id="cardWrap">
+  <div class="icon" id="icon">⏳</div>
+  <div class="title" id="title">處理中...</div>
+  <div class="desc" id="desc">正在確認付款結果，請稍候。</div>
+  <div id="infoBox"></div>
+  <div id="btnArea"></div>
+  <div class="footer">BNI 聚團隊｜新北市西A區</div>
 </div>
-<script>
-  const params = new URLSearchParams(location.search);
-  const rtn    = params.get('RtnCode');
-  const tradeNo = params.get('MerchantTradeNo') || '';
-  const card   = document.getElementById('card');
 
-  if (rtn === '1') {
-    card.innerHTML = `
-      <div class="icon success">✓</div>
-      <div class="title">付款成功！</div>
-      <div class="desc">您的培訓報名費用已成功付款。<br>活動資訊將寄送至您的 Email，敬請留意。</div>
-      ${tradeNo ? `<div class="trade-no">交易編號：${tradeNo}</div>` : ''}
-      <a href="training.html" class="btn">返回培訓公告</a>
-    `;
+<script>
+var params = new URLSearchParams(location.search);
+var result   = params.get('result')   || '';
+var tradeNo  = params.get('trade_no') || params.get('order_no') || '';
+var amount   = params.get('amount')   || '';
+var name     = params.get('name')     || '';
+
+function render(type) {
+  var icon  = document.getElementById('icon');
+  var title = document.getElementById('title');
+  var desc  = document.getElementById('desc');
+  var info  = document.getElementById('infoBox');
+  var btns  = document.getElementById('btnArea');
+
+  if (type === 'success') {
+    icon.textContent  = '✅';
+    title.textContent = '報名成功！';
+    title.className   = 'title success';
+    desc.textContent  = '您的付款已完成，感謝您的報名。稍後將會收到確認通知。';
+    if (tradeNo || amount) {
+      var rows = '';
+      if (name)    rows += '<div class="info-row"><span class="info-label">姓名</span><span class="info-value">' + name + '</span></div>';
+      if (amount)  rows += '<div class="info-row"><span class="info-label">付款金額</span><span class="info-value green">NT$ ' + parseInt(amount).toLocaleString() + '</span></div>';
+      if (tradeNo) rows += '<div class="info-row"><span class="info-label">交易編號</span><span class="info-value" style="font-size:12px">' + tradeNo + '</span></div>';
+      info.innerHTML = '<div class="info-box">' + rows + '</div>';
+    }
+    btns.innerHTML = '<a href="/bni-jututeam/training.html" class="btn btn-gold">返回培訓公告</a>';
+
+  } else if (type === 'fail') {
+    icon.textContent  = '❌';
+    title.textContent = '付款未完成';
+    title.className   = 'title fail';
+    desc.textContent  = '付款流程未成功完成，您的報名資料已保留。\n請重新嘗試付款，或聯繫您的分會聯絡人協助處理。';
+    btns.innerHTML = '<a href="/bni-jututeam/training.html" class="btn btn-gold">返回培訓公告</a>'
+      + '<a href="javascript:history.back()" class="btn btn-outline">重新付款</a>';
+
   } else {
-    card.innerHTML = `
-      <div class="icon fail">✕</div>
-      <div class="title">付款未完成</div>
-      <div class="desc">付款流程未成功完成，您的報名資料已保留。<br>請重新嘗試付款，或聯繫您的分會聯絡人協助處理。</div>
-      ${tradeNo ? `<div class="trade-no">交易編號：${tradeNo}</div>` : ''}
-      <a href="training.html" class="btn">返回培訓公告</a>
-    `;
+    // 不明狀態，中性提示
+    icon.textContent  = '🔔';
+    title.textContent = '付款結果確認中';
+    title.className   = 'title';
+    desc.textContent  = '我們正在確認您的付款狀態，通常在幾分鐘內完成。如有疑問請聯繫分會聯絡人。';
+    if (tradeNo) {
+      info.innerHTML = '<div class="info-box"><div class="info-row"><span class="info-label">交易編號</span><span class="info-value" style="font-size:12px">' + tradeNo + '</span></div></div>';
+    }
+    btns.innerHTML = '<a href="/bni-jututeam/training.html" class="btn btn-gold">返回培訓公告</a>';
   }
+}
+
+if (result === 'success') {
+  render('success');
+} else if (result === 'fail' || result === 'cancel') {
+  render('fail');
+} else {
+  render('unknown');
+}
 </script>
 </body>
 </html>
