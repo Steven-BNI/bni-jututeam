@@ -311,13 +311,20 @@ function renderTraining(rows) {
     return a > b ? 1 : -1;
   });
 
-  // 決定預設顯示月份（最近的未來月份）
+  // 決定預設顯示月份：當月 > 最近未來月 > 第一個月
   var now = new Date();
+  var curMk = now.getFullYear() + '/' + (now.getMonth()+1);
   var defaultMk = monthOrder[0];
-  for (var mi = 0; mi < monthOrder.length; mi++) {
-    var mk0 = monthOrder[mi];
-    if (!months[mk0].every(function(r){ return isEffectivelyDone(r); })) {
-      defaultMk = mk0; break;
+  // 優先當月
+  if (months[curMk]) {
+    defaultMk = curMk;
+  } else {
+    // 找最近的未來月份
+    for (var mi = 0; mi < monthOrder.length; mi++) {
+      var mk0 = monthOrder[mi];
+      if (!months[mk0].every(function(r){ return isEffectivelyDone(r); })) {
+        defaultMk = mk0; break;
+      }
     }
   }
 
@@ -329,8 +336,9 @@ function renderTraining(rows) {
     var mp = mk.split('/');
     var mlabel = mp.length >= 2 ? parseInt(mp[1]) + ' 月' : mk;
     var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
-    if (mExpired) mlabel += '（已結束）';
-    selectHtml += '<option value="' + mk + '"' + (mk === defaultMk ? ' selected' : '') + '>' + mlabel + '</option>';
+    var optStyle = mExpired ? ' style="color:#555"' : '';
+    if (mExpired) mlabel = mlabel + ' （已結束）';
+    selectHtml += '<option value="' + mk + '"' + (mk === defaultMk ? ' selected' : '') + optStyle + '>' + mlabel + '</option>';
   });
   selectHtml += '</select></div>';
 
@@ -341,8 +349,8 @@ function renderTraining(rows) {
     var parts = monthKey.split('/');
     var monthLabel = parts.length >= 2 ? parts[0] + ' 年 ' + parts[1] + ' 月' : monthKey;
     var monthExpired = monthRows.every(function(r){ return isEffectivelyDone(r); });
-    var isDefault = (monthKey === defaultMk);
-    html += '<div class="month-block' + (isDefault ? ' active' : '') + '" id="mb-' + monthKey.replace('/','_') + '">';
+    var isActive = (monthKey === defaultMk);
+    html += '<div class="month-block' + (isActive ? ' active' : '') + '" id="mb-' + monthKey.replace('/','_') + '">';
     html += '<div class="month-title' + (monthExpired ? ' expired-month' : '') + '">📅 ' + monthLabel + (monthExpired ? ' <span class="expired-badge">已結束</span>' : '') + '</div>';
 
     monthRows.forEach(function(row) {
