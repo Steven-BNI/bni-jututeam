@@ -105,7 +105,7 @@ h1 em { color:var(--red); font-style:normal; }
 .custom-select-btn::after { content:''; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid #C9A84C; flex-shrink:0; transition:transform 0.2s; }
 .custom-select.open .custom-select-btn { border-color:#C9A84C; }
 .custom-select.open .custom-select-btn::after { transform:rotate(180deg); }
-.custom-select-dropdown { position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--surface2); border:1.5px solid rgba(201,168,76,0.3); border-radius:8px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.4); display:none; z-index:200; min-width:140px; }
+.custom-select-dropdown { position:absolute; top:calc(100% + 6px); left:0; background:#1a1a28; border:1.5px solid rgba(201,168,76,0.5); border-radius:8px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.8); display:none; z-index:9999; min-width:140px; }
 .custom-select.open .custom-select-dropdown { display:block; }
 .custom-select-option { padding:10px 14px; font-size:13px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; color:var(--text); transition:background 0.15s; }
 .custom-select-option:hover { background:rgba(201,168,76,0.12); }
@@ -340,8 +340,10 @@ function renderTraining(rows) {
 
   // 建立下拉選單
   var curLabel = '';
+  // 選單按時間順序排
+  var menuOrder = monthOrder.slice().sort(function(a,b){ return a > b ? 1 : -1; });
   var selectHtml = '<div class="month-selector-wrap"><label>📅 月份</label><div class="custom-select" id="customSelect"><div class="custom-select-btn" id="customSelectBtn">--</div><div class="custom-select-dropdown" id="customSelectDropdown">';
-  monthOrder.forEach(function(mk) {
+  menuOrder.forEach(function(mk) {
     var mp = mk.split('/');
     var mlabel = mp.length >= 2 ? parseInt(mp[1]) + ' 月' : mk;
     var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
