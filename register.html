@@ -626,24 +626,69 @@
         <div class="identity-price" id="price-general">NT$ —</div>
       </div>
 
-      <!-- 認證導師（僅初階/進階MSP顯示） -->
-      <div class="identity-card" data-identity="mentor" id="mentor-card" style="display:none" onclick="selectIdentity(this)">
-        <div class="identity-icon">🎓</div>
-        <div class="identity-info">
-          <div class="identity-label">認證導師</div>
-          <div class="identity-desc">持有認證導師資格</div>
-        </div>
-        <div class="identity-price" id="price-mentor">NT$ —</div>
-      </div>
-
-      <!-- 講師/籌劃小組 -->
-      <div class="identity-card" data-identity="staff" onclick="selectIdentity(this)">
+      <!-- 特殊身份 展開卡片 -->
+      <div class="identity-card" id="special-toggle" onclick="toggleSpecialPanel()">
         <div class="identity-icon">⭐</div>
         <div class="identity-info">
-          <div class="identity-label">講師 / 籌劃小組</div>
-          <div class="identity-desc">受邀講師或活動籌備成員</div>
+          <div class="identity-label">統籌或講師</div>
+          <div class="identity-desc">認證導師・統籌・講師・金質獎章得主・區域培訓大使</div>
         </div>
-        <div class="identity-price free">免費</div>
+        <div class="identity-price" id="special-arrow">▾</div>
+      </div>
+
+      <!-- 特殊身份展開面板 -->
+      <div id="special-panel" style="display:none; flex-direction:column; gap:12px; padding-left:8px; border-left:2px solid var(--border); margin-left:12px;">
+
+        <!-- 認證導師（僅初階/進階MSP顯示） -->
+        <div class="identity-card" data-identity="mentor" id="mentor-card" style="display:none" onclick="selectIdentity(this)">
+          <div class="identity-icon">🎓</div>
+          <div class="identity-info">
+            <div class="identity-label">認證導師</div>
+            <div class="identity-desc">限持有認證導師資格者選擇（分會職務身份）</div>
+          </div>
+          <div class="identity-price" id="price-mentor">NT$ —</div>
+        </div>
+
+        <!-- 統籌（依培訓類型固定名單） -->
+        <div class="identity-card" data-identity="staff" id="staff-card" style="display:none" onclick="selectIdentity(this)">
+          <div class="identity-icon">🧩</div>
+          <div class="identity-info">
+            <div class="identity-label">統籌</div>
+            <div class="identity-desc" id="staff-desc">限本場總統籌選擇</div>
+          </div>
+          <div class="identity-price free">免費</div>
+        </div>
+
+        <!-- 講師（依培訓類型固定名單） -->
+        <div class="identity-card" data-identity="lecturer" id="lecturer-card" style="display:none" onclick="selectIdentity(this)">
+          <div class="identity-icon">🎤</div>
+          <div class="identity-info">
+            <div class="identity-label">講師</div>
+            <div class="identity-desc" id="lecturer-desc">限本場講師選擇</div>
+          </div>
+          <div class="identity-price free">免費</div>
+        </div>
+
+        <!-- 金質獎章得主（僅MSP顯示） -->
+        <div class="identity-card" data-identity="gold" id="gold-card" style="display:none" onclick="selectIdentity(this)">
+          <div class="identity-icon">🥇</div>
+          <div class="identity-info">
+            <div class="identity-label">金質獎章得主</div>
+            <div class="identity-desc">限金質獎章榮耀牆名單內姓名選擇，將於下一步核對</div>
+          </div>
+          <div class="identity-price free">免費</div>
+        </div>
+
+        <!-- 區域培訓大使 -->
+        <div class="identity-card" data-identity="ambassador" id="ambassador-card" onclick="selectIdentity(this)">
+          <div class="identity-icon">🌟</div>
+          <div class="identity-info">
+            <div class="identity-label">區域培訓大使</div>
+            <div class="identity-desc">限區域培訓大使本人選擇，將於下一步核對姓名</div>
+          </div>
+          <div class="identity-price free">免費</div>
+        </div>
+
       </div>
     </div>
 
@@ -807,7 +852,56 @@ const CONFIG = {
 
   // 認證導師身份只在這些培訓類型顯示
   MENTOR_TRAINING_KEYWORDS: ['初階MSP', '進階MSP', 'MSP'],
+  // 培訓類型判斷關鍵字
+  PRIMARY_MSP_KEYWORDS: ['初階MSP'],
+  ADVANCED_MSP_KEYWORDS: ['進階MSP'],
+  LTRT_TRAINING_KEYWORDS: ['LTRT'],
+
+  // 統籌名單（依培訓類型，每類固定一位）
+  STAFF_BY_TYPE: {
+    primaryMSP:  [{ name:'陳顗淋', chapter:'聚大分會' }],
+    advancedMSP: [{ name:'陳虹君', chapter:'聚財分會' }],
+    ltrt:        [{ name:'陳虹君', chapter:'聚財分會' }],
+  },
+  // 講師名單（依培訓類型，固定名單）
+  LECTURERS_BY_TYPE: {
+    primaryMSP:  [{ name:'林綉蓉', chapter:'聚財分會' }, { name:'李佩玲', chapter:'聚財分會' }],
+    advancedMSP: [{ name:'林綉蓉', chapter:'聚財分會' }, { name:'余明興', chapter:'聚財分會' }],
+  },
+  // 認證導師名單（有效名單，年度考核制，需 Steven 更新維護）
+  MENTORS: [
+    { name:'張于娟', chapter:'聚財分會' }, { name:'余明興', chapter:'聚財分會' },
+    { name:'吳宗憲', chapter:'聚財分會' }, { name:'陳力銓', chapter:'聚財分會' },
+    { name:'李佩玲', chapter:'聚財分會' }, { name:'李維軒', chapter:'聚財分會' },
+    { name:'林綉蓉', chapter:'聚財分會' }, { name:'洪世遑', chapter:'聚財分會' },
+    { name:'邱立翰', chapter:'聚財分會' }, { name:'陳臣勝', chapter:'聚財分會' },
+    { name:'陳虹君', chapter:'聚財分會' }, { name:'黃于彤', chapter:'聚財分會' },
+    { name:'李易靜', chapter:'聚道分會' }, { name:'張剛寧', chapter:'聚道分會' },
+    { name:'周柏廷', chapter:'聚道分會' }, { name:'詹蕎瑀', chapter:'聚道分會' },
+    { name:'萬翎甄', chapter:'聚道分會' }, { name:'廖灝明', chapter:'聚道分會' },
+    { name:'楊凱雯', chapter:'聚富分會' },
+    { name:'陳顗淋', chapter:'聚大分會' }, { name:'曾映傑', chapter:'聚大分會' },
+    { name:'周虹邑', chapter:'聚大分會' }, { name:'張道芃', chapter:'聚大分會' },
+    { name:'林道然', chapter:'聚大分會' }, { name:'柯建宇', chapter:'聚大分會' },
+    { name:'賴俞諺', chapter:'聚大分會' }, { name:'陳柏翰', chapter:'聚大分會' },
+  ],
+  // 金質獎章得主名單（僅 MSP 類免費，需比對姓名+分會）
+  GOLD_MEMBERS: [
+    { name:'林綉蓉', chapter:'聚財分會' }, { name:'林碧蝦', chapter:'聚財分會' },
+    { name:'陳虹君', chapter:'聚財分會' }, { name:'江柏林', chapter:'聚財分會' },
+    { name:'吳舜豪', chapter:'聚財分會' }, { name:'詹蕎瑀', chapter:'聚道分會' },
+    { name:'吳宗憲', chapter:'聚財分會' }, { name:'羅畯宸', chapter:'聚富分會' },
+    { name:'林佳靜', chapter:'聚財分會' }, { name:'柯建宇', chapter:'聚大分會' },
+    { name:'張道芃', chapter:'聚大分會' },
+  ],
+  // 區域培訓大使（所有場次免費，需比對姓名+分會）
+  REGIONAL_AMBASSADOR: { name:'陳虹君', chapter:'聚財分會' },
 };
+
+// 姓名+分會比對工具
+function matchNameChapter(list, name, chapter) {
+  return list.some(p => p.name === name && p.chapter === chapter);
+}
 
 // ═══════════════════════════════════════
 // 狀態
@@ -876,12 +970,54 @@ function init() {
     priceEl.textContent = 'NT$ —';
   }
 
-  // 判斷是否顯示認證導師選項
-  const isMSP = CONFIG.MENTOR_TRAINING_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
+  // 判斷培訓類型（依名稱關鍵字）
+  const isPrimaryMSP  = CONFIG.PRIMARY_MSP_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
+  const isAdvancedMSP = CONFIG.ADVANCED_MSP_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
+  const isMSP  = isPrimaryMSP || isAdvancedMSP || CONFIG.MENTOR_TRAINING_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
+  const isLTRT = CONFIG.LTRT_TRAINING_KEYWORDS.some(k => state.training.name.includes(k) || state.training.type.includes(k));
+  state.training.isMSP = isMSP;
+  state.training.isLTRT = isLTRT;
+
+  // 決定本場對應的統籌/講師固定名單（無對應類型則為 null，卡片直接隱藏）
+  const trainingTypeKey = isPrimaryMSP ? 'primaryMSP' : (isAdvancedMSP ? 'advancedMSP' : (isLTRT ? 'ltrt' : null));
+  state.training.staffList     = trainingTypeKey ? (CONFIG.STAFF_BY_TYPE[trainingTypeKey] || null) : null;
+  state.training.lecturerList  = trainingTypeKey ? (CONFIG.LECTURERS_BY_TYPE[trainingTypeKey] || null) : null;
+
+  // 認證導師：僅 MSP 顯示，優惠價（有效名單另於送出時核對）
   if (isMSP && state.training.feeMentor > 0) {
     document.getElementById('mentor-card').style.display = 'flex';
     document.getElementById('price-mentor').textContent = `NT$ ${state.training.feeMentor.toLocaleString()}`;
   }
+
+  // 統籌：僅本場有固定名單時顯示（免費，核對姓名+分會）
+  if (state.training.staffList) {
+    document.getElementById('staff-card').style.display = 'flex';
+    const names = state.training.staffList.map(p => `${p.name}（${p.chapter}）`).join('、');
+    document.getElementById('staff-desc').textContent = `限本場總統籌選擇，將於下一步核對姓名（${names}）`;
+  }
+
+  // 講師：僅本場有固定名單時顯示（免費，核對姓名+分會）
+  if (state.training.lecturerList) {
+    document.getElementById('lecturer-card').style.display = 'flex';
+    const names = state.training.lecturerList.map(p => `${p.name}（${p.chapter}）`).join('、');
+    document.getElementById('lecturer-desc').textContent = `限本場講師選擇，將於下一步核對姓名（${names}）`;
+  }
+
+  // 金質獎章得主：僅 MSP 場次顯示（免費）
+  if (isMSP) {
+    document.getElementById('gold-card').style.display = 'flex';
+  }
+}
+
+// ═══════════════════════════════════════
+// 特殊身份展開面板
+// ═══════════════════════════════════════
+function toggleSpecialPanel() {
+  const panel = document.getElementById('special-panel');
+  const arrow = document.getElementById('special-arrow');
+  const isOpen = panel.style.display === 'flex';
+  panel.style.display = isOpen ? 'none' : 'flex';
+  arrow.textContent = isOpen ? '▾' : '▴';
 }
 
 // ═══════════════════════════════════════
@@ -893,9 +1029,12 @@ function selectIdentity(card) {
   state.identity = card.dataset.identity;
 
   switch (state.identity) {
-    case 'general': state.fee = state.training.feeActive; break;
-    case 'mentor':  state.fee = state.training.feeMentor;  break;
-    case 'staff':   state.fee = 0; break;
+    case 'general':    state.fee = state.training.feeActive; break;
+    case 'mentor':     state.fee = state.training.feeMentor; break;  // 資格於下一步核對姓名+分會
+    case 'staff':      state.fee = 0; break;  // 資格於下一步核對姓名+分會
+    case 'lecturer':   state.fee = 0; break;  // 資格於下一步核對姓名+分會
+    case 'gold':       state.fee = 0; break;  // 資格於下一步核對姓名+分會
+    case 'ambassador': state.fee = 0; break;  // 資格於下一步核對姓名+分會
   }
 
   document.getElementById('btn-to-form').disabled = false;
@@ -904,10 +1043,7 @@ function selectIdentity(card) {
 function goToForm() {
   if (!state.identity) return;
 
-  const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
-  const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
-
-  document.getElementById('summary-training-name').textContent = state.training.name;
+  const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'統籌', lecturer:'講師', gold:'金質獎章得主', ambassador:'區域培訓大使' }[state.identity];
   document.getElementById('summary-identity').textContent = identityLabel;
   const el = document.getElementById('summary-fee');
   el.textContent = feeText;
@@ -946,6 +1082,45 @@ function goToConfirm() {
     if (!meal) valid = false;
   }
 
+  // 特殊身份：核對姓名＋分會資格
+  const nameEl = document.getElementById('input-name');
+  let nameNote = document.getElementById('name-identity-note');
+  if (!nameNote) {
+    nameNote = document.createElement('div');
+    nameNote.id = 'name-identity-note';
+    nameNote.style.cssText = 'font-size:13px;color:#E05555;margin-top:6px;';
+    nameEl.parentNode.appendChild(nameNote);
+  }
+  nameNote.textContent = '';
+
+  if (valid) {  // 姓名/分會本身格式已通過才進一步核對名單
+    if (state.identity === 'mentor' && !matchNameChapter(CONFIG.MENTORS, name, chapter)) {
+      nameEl.classList.add('error');
+      nameNote.textContent = '此姓名＋分會不在目前有效認證導師名單內，請確認或改選其他身份';
+      valid = false;
+    }
+    if (state.identity === 'staff' && !matchNameChapter(state.training.staffList || [], name, chapter)) {
+      nameEl.classList.add('error');
+      nameNote.textContent = '此姓名＋分會不是本場總統籌，請確認或改選其他身份';
+      valid = false;
+    }
+    if (state.identity === 'lecturer' && !matchNameChapter(state.training.lecturerList || [], name, chapter)) {
+      nameEl.classList.add('error');
+      nameNote.textContent = '此姓名＋分會不是本場講師，請確認或改選其他身份';
+      valid = false;
+    }
+    if (state.identity === 'gold' && !matchNameChapter(CONFIG.GOLD_MEMBERS, name, chapter)) {
+      nameEl.classList.add('error');
+      nameNote.textContent = '此姓名＋分會不在金質獎章榮耀牆名單內，請確認或改選其他身份';
+      valid = false;
+    }
+    if (state.identity === 'ambassador' && !(name === CONFIG.REGIONAL_AMBASSADOR.name && chapter === CONFIG.REGIONAL_AMBASSADOR.chapter)) {
+      nameEl.classList.add('error');
+      nameNote.textContent = '區域培訓大使身份僅限本人選擇，請確認姓名＋分會或改選其他身份';
+      valid = false;
+    }
+  }
+
   if (!valid) {
     // 滾動到第一個錯誤
     const first = document.querySelector('.form-input.error');
@@ -956,7 +1131,7 @@ function goToConfirm() {
   state.formData = { name, chapter, phone, email, meal };
 
   // 填入確認頁
-  const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'講師 / 籌劃小組' }[state.identity];
+  const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'統籌', lecturer:'講師', gold:'金質獎章得主', ambassador:'區域培訓大使' }[state.identity];
   const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
 
   document.getElementById('confirm-rows').innerHTML = `

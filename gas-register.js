@@ -86,7 +86,7 @@ function handleRegistration(data) {
 
   // 寫入試算表
   const now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
-  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'講師/籌劃小組' }[data.identity] || data.identity;
+  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'統籌', lecturer:'講師', gold:'金質獎章得主', ambassador:'區域培訓大使' }[data.identity] || data.identity;
 
   sheet.appendRow([
     now,
