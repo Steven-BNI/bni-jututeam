@@ -1044,6 +1044,7 @@ function goToForm() {
   if (!state.identity) return;
 
   const identityLabel = { general:'個人報名', mentor:'認證導師', staff:'統籌', lecturer:'講師', gold:'金質獎章得主', ambassador:'區域培訓大使' }[state.identity];
+  const feeText = state.fee > 0 ? `NT$ ${state.fee.toLocaleString()}` : '免費';
   document.getElementById('summary-identity').textContent = identityLabel;
   const el = document.getElementById('summary-fee');
   el.textContent = feeText;
