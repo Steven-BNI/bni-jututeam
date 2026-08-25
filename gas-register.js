@@ -382,24 +382,48 @@ function updateRegistrationCount(trainingName, trainingDate) {
 // ══════════════════════════════════════
 const CANCEL_SHEET_NAME = '取消延期申請';
 const CANCEL_HEADERS = [
-  '申請時間', '姓名', '電話', '原培訓名稱', '原培訓日期',
-  '申請類型', '希望改期至', '申請原因', '處理狀態',
+  '申請時間', '姓名', '分會名稱', '原培訓名稱', '原培訓日期',
+  '申請類型', '希望改期至', '申請原因', '對應交易編號', '處理狀態',
 ];
 
 function handleCancelRequest(data) {
   try {
+    // 核對報名紀錄：培訓名稱+日期+姓名+分會 需完全對上才允許送出
+    const regSheet = getOrCreateSheet();
+    const regData  = regSheet.getDataRange().getValues();
+    let matched = false;
+    let matchedTradeNo = '';
+
+    for (let i = 1; i < regData.length; i++) {
+      if (
+        String(regData[i][1]) === String(data.training) &&      // 培訓名稱
+        String(regData[i][2]) === String(data.trainingDate) &&  // 培訓日期
+        String(regData[i][4]) === String(data.name) &&          // 姓名
+        String(regData[i][5]) === String(data.chapter)          // 分會名稱
+      ) {
+        matched = true;
+        matchedTradeNo = regData[i][11];
+        break;
+      }
+    }
+
+    if (!matched) {
+      return jsonResponse({ status: 'error', message: '查無此筆報名資料，請確認姓名與分會是否與報名時填寫的完全一致。' });
+    }
+
     const sheet = getOrCreateCancelSheet();
     const now   = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
 
     sheet.appendRow([
       now,
       data.name || '',
-      data.phone || '',
+      data.chapter || '',
       data.training || '',
       data.trainingDate || '',
       data.requestType || '',
       data.deferTarget || '',
       data.reason || '',
+      matchedTradeNo,
       '待審核',
     ]);
 

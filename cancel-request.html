@@ -38,6 +38,12 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 
 .main { max-width: 520px; margin: 0 auto; padding: 24px 18px 60px; }
 
+.training-card { background: var(--dark2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 20px; }
+.training-card .label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.training-card .value { font-size: 17px; font-weight: 700; color: var(--gold-light); margin-bottom: 10px; }
+.training-card .meta { font-size: 13px; color: var(--text-dim); }
+.training-card .missing { color: var(--red); font-size: 13px; }
+
 .policy-box { background: var(--dark2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 24px; font-size: 13px; color: var(--text-dim); line-height: 1.8; }
 .policy-box .title { font-weight: 700; color: var(--text); margin-bottom: 8px; font-size: 14px; }
 
@@ -69,6 +75,8 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.inline-error { font-size: 13px; color: var(--red); margin-top: 10px; text-align: center; display: none; }
+
 .result-box { display: none; text-align: center; padding: 40px 20px; }
 .result-icon { font-size: 48px; margin-bottom: 16px; }
 .result-title { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 10px; }
@@ -86,11 +94,15 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 <div class="main">
 
   <div id="form-view">
+    <div class="training-card" id="training-card">
+      <!-- 動態填入 -->
+    </div>
+
     <div class="policy-box">
       <div class="title">📌 申請前請先確認</div>
       <div>・個人延期請於培訓前兩天（最後報名日）前申請，逾期恕不受理。</div>
       <div>・延期僅限一次，且僅能延至費用相同之其他場次，不補繳、不退還差額。</div>
-      <div>・申請送出後，將由區域辦公室人工審核並主動與您聯繫，請耐心等候。</div>
+      <div>・姓名與分會需與報名時填寫的完全一致，才能成功送出申請；若查無資料，請確認後重新輸入，或直接聯絡區域辦公室。</div>
     </div>
 
     <div class="form-group">
@@ -99,18 +111,17 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
     </div>
 
     <div class="form-group">
-      <label class="form-label">聯絡電話<span class="required">*</span></label>
-      <input class="form-input" type="tel" id="input-phone" placeholder="報名時填寫的手機號碼" inputmode="numeric">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">原報名培訓名稱<span class="required">*</span></label>
-      <input class="form-input" type="text" id="input-training" placeholder="例：進階MSP｜會員成長培訓">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">原報名培訓日期<span class="required">*</span></label>
-      <input class="form-input" type="text" id="input-training-date" placeholder="例：2026/9/10">
+      <label class="form-label">分會名稱<span class="required">*</span></label>
+      <select class="form-select" id="input-chapter">
+        <option value="">請選擇分會</option>
+        <option value="聚財分會">聚財分會</option>
+        <option value="聚大分會">聚大分會</option>
+        <option value="聚富分會">聚富分會</option>
+        <option value="聚道分會">聚道分會</option>
+        <option value="聚安全分會">聚安全分會</option>
+        <option value="聚美好分會">聚美好分會</option>
+        <option value="聚盛分會">聚盛分會</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -123,7 +134,7 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 
     <div class="form-group" id="defer-target-group">
       <label class="form-label">希望改期至（場次名稱／日期）</label>
-      <input class="form-input" type="text" id="input-defer-target" placeholder="請填寫希望改期的場次，若不確定可留空由辦公室協助安排">
+      <input class="form-input" type="text" id="input-defer-target" placeholder="若不確定可留空，由辦公室協助安排">
     </div>
 
     <div class="form-group">
@@ -132,6 +143,7 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
     </div>
 
     <button class="btn-primary" id="btn-submit" onclick="submitRequest()">送出申請</button>
+    <div class="inline-error" id="inline-error"></div>
   </div>
 
   <div class="result-box" id="result-view">
@@ -147,7 +159,29 @@ const CONFIG = {
   GAS_URL: 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec',
 };
 
+const params = new URLSearchParams(window.location.search);
+const training = {
+  name: params.get('name') || '',
+  date: params.get('date') || '',
+  loc:  params.get('loc')  || '',
+};
+
 let selectedType = '';
+
+function renderTrainingCard() {
+  const card = document.getElementById('training-card');
+  if (!training.name || !training.date) {
+    card.innerHTML = '<div class="missing">⚠️ 未偵測到培訓場次資訊，請從培訓公告頁面點擊「申請取消／延期」進入，或直接聯絡區域辦公室。</div>';
+    document.getElementById('btn-submit').disabled = true;
+    return;
+  }
+  card.innerHTML = `
+    <div class="label">申請取消／延期之場次</div>
+    <div class="value">${training.name}</div>
+    <div class="meta">📅 ${training.date}${training.loc ? '　📍 ' + training.loc : ''}</div>
+  `;
+}
+renderTrainingCard();
 
 function selectType(card) {
   document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
@@ -157,20 +191,20 @@ function selectType(card) {
 }
 
 async function submitRequest() {
-  const name         = document.getElementById('input-name').value.trim();
-  const phone        = document.getElementById('input-phone').value.trim();
-  const training     = document.getElementById('input-training').value.trim();
-  const trainingDate = document.getElementById('input-training-date').value.trim();
-  const deferTarget  = document.getElementById('input-defer-target').value.trim();
+  const errorEl = document.getElementById('inline-error');
+  errorEl.style.display = 'none';
+
+  const name        = document.getElementById('input-name').value.trim();
+  const chapter      = document.getElementById('input-chapter').value.trim();
+  const deferTarget = document.getElementById('input-defer-target').value.trim();
   const reason       = document.getElementById('input-reason').value.trim();
 
   let valid = true;
-  [['input-name', name], ['input-phone', phone], ['input-training', training], ['input-training-date', trainingDate]]
-    .forEach(([id, val]) => {
-      const el = document.getElementById(id);
-      el.classList.toggle('error', !val);
-      if (!val) valid = false;
-    });
+  [['input-name', name], ['input-chapter', chapter]].forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('error', !val);
+    if (!val) valid = false;
+  });
 
   if (!selectedType) {
     alert('請選擇申請類型（取消報名／延期改期）');
@@ -188,15 +222,27 @@ async function submitRequest() {
       method: 'POST',
       body: JSON.stringify({
         action: 'cancelRequest',
-        name, phone, training, trainingDate,
+        name, chapter,
+        training: training.name,
+        trainingDate: training.date,
         requestType: selectedType === 'cancel' ? '取消報名' : '延期改期',
         deferTarget, reason,
       }),
     });
-    document.getElementById('form-view').style.display = 'none';
-    document.getElementById('result-view').style.display = 'block';
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('result-view').style.display = 'block';
+    } else {
+      errorEl.textContent = data.message || '查無此筆報名資料，請確認姓名與分會是否正確。';
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '送出申請';
+    }
   } catch (err) {
-    alert('送出失敗，請稍後再試，或直接聯絡區域辦公室。');
+    errorEl.textContent = '送出失敗，請稍後再試，或直接聯絡區域辦公室。';
+    errorEl.style.display = 'block';
     btn.disabled = false;
     btn.textContent = '送出申請';
   }

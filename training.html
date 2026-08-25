@@ -73,6 +73,8 @@ h1 em { color:var(--red); font-style:normal; }
 .btn-register:active { transform:translateY(0); }
 .btn-register.full { background:linear-gradient(135deg,#444,#555); color:#888; cursor:not-allowed; }
 .btn-register.full:hover { transform:none; box-shadow:none; }
+.btn-cancel-link { display:inline-block; margin-left:10px; font-size:12px; color:var(--muted); text-decoration:underline; white-space:nowrap; }
+.btn-cancel-link:hover { color:var(--red, #E05252); }
 .btn-album { display:inline-flex; align-items:center; gap:6px; background:rgba(124,124,255,0.15); color:#7c7cff; border:1px solid rgba(124,124,255,0.35); border-radius:8px; padding:9px 18px; font-size: 16px; font-weight:700; font-family:'Noto Sans TC',sans-serif; cursor:pointer; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .btn-album:hover { background:rgba(124,124,255,0.25); transform:translateY(-1px); }
 
@@ -496,6 +498,11 @@ function renderTraining(rows) {
         + '&meal=' + mealFlag
         + '&type=' + encodeURIComponent(name);
 
+      var cancelUrl = 'cancel-request.html'
+        + '?name=' + encodeURIComponent(name)
+        + '&date=' + encodeURIComponent(date)
+        + '&loc='  + encodeURIComponent(location);
+
       html += '<div class="register-row">';
 
       // 費用顯示
@@ -522,11 +529,14 @@ function renderTraining(rows) {
       } else if (expired) {
         html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
       } else if (isRegistrationClosed(date)) {
-        html += '<a class="btn-register full" style="background:rgba(255,255,255,0.06);cursor:default;">🔒 報名已截止</a>';
+        html += '<a class="btn-register full" style="background:rgba(255,255,255,0.06);cursor:default;">🔒 報名已截止</a>'
+              + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請取消／延期</a>';
       } else if (isFull) {
-        html += '<a class="btn-register full">⛔ 報名已額滿</a>';
+        html += '<a class="btn-register full">⛔ 報名已額滿</a>'
+              + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請取消／延期</a>';
       } else {
-        html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>';
+        html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>'
+              + '<a href="' + cancelUrl + '" class="btn-cancel-link">已報名？申請取消／延期</a>';
       }
 
       // 相簿按鈕
