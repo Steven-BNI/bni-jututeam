@@ -116,8 +116,11 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
     </div>
 
     <div class="form-group">
-      <label class="form-label">希望改期至（場次名稱／日期）</label>
-      <input class="form-input" type="text" id="input-defer-target" placeholder="若不確定可留空，由辦公室協助安排">
+      <label class="form-label">希望改期至</label>
+      <select class="form-select" id="input-defer-target">
+        <option value="">載入中...</option>
+      </select>
+      <div id="defer-target-note" style="font-size:12px; color:var(--text-dim); margin-top:6px; display:none;"></div>
     </div>
 
     <div class="form-group">
@@ -147,7 +150,97 @@ const training = {
   name: params.get('name') || '',
   date: params.get('date') || '',
   loc:  params.get('loc')  || '',
+  fee:  params.get('fee')  || '0',
 };
+
+const SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else field += c;
+    }
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+function parseDate(str) {
+  // 支援 2026/9/10 或 2026-09-10 等格式
+  const m = String(str).match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (!m) return null;
+  return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+}
+
+async function loadDeferOptions() {
+  const select = document.getElementById('input-defer-target');
+  try {
+    const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('培訓公告');
+    const res  = await fetch(url);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const headers = rows[0];
+    function idx(name) { return headers.indexOf(name); }
+
+    const today = new Date();
+    const threeMonthsLater = new Date();
+    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+    const targetFee = parseFloat(training.fee) || 0;
+
+    const options = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || !r[idx('培訓名稱')]) continue;
+      const name = (r[idx('培訓名稱')] || '').trim();
+      const date = (r[idx('培訓日期')] || '').trim();
+      const fee  = parseFloat(r[idx('報名費用')]) || 0;
+      if (!name || !date) continue;
+      if (name.includes('已取消')) continue;
+      if (name === training.name && date === training.date) continue; // 排除自己原本的場次
+
+      const d = parseDate(date);
+      if (!d || d < today || d > threeMonthsLater) continue;
+      if (fee !== targetFee) continue; // 僅列出費用相同的場次
+
+      options.push({ name, date });
+    }
+
+    select.innerHTML = '';
+    if (options.length === 0) {
+      select.innerHTML = '<option value="">未來三個月內查無相同費用之場次</option>';
+      const note = document.getElementById('defer-target-note');
+      note.textContent = '目前查無符合條件的場次，請填寫下方原因，或直接聯絡區域辦公室協助安排。';
+      note.style.display = 'block';
+    } else {
+      select.innerHTML = '<option value="">請選擇欲改期之場次</option>';
+      options.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.name + '｜' + opt.date;
+        el.textContent = opt.name + '　' + opt.date;
+        select.appendChild(el);
+      });
+      const other = document.createElement('option');
+      other.value = '__other__';
+      other.textContent = '以上皆無合適場次（由辦公室協助安排）';
+      select.appendChild(other);
+    }
+  } catch (err) {
+    select.innerHTML = '<option value="">場次資料載入失敗，請於下方原因欄位說明</option>';
+    console.error('loadDeferOptions error:', err);
+  }
+}
+loadDeferOptions();
 
 function renderTrainingCard() {
   const card = document.getElementById('training-card');
@@ -170,7 +263,8 @@ async function submitRequest() {
 
   const name        = document.getElementById('input-name').value.trim();
   const chapter      = document.getElementById('input-chapter').value.trim();
-  const deferTarget = document.getElementById('input-defer-target').value.trim();
+  const deferSelect  = document.getElementById('input-defer-target').value;
+  const deferTarget  = deferSelect === '__other__' ? '（由辦公室協助安排）' : deferSelect;
   const reason       = document.getElementById('input-reason').value.trim();
 
   let valid = true;
