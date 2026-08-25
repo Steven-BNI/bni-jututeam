@@ -1,69 +1,74 @@
 /**
  * BNI 聚團隊｜培訓報名系統 - Google Apps Script
+ * 金流：黑貓PAY 多元支付（統一金流 PAYUNi）
  * ════════════════════════════════════════════════
- * 功能：
- *   1. 接收前端報名資料，寫入試算表一「報名紀錄」工作表
- *   2. 付費報名：產生 ECPay CheckMacValue 回傳給前端
- *   3. 免費報名：直接回傳成功
- *   4. ECPay 付款結果接收（ReturnURL）→ 更新付款狀態
- *
  * 部署方式：
- *   擴充功能 → Apps Script → 貼上此程式碼
- *   → 部署 → 新增部署 → 網頁應用程式
- *   → 執行身分：我（你的帳號）
- *   → 存取權：所有人
- *   → 複製「網頁應用程式網址」貼到 register.html 的 CONFIG.GAS_URL
+ *   擴充功能 → Apps Script → 貼上此程式碼（取代全部）
+ *   → 部署 → 管理部署 → 編輯 → 版本「新版本」→ 儲存
+ *   （不需要重新部署，更新版本即可）
  * ════════════════════════════════════════════════
  */
 
 // ══════════════════════════════════════
-// ⚙️  設定區（請填入你的資料）
+// ⚙️  設定區
 // ══════════════════════════════════════
 const SETTINGS = {
-  // 試算表一的 ID
   SPREADSHEET_ID: '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI',
-
-  // 「報名紀錄」工作表名稱（不存在時自動建立）
   SHEET_NAME: '報名紀錄',
 
-  // 統一金流 ECPay 金鑰（從廠商後台取得，只能放後端）
-  ECPAY_MERCHANT_ID: 'YOUR_MERCHANT_ID',
-  ECPAY_HASH_KEY:    'YOUR_HASH_KEY',
-  ECPAY_HASH_IV:     'YOUR_HASH_IV',
+  // 黑貓PAY API 設定
+  PAYUNI_USERNAME: '934900020001',
+  PAYUNI_PASSWORD: 'O9241627H^',
+  PAYUNI_CUST_ID:  '934900020001',
+  PAYUNI_BASE_URL: 'https://cocs.4128888card.com.tw',
+  // 測試環境（測試時改用這個）：
+  // PAYUNI_BASE_URL: 'https://test.4128888card.com.tw/app',
 
-  // 付款完成後 ECPay 呼叫此 GAS 的 URL（ReturnURL，需與前端一致）
-  // 注意：ECPay ReturnURL 必須是可接收 POST 的公開網址
-  // GitHub Pages 無法接收 POST，故 ReturnURL 指向本 GAS
-  // 前端的 ClientBackURL 才是使用者看到的「返回網頁」
-  GAS_RETURN_URL: 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec',
+  // 收單行（統一金流已開通）
+  ACQUIRER_TYPE: 'payuni',
+
+  // 付款完成後回傳網址（APN，需是可接收 POST 的公開網址）
+  APN_URL: 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec',
+
+  // 付款成功後跳回的頁面（給用戶看的）
+  SUCCESS_URL: 'https://steven-bni.github.io/bni-jututeam/register-return.html?result=success',
 };
 
 // ══════════════════════════════════════
-// 欄位定義（報名紀錄工作表）
+// 欄位定義（新增「餐點」於最後一欄，不影響既有欄位索引）
 // ══════════════════════════════════════
 const HEADERS = [
   '報名時間', '培訓名稱', '培訓日期', '地點',
   '姓名', '分會名稱', '電話', 'Email',
-  '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '餐點',
+  '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '付款網址', '餐點',
 ];
 
 // ══════════════════════════════════════
-// 主入口：處理 GET / POST 請求
+// 主入口
 // ══════════════════════════════════════
 function doPost(e) {
   try {
-    const raw = e.postData.contents;
-    const data = JSON.parse(raw);
+    const raw = e.postData ? e.postData.contents : '';
 
-    // ECPay 付款結果回傳（含 RtnCode 欄位）
-    if (data.RtnCode !== undefined || e.parameter.RtnCode !== undefined) {
-      return handleECPayReturn(e);
+    // 黑貓PAY APN 回傳（JSON 格式，含 cust_order_no）
+    let data;
+    try { data = JSON.parse(raw); } catch(err) {
+      // 嘗試 form-urlencoded 格式（黑貓PAY APN 可能用此格式）
+      data = {};
+      raw.split('&').forEach(function(pair) {
+        var parts = pair.split('=');
+        if (parts[0]) data[decodeURIComponent(parts[0].replace(/\+/g,' '))] = decodeURIComponent((parts[1]||'').replace(/\+/g,' '));
+      });
     }
 
-    // 前端報名資料
+    if (raw && !data.action && !data.trainingName) {
+      return handlePayUniAPN(data);
+    }
+
     switch (data.action) {
-      case 'register': return handleRegistration(data);
-      default:         return jsonResponse({ status: 'error', message: '未知 action' });
+      case 'register':       return handleRegistration(data);
+      case 'cancelRequest':  return handleCancelRequest(data);
+      default:                return jsonResponse({ status: 'error', message: '未知 action' });
     }
   } catch (err) {
     return jsonResponse({ status: 'error', message: err.message });
@@ -71,7 +76,6 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  // ECPay 有時用 GET 回傳（ClientBackURL）
   return ContentService.createTextOutput('OK');
 }
 
@@ -79,15 +83,19 @@ function doGet(e) {
 // 1. 處理報名
 // ══════════════════════════════════════
 function handleRegistration(data) {
-  const sheet = getOrCreateSheet();
-
-  // 產生唯一交易編號（ECPay 限 20 字元以內，僅英數字）
+  const sheet   = getOrCreateSheet();
   const tradeNo = generateTradeNo();
+  const now     = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+  const identityLabel = {
+    general:    '個人報名',
+    mentor:     '認證導師',
+    staff:      '統籌',
+    lecturer:   '講師',
+    gold:       '金質獎章得主',
+    ambassador: '區域培訓大使',
+  }[data.identity] || data.identity;
 
   // 寫入試算表
-  const now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
-  const identityLabel = { general:'一般學員', mentor:'認證導師', staff:'統籌', lecturer:'講師', gold:'金質獎章得主', ambassador:'區域培訓大使' }[data.identity] || data.identity;
-
   sheet.appendRow([
     now,
     data.trainingName,
@@ -99,13 +107,14 @@ function handleRegistration(data) {
     data.email,
     identityLabel,
     data.fee,
-    data.fee > 0 ? '待付款' : '免費（已完成）',
+    data.fee === 0 ? '免費（已完成）' : (data.payMethod === 'atm' ? 'ATM待確認' : '待付款'),
     tradeNo,
-    '',  // 付款時間（付款後更新）
+    '',   // 付款時間
+    '',   // 付款網址
     data.meal || '不需要',
   ]);
 
-  // 同步更新「培訓公告」工作表的報名人數
+  // 同步培訓公告報名人數
   updateRegistrationCount(data.trainingName, data.trainingDate);
 
   // 免費：直接回傳成功
@@ -113,39 +122,249 @@ function handleRegistration(data) {
     return jsonResponse({ status: 'ok', free: true });
   }
 
-  // 付費：產生 ECPay 參數（含 CheckMacValue）
-  const ecpayParams = buildECPayParams({
-    tradeNo:     tradeNo,
-    totalAmount: data.fee,
-    itemName:    data.trainingName,
-    tradeDesc:   'BNI培訓報名',
-  });
+  // ATM 轉帳：記錄末五碼，不建立刷卡訂單
+  if (data.payMethod === 'atm') {
+    updatePaymentStatus(tradeNo, 'ATM待確認（末五碼：' + (data.atmLast5||'未填') + '）', '');
+    return jsonResponse({ status: 'ok', free: false, atm: true });
+  }
 
-  return jsonResponse({ status: 'ok', free: false, ecpay: ecpayParams });
+  // 信用卡：取得 Token → 建立刷卡訂單 → 回傳付款網址
+  try {
+    const token  = getPayUniToken();
+    const result = createCocsOrder(token, tradeNo, data.fee, data.trainingName);
+    const paymentUrl   = result.url;
+    const cocsOrderNo  = result.cocsOrderNo;
+
+    // 用黑貓PAY 的訂單編號覆蓋原本的 BNI 編號，確保 APN 回傳時能對應
+    if (cocsOrderNo && cocsOrderNo !== tradeNo) {
+      updateTradeNo(tradeNo, cocsOrderNo);
+      tradeNo = cocsOrderNo;
+    }
+
+    // 把付款網址存回試算表
+    updatePaymentUrl(tradeNo, paymentUrl);
+
+    return jsonResponse({ status: 'ok', free: false, paymentUrl: paymentUrl });
+  } catch (err) {
+    // 建立訂單失敗：把狀態改為「建單失敗」
+    updatePaymentStatus(tradeNo, '建單失敗', '');
+    return jsonResponse({ status: 'error', message: '建立付款訂單失敗：' + err.message });
+  }
 }
 
 // ══════════════════════════════════════
-// 2. 同步報名人數到「培訓公告」工作表
+// 2. 取得黑貓PAY Token（有效3小時）
+// ══════════════════════════════════════
+function getPayUniToken() {
+  const url      = SETTINGS.PAYUNI_BASE_URL + '/Token';
+  const payload  = 'grant_type=password'
+    + '&username=' + encodeURIComponent(SETTINGS.PAYUNI_USERNAME)
+    + '&password=' + encodeURIComponent(SETTINGS.PAYUNI_PASSWORD);
+
+  const response = UrlFetchApp.fetch(url, {
+    method:      'post',
+    contentType: 'application/x-www-form-urlencoded',
+    payload:     payload,
+    muteHttpExceptions: true,
+  });
+
+  const result = JSON.parse(response.getContentText());
+  if (!result.access_token) {
+    throw new Error('取得 Token 失敗：' + JSON.stringify(result));
+  }
+  return result.access_token;
+}
+
+// ══════════════════════════════════════
+// 3. 建立刷卡訂單
+// ══════════════════════════════════════
+function createCocsOrder(token, tradeNo, amount, trainingName) {
+  const url      = SETTINGS.PAYUNI_BASE_URL + '/api/Collect';
+  const sendTime = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+
+  const body = JSON.stringify({
+    cmd:           'CocsOrderAppend',
+    cust_id:       SETTINGS.PAYUNI_CUST_ID,
+    cust_order_no: tradeNo,
+    order_amount:  amount,
+    order_detail:  'BNI培訓報名-' + trainingName,
+    acquirer_type: SETTINGS.ACQUIRER_TYPE,
+    send_time:     sendTime,
+    success_url:   SETTINGS.SUCCESS_URL + '&trade_no=' + tradeNo + '&amount=' + amount,
+    apn_url:       SETTINGS.APN_URL,
+  });
+
+  const response = UrlFetchApp.fetch(url, {
+    method:      'post',
+    contentType: 'application/json',
+    headers:     { 'Authorization': 'Bearer ' + token },
+    payload:     body,
+    muteHttpExceptions: true,
+  });
+
+  const result = JSON.parse(response.getContentText());
+  console.log('建單回傳：' + JSON.stringify(result));
+  if (result.status !== 'OK' || !result.url) {
+    throw new Error(result.msg || '建立刷卡訂單失敗');
+  }
+  // 回傳 url 和黑貓PAY 的訂單編號（order_no 或 cust_order_no）
+  return { url: result.url, cocsOrderNo: result.order_no || result.cust_order_no || tradeNo };
+}
+
+// ══════════════════════════════════════
+// 3.5 查詢刷卡訂單真實狀態（官方 API，不信任 APN 內容本身）
+// ══════════════════════════════════════
+function queryCocsOrder(token, tradeNo) {
+  const url  = SETTINGS.PAYUNI_BASE_URL + '/api/Collect';
+  const body = JSON.stringify({
+    cmd:           'CocsOrderQuery',
+    cust_id:       SETTINGS.PAYUNI_CUST_ID,
+    cust_order_no: tradeNo,
+  });
+
+  const response = UrlFetchApp.fetch(url, {
+    method:      'post',
+    contentType: 'application/json',
+    headers:     { 'Authorization': 'Bearer ' + token },
+    payload:     body,
+    muteHttpExceptions: true,
+  });
+
+  const result = JSON.parse(response.getContentText());
+  console.log('訂單查詢回傳：' + JSON.stringify(result));
+  return result; // { status, process_code, order_amount, ... } 或 { status:'ERROR', msg }
+}
+
+// ══════════════════════════════════════
+// 4. 接收黑貓PAY APN 付款通知
+// ══════════════════════════════════════
+function handlePayUniAPN(data) {
+  try {
+    // Log 完整回傳內容以便 debug（僅供除錯，不作為付款依據）
+    console.log('APN 收到（僅作觸發訊號，不直接信任內容）：' + JSON.stringify(data));
+
+    const tradeNo = data.cust_order_no || data.order_no || data.OrderNo || data.MerchantOrderNo || '';
+
+    if (!tradeNo) {
+      console.error('APN 沒有交易編號');
+      return ContentService.createTextOutput('ERROR');
+    }
+
+    const token = getPayUniToken();
+    verifyAndUpdateOrder(token, tradeNo);
+
+    return ContentService.createTextOutput('OK');
+  } catch (err) {
+    console.error('handlePayUniAPN error:', err);
+    return ContentService.createTextOutput('ERROR');
+  }
+}
+
+// ══════════════════════════════════════
+// 4.5 核心核實邏輯（APN 觸發與定時輪詢共用）
+//     不相信外部通知內容，一律主動向黑貓PAY 官方查詢真實狀態
+// ══════════════════════════════════════
+function verifyAndUpdateOrder(token, tradeNo) {
+  // 訂單必須存在且目前狀態為待付款/ATM待確認，才進一步查證（避免對亂猜編號浪費查詢）
+  const rowInfo = findFullRowByTradeNo(tradeNo);
+  if (!rowInfo) {
+    console.log('查無對應訂單，略過：' + tradeNo);
+    return;
+  }
+  if (rowInfo.status !== '待付款' && rowInfo.status.indexOf('ATM待確認') !== 0) {
+    console.log('訂單目前狀態非待付款（' + rowInfo.status + '），略過重複處理：' + tradeNo);
+    return;
+  }
+
+  // ⭐ 核心防偽：主動呼叫官方 CocsOrderQuery 查真實狀態
+  const order = queryCocsOrder(token, tradeNo);
+
+  if (order.status !== 'OK') {
+    console.log('查詢訂單失敗，暫不更新狀態：' + tradeNo + ' ' + JSON.stringify(order));
+    return;
+  }
+
+  // 金額核對：官方查詢金額須與試算表記錄一致
+  if (Number(order.order_amount) !== Number(rowInfo.fee)) {
+    console.error('查詢金額與訂單記錄不符（官方：' + order.order_amount + '，記錄：' + rowInfo.fee + '），轉人工核對：' + tradeNo);
+    updatePaymentStatus(tradeNo, '待人工核對（金額不符）', '');
+    return;
+  }
+
+  const paidAt = order.process_code_update_time || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+  const code   = Number(order.process_code);
+
+  if (code === 15 || code === 22) {
+    // 15=授權完成 22=請款完成，皆視為付款成功
+    updatePaymentStatus(tradeNo, '已付款', paidAt);
+    const rowData = findRowByTradeNo(tradeNo);
+    if (rowData) updateRegistrationCount(rowData.trainingName, rowData.trainingDate);
+    console.log('官方查證付款成功：' + tradeNo + ' process_code=' + code);
+  } else if (code === 16 || code === 18) {
+    // 16=授權失敗 18=取消授權失敗
+    updatePaymentStatus(tradeNo, '付款失敗', paidAt);
+    console.log('官方查證付款失敗：' + tradeNo + ' process_code=' + code);
+  } else {
+    // 其他中間狀態（例如13刷卡確認頁、14繳款人確認、20-21請款中）：先不變更，等下次再查
+    console.log('訂單處於中間狀態，暫不變更：' + tradeNo + ' process_code=' + code);
+  }
+}
+
+// ══════════════════════════════════════
+// 4.6 定時輪詢（不依賴 APN 是否送達／何時送達）
+//     請在 Apps Script 設定「時間驅動」觸發條件，建議每 5～10 分鐘執行一次
+// ══════════════════════════════════════
+function pollPendingOrders() {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+
+  // 收集所有待付款 / ATM待確認 的交易編號
+  const pending = [];
+  for (let i = 1; i < data.length; i++) {
+    const status = String(data[i][10] || '');
+    const tradeNo = data[i][11];
+    if (tradeNo && (status === '待付款' || status.indexOf('ATM待確認') === 0)) {
+      pending.push(tradeNo);
+    }
+  }
+
+  if (pending.length === 0) {
+    console.log('目前沒有待確認的訂單');
+    return;
+  }
+
+  console.log('輪詢 ' + pending.length + ' 筆待付款訂單：' + pending.join(', '));
+
+  const token = getPayUniToken(); // 共用同一組 Token，避免重複索取
+  pending.forEach(function(tradeNo) {
+    try {
+      verifyAndUpdateOrder(token, tradeNo);
+    } catch (err) {
+      console.error('輪詢訂單發生錯誤：' + tradeNo + ' ' + err.message);
+    }
+  });
+}
+
+// ══════════════════════════════════════
+// 5. 同步報名人數到「培訓公告」工作表
 // ══════════════════════════════════════
 function updateRegistrationCount(trainingName, trainingDate) {
   try {
-    const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+    const ss               = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
     const announcementSheet = ss.getSheetByName('培訓公告');
     if (!announcementSheet) return;
 
     const regSheet = getOrCreateSheet();
     const regData  = regSheet.getDataRange().getValues();
 
-    // 計算該培訓的付款中+已完成人數（排除「待付款」逾期未付者視需求調整）
     let count = 0;
     for (let i = 1; i < regData.length; i++) {
       if (regData[i][1] === trainingName && regData[i][2] === trainingDate) {
-        const status = regData[i][10];
-        if (status !== '待付款') count++;  // 免費已完成 or 已付款
+        const st = regData[i][10];
+        if (st === '已付款' || st === '免費（已完成）') count++;
       }
     }
 
-    // 找到對應列更新「報名人數」欄（第4欄，index 3）
     const annData = announcementSheet.getDataRange().getValues();
     for (let i = 1; i < annData.length; i++) {
       if (annData[i][1] === trainingName && annData[i][0] === trainingDate) {
@@ -159,37 +378,67 @@ function updateRegistrationCount(trainingName, trainingDate) {
 }
 
 // ══════════════════════════════════════
-// 3. 接收 ECPay 付款結果（ReturnURL）
+// 6. 處理取消／延期申請
 // ══════════════════════════════════════
-function handleECPayReturn(e) {
+const CANCEL_SHEET_NAME = '取消延期申請';
+const CANCEL_HEADERS = [
+  '申請時間', '姓名', '電話', '原培訓名稱', '原培訓日期',
+  '申請類型', '希望改期至', '申請原因', '處理狀態',
+];
+
+function handleCancelRequest(data) {
   try {
-    // ECPay 用 application/x-www-form-urlencoded 格式 POST
-    const params = e.parameter;
-    const rtnCode    = params.RtnCode;
-    const tradeNo    = params.MerchantTradeNo;
-    const paidAmount = params.TradeAmt;
-    const paidAt     = params.PaymentDate || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+    const sheet = getOrCreateCancelSheet();
+    const now   = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
 
-    // 驗證 CheckMacValue
-    if (!verifyCheckMacValue(params)) {
-      return ContentService.createTextOutput('0|CheckMacValue Error');
-    }
+    sheet.appendRow([
+      now,
+      data.name || '',
+      data.phone || '',
+      data.training || '',
+      data.trainingDate || '',
+      data.requestType || '',
+      data.deferTarget || '',
+      data.reason || '',
+      '待審核',
+    ]);
 
-    if (rtnCode === '1') {
-      // 付款成功：更新試算表
-      updatePaymentStatus(tradeNo, '已付款', paidAt);
-      // 同步報名人數（付款後才計入）
-      const rowData = findRowByTradeNo(tradeNo);
-      if (rowData) updateRegistrationCount(rowData.trainingName, rowData.trainingDate);
-    } else {
-      updatePaymentStatus(tradeNo, '付款失敗', paidAt);
-    }
-
-    // ECPay 要求回傳 "1|OK"
-    return ContentService.createTextOutput('1|OK');
+    return jsonResponse({ status: 'ok' });
   } catch (err) {
-    console.error('handleECPayReturn error:', err);
-    return ContentService.createTextOutput('0|Error');
+    console.error('handleCancelRequest error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
+function getOrCreateCancelSheet() {
+  const ss    = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  let sheet   = ss.getSheetByName(CANCEL_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(CANCEL_SHEET_NAME);
+    sheet.appendRow(CANCEL_HEADERS);
+    const hr = sheet.getRange(1, 1, 1, CANCEL_HEADERS.length);
+    hr.setBackground('#1a1a2e');
+    hr.setFontColor('#C9A84C');
+    hr.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 160);
+    sheet.setColumnWidth(4, 200);
+    sheet.setColumnWidth(8, 220);
+  }
+  return sheet;
+}
+
+// ══════════════════════════════════════
+// 工具函數
+// ══════════════════════════════════════
+function updateTradeNo(oldNo, newNo) {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][11] === oldNo) {
+      sheet.getRange(i + 1, 12).setValue(newNo);
+      break;
+    }
   }
 }
 
@@ -197,9 +446,20 @@ function updatePaymentStatus(tradeNo, status, paidAt) {
   const sheet = getOrCreateSheet();
   const data  = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (data[i][11] === tradeNo) {                      // 第12欄：交易編號
-      sheet.getRange(i + 1, 11).setValue(status);       // 第11欄：付款狀態
-      sheet.getRange(i + 1, 13).setValue(paidAt);       // 第13欄：付款時間
+    if (data[i][11] === tradeNo) {
+      sheet.getRange(i + 1, 11).setValue(status);
+      if (paidAt) sheet.getRange(i + 1, 13).setValue(paidAt);
+      break;
+    }
+  }
+}
+
+function updatePaymentUrl(tradeNo, url) {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][11] === tradeNo) {
+      sheet.getRange(i + 1, 14).setValue(url);
       break;
     }
   }
@@ -216,121 +476,50 @@ function findRowByTradeNo(tradeNo) {
   return null;
 }
 
-// ══════════════════════════════════════
-// ECPay 工具函數
-// ══════════════════════════════════════
-
-/**
- * 建立 ECPay 付款參數（含 CheckMacValue）
- */
-function buildECPayParams({ tradeNo, totalAmount, itemName, tradeDesc }) {
-  const tradeDate = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy/MM/dd HH:mm:ss');
-
-  const params = {
-    MerchantID:        SETTINGS.ECPAY_MERCHANT_ID,
-    MerchantTradeNo:   tradeNo,
-    MerchantTradeDate: tradeDate,
-    PaymentType:       'aio',
-    TotalAmount:       totalAmount,
-    TradeDesc:         tradeDesc,
-    ItemName:          itemName,
-    ReturnURL:         SETTINGS.GAS_RETURN_URL,
-    ChoosePayment:     'ALL',
-    EncryptType:       '1',
-  };
-
-  params.CheckMacValue = generateCheckMacValue(params);
-  return params;
+// 取得完整訂單資訊（狀態、費用），供 APN 安全檢查使用
+function findFullRowByTradeNo(tradeNo) {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][11] === tradeNo) {
+      return { fee: data[i][9], status: String(data[i][10] || '') };
+    }
+  }
+  return null;
 }
 
-/**
- * 產生 ECPay CheckMacValue（SHA256）
- */
-function generateCheckMacValue(params) {
-  // 1. 依參數名稱英文字母排序
-  const sorted = Object.keys(params)
-    .filter(k => k !== 'CheckMacValue')
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-
-  // 2. 組成字串
-  let raw = `HashKey=${SETTINGS.ECPAY_HASH_KEY}`;
-  sorted.forEach(k => { raw += `&${k}=${params[k]}`; });
-  raw += `&HashIV=${SETTINGS.ECPAY_HASH_IV}`;
-
-  // 3. URL Encode（ECPay 規則）
-  raw = encodeURIComponentECPay(raw);
-
-  // 4. 轉小寫
-  raw = raw.toLowerCase();
-
-  // 5. SHA256
-  const bytes  = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
-  const hex    = bytes.map(b => ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2)).join('');
-  return hex.toUpperCase();
-}
-
-/**
- * 驗證 ECPay 回傳的 CheckMacValue
- */
-function verifyCheckMacValue(params) {
-  const received = params.CheckMacValue;
-  const copy     = Object.assign({}, params);
-  delete copy.CheckMacValue;
-  const expected = generateCheckMacValue(copy);
-  return received === expected;
-}
-
-/**
- * ECPay 專用 URL Encode
- * 將 .、-、_、* 等特殊字元保持不編碼
- */
-function encodeURIComponentECPay(str) {
-  return encodeURIComponent(str)
-    .replace(/%20/g, '+')
-    .replace(/!/g, '%21')
-    .replace(/'/g, '%27')
-    .replace(/\(/g, '%28')
-    .replace(/\)/g, '%29')
-    .replace(/\*/g, '%2A')
-    .replace(/%7E/g, '~');
-}
-
-/**
- * 產生唯一交易編號（英數字，最多20碼）
- * 格式：BNI + yyMMddHHmm + 4位隨機
- */
 function generateTradeNo() {
-  const now    = new Date();
-  const stamp  = Utilities.formatDate(now, 'Asia/Taipei', 'yyMMddHHmm');
-  const rand   = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `BNI${stamp}${rand}`;
+  const stamp = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyMMddHHmm');
+  const rand  = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return 'BNI' + stamp + rand;
 }
 
-// ══════════════════════════════════════
-// 試算表工具
-// ══════════════════════════════════════
+function computeMD5(str) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.MD5,
+    str,
+    Utilities.Charset.UTF_8
+  );
+  return bytes.map(b => ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2)).join('');
+}
+
 function getOrCreateSheet() {
   const ss    = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
   let sheet   = ss.getSheetByName(SETTINGS.SHEET_NAME);
-
   if (!sheet) {
     sheet = ss.insertSheet(SETTINGS.SHEET_NAME);
-    // 建立表頭
     sheet.appendRow(HEADERS);
-    // 格式化表頭
-    const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
-    headerRange.setBackground('#1a1a2e');
-    headerRange.setFontColor('#C9A84C');
-    headerRange.setFontWeight('bold');
+    const hr = sheet.getRange(1, 1, 1, HEADERS.length);
+    hr.setBackground('#1a1a2e');
+    hr.setFontColor('#C9A84C');
+    hr.setFontWeight('bold');
     sheet.setFrozenRows(1);
-    // 欄寬
-    sheet.setColumnWidth(1, 160);  // 報名時間
-    sheet.setColumnWidth(2, 200);  // 培訓名稱
-    sheet.setColumnWidth(5, 100);  // 姓名
-    sheet.setColumnWidth(6, 140);  // 分會名稱
-    sheet.setColumnWidth(8, 200);  // Email
-    sheet.setColumnWidth(11, 120); // 付款狀態
-    sheet.setColumnWidth(12, 180); // 交易編號
+    sheet.setColumnWidth(1, 160);
+    sheet.setColumnWidth(2, 200);
+    sheet.setColumnWidth(8, 200);
+    sheet.setColumnWidth(11, 120);
+    sheet.setColumnWidth(12, 160);
+    sheet.setColumnWidth(14, 300);
   }
   return sheet;
 }
