@@ -378,12 +378,12 @@ function updateRegistrationCount(trainingName, trainingDate) {
 }
 
 // ══════════════════════════════════════
-// 6. 處理取消／延期申請
+// 6. 處理延期申請
 // ══════════════════════════════════════
-const CANCEL_SHEET_NAME = '取消延期申請';
+const CANCEL_SHEET_NAME = '延期申請';
 const CANCEL_HEADERS = [
   '申請時間', '姓名', '分會名稱', '原培訓名稱', '原培訓日期',
-  '申請類型', '希望改期至', '申請原因', '對應交易編號', '處理狀態',
+  '希望改期至', '申請原因', '對應交易編號', '處理狀態',
 ];
 
 function handleCancelRequest(data) {
@@ -420,7 +420,6 @@ function handleCancelRequest(data) {
       data.chapter || '',
       data.training || '',
       data.trainingDate || '',
-      data.requestType || '',
       data.deferTarget || '',
       data.reason || '',
       matchedTradeNo,

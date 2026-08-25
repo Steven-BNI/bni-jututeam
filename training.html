@@ -530,13 +530,13 @@ function renderTraining(rows) {
         html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
       } else if (isRegistrationClosed(date)) {
         html += '<a class="btn-register full" style="background:rgba(255,255,255,0.06);cursor:default;">🔒 報名已截止</a>'
-              + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請取消／延期</a>';
+              + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請延期</a>';
       } else if (isFull) {
         html += '<a class="btn-register full">⛔ 報名已額滿</a>'
-              + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請取消／延期</a>';
+              + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請延期</a>';
       } else {
         html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>'
-              + '<a href="' + cancelUrl + '" class="btn-cancel-link">已報名？申請取消／延期</a>';
+              + '<a href="' + cancelUrl + '" class="btn-cancel-link">已報名？申請延期</a>';
       }
 
       // 相簿按鈕

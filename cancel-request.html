@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BNI 聚團隊｜申請取消／延期</title>
+<title>BNI 聚團隊｜申請延期</title>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -59,15 +59,6 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 .form-input.error, .form-select.error { border-color: var(--red); }
 .form-textarea { resize: vertical; min-height: 80px; }
 
-.radio-group { display: flex; gap: 12px; }
-.radio-card {
-  flex: 1; padding: 14px; border-radius: 8px; border: 1.5px solid var(--border);
-  background: var(--dark2); text-align: center; cursor: pointer; transition: all 0.2s; font-size: 14px; font-weight: 700;
-}
-.radio-card.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold-light); }
-
-#defer-target-group { display: none; }
-
 .btn-primary {
   width: 100%; padding: 15px; border-radius: 10px; border: none;
   background: linear-gradient(135deg, var(--gold-light), var(--gold));
@@ -87,8 +78,8 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 
 <div class="header">
   <div class="header-eyebrow">BNI 聚團隊</div>
-  <h1>申請 <em>取消／延期</em></h1>
-  <div class="header-sub">新北市西A區｜培訓報名異動申請</div>
+  <h1>申請 <em>延期</em></h1>
+  <div class="header-sub">新北市西A區｜培訓報名延期申請</div>
 </div>
 
 <div class="main">
@@ -100,7 +91,7 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
 
     <div class="policy-box">
       <div class="title">📌 申請前請先確認</div>
-      <div>・個人延期請於培訓前兩天（最後報名日）前申請，逾期恕不受理。</div>
+      <div>・延期請於培訓前兩天（最後報名日）前申請，逾期恕不受理。</div>
       <div>・延期僅限一次，且僅能延至費用相同之其他場次，不補繳、不退還差額。</div>
       <div>・姓名與分會需與報名時填寫的完全一致，才能成功送出申請；若查無資料，請確認後重新輸入，或直接聯絡區域辦公室。</div>
     </div>
@@ -125,14 +116,6 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
     </div>
 
     <div class="form-group">
-      <label class="form-label">申請類型<span class="required">*</span></label>
-      <div class="radio-group">
-        <div class="radio-card" data-type="cancel" onclick="selectType(this)">取消報名</div>
-        <div class="radio-card" data-type="defer" onclick="selectType(this)">延期改期</div>
-      </div>
-    </div>
-
-    <div class="form-group" id="defer-target-group">
       <label class="form-label">希望改期至（場次名稱／日期）</label>
       <input class="form-input" type="text" id="input-defer-target" placeholder="若不確定可留空，由辦公室協助安排">
     </div>
@@ -142,14 +125,14 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
       <textarea class="form-textarea" id="input-reason" placeholder="方便的話請簡述原因"></textarea>
     </div>
 
-    <button class="btn-primary" id="btn-submit" onclick="submitRequest()">送出申請</button>
+    <button class="btn-primary" id="btn-submit" onclick="submitRequest()">送出延期申請</button>
     <div class="inline-error" id="inline-error"></div>
   </div>
 
   <div class="result-box" id="result-view">
     <div class="result-icon">✅</div>
     <div class="result-title">申請已送出</div>
-    <div class="result-desc">我們已收到您的申請，區域辦公室將於近日主動與您聯繫確認後續處理，感謝您的耐心等候。</div>
+    <div class="result-desc">我們已收到您的延期申請，區域辦公室將於近日主動與您聯繫確認後續處理，感謝您的耐心等候。</div>
   </div>
 
 </div>
@@ -166,29 +149,20 @@ const training = {
   loc:  params.get('loc')  || '',
 };
 
-let selectedType = '';
-
 function renderTrainingCard() {
   const card = document.getElementById('training-card');
   if (!training.name || !training.date) {
-    card.innerHTML = '<div class="missing">⚠️ 未偵測到培訓場次資訊，請從培訓公告頁面點擊「申請取消／延期」進入，或直接聯絡區域辦公室。</div>';
+    card.innerHTML = '<div class="missing">⚠️ 未偵測到培訓場次資訊，請從培訓公告頁面點擊「申請延期」進入，或直接聯絡區域辦公室。</div>';
     document.getElementById('btn-submit').disabled = true;
     return;
   }
   card.innerHTML = `
-    <div class="label">申請取消／延期之場次</div>
+    <div class="label">申請延期之場次</div>
     <div class="value">${training.name}</div>
     <div class="meta">📅 ${training.date}${training.loc ? '　📍 ' + training.loc : ''}</div>
   `;
 }
 renderTrainingCard();
-
-function selectType(card) {
-  document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
-  selectedType = card.dataset.type;
-  document.getElementById('defer-target-group').style.display = selectedType === 'defer' ? 'block' : 'none';
-}
 
 async function submitRequest() {
   const errorEl = document.getElementById('inline-error');
@@ -206,11 +180,6 @@ async function submitRequest() {
     if (!val) valid = false;
   });
 
-  if (!selectedType) {
-    alert('請選擇申請類型（取消報名／延期改期）');
-    valid = false;
-  }
-
   if (!valid) return;
 
   const btn = document.getElementById('btn-submit');
@@ -225,7 +194,6 @@ async function submitRequest() {
         name, chapter,
         training: training.name,
         trainingDate: training.date,
-        requestType: selectedType === 'cancel' ? '取消報名' : '延期改期',
         deferTarget, reason,
       }),
     });
