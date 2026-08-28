@@ -93,17 +93,17 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
     <div class="policy-box">
       <div class="title">📌 申請前請先確認</div>
       <div>・延期請於培訓前兩天（最後報名日）前申請，逾期恕不受理。</div>
-      <div>・延期僅限一次，且僅能延至費用相同之其他場次，不補繳、不退還差額。</div>
+      <div>・延期僅限一次，且僅能延至費用「相同或更低」之其他場次，若場次費用較低，差額恕不退還；不可改至費用較高之場次。</div>
       <div>・姓名與分會需與報名時填寫的完全一致，才能成功送出申請；若查無資料，請確認後重新輸入，或直接聯絡區域辦公室。</div>
       <details style="margin-top:10px;">
-        <summary style="cursor:pointer; color:var(--gold-light); font-weight:700; list-style:none;">▸ 「費用相同」怎麼認定？點此查看說明與範例</summary>
+        <summary style="cursor:pointer; color:var(--gold-light); font-weight:700; list-style:none;">▸ 費用怎麼比對？點此查看說明與範例</summary>
         <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border);">
-          系統會用您<strong style="color:var(--text)">報名時實際支付的金額</strong>，去比對其他場次的<strong style="color:var(--text)">原價</strong>或<strong style="color:var(--text)">早鳥價</strong>，兩者只要有一個相同即可選擇，與該場次「現在」是否仍在早鳥期無關。
+          系統會用您<strong style="color:var(--text)">報名時實際支付的金額</strong>，去比對其他場次的<strong style="color:var(--text)">費用</strong>：目標場次費用必須<strong style="color:var(--text)">等於或低於</strong>您實際支付的金額，才能選擇；費用較高的場次不會出現在選項中。
           <div style="margin-top:8px;">
-            <strong style="color:var(--text)">範例一：</strong>您原本以<strong>原價 800 元</strong>報名。即使目前多數場次都還在早鳥期，只要某場次的<strong>原價同樣是 800 元</strong>，仍可選擇改期至該場次（不會因為對方早鳥價比較便宜而不能選）。
+            <strong style="color:var(--text)">範例一：</strong>您原本支付 <strong>800 元</strong>。可選擇費用為 <strong>800 元或更低</strong>（例如 500 元）的場次；選擇 500 元的場次時，差額 300 元恕不退還。
           </div>
           <div style="margin-top:6px;">
-            <strong style="color:var(--text)">範例二：</strong>您原本以<strong>早鳥價 300 元</strong>報名。可選擇<strong>早鳥價同樣是 300 元</strong>的其他場次。
+            <strong style="color:var(--text)">範例二：</strong>您原本支付 <strong>300 元</strong>。無法選擇費用 <strong>500 元</strong>的場次（較貴），只能選擇 300 元或更低的場次。
           </div>
         </div>
       </details>
@@ -266,7 +266,6 @@ async function loadDeferOptions(paidFee) {
       const name        = (r[idx('培訓名稱')] || '').trim();
       const date        = (r[idx('培訓日期')] || '').trim();
       const feeGeneral  = parseFloat(r[idx('報名費用')]) || 0;
-      const feeEarly    = parseFloat(r[idx('早鳥價')]) || 0;
       if (!name || !date) continue;
       if (name.includes('已取消')) continue;
       if (name === training.name && date === training.date) continue; // 排除自己原本的場次
@@ -274,33 +273,32 @@ async function loadDeferOptions(paidFee) {
       const d = parseDate(date);
       if (!d || d < today || d > threeMonthsLater) continue;
 
-      // 只要候選場次的「原價」或「早鳥價」其中一個等於您實際付的金額，即列為可改期選項
-      // （不限定該場次「現在」是否仍在早鳥期，避免早鳥期時間差造成無場次可選）
-      const matchesFee = (feeGeneral === paidFee) || (feeEarly > 0 && feeEarly === paidFee);
-      if (!matchesFee) continue;
+      // 目標場次費用需 ≤ 您實際付的金額（可以改到一樣或更便宜的場次，但不能改到更貴的）
+      if (feeGeneral > paidFee) continue;
 
-      options.push({ name, date });
+      const diff = paidFee - feeGeneral;
+      options.push({ name, date, fee: feeGeneral, diff });
     }
 
     select.innerHTML = '';
     const note = document.getElementById('defer-target-note');
     if (options.length === 0) {
       select.innerHTML = '<option value="">未來三個月內查無符合金額之場次</option>';
-      note.textContent = '您報名時實際支付 NT$ ' + paidFee.toLocaleString() + '，目前查無符合此金額的場次，請填寫下方原因，或直接聯絡區域辦公室協助安排。';
+      note.textContent = '您報名時實際支付 NT$ ' + paidFee.toLocaleString() + '，目前查無金額相同或更低的場次，請填寫下方原因，或直接聯絡區域辦公室協助安排。';
       note.style.display = 'block';
     } else {
       select.innerHTML = '<option value="">請選擇欲改期之場次</option>';
       options.forEach(opt => {
         const el = document.createElement('option');
-        el.value = opt.name + '｜' + opt.date;
-        el.textContent = opt.name + '　' + opt.date;
+        el.value = opt.name + '｜' + opt.date + '｜' + opt.fee + '｜' + opt.diff;
+        el.textContent = opt.name + '　' + opt.date + (opt.diff > 0 ? '（差價 NT$' + opt.diff.toLocaleString() + ' 恕不退還）' : '');
         select.appendChild(el);
       });
       const other = document.createElement('option');
       other.value = '__other__';
       other.textContent = '以上皆無合適場次（由辦公室協助安排）';
       select.appendChild(other);
-      note.textContent = '以上場次的原價或早鳥價，符合您報名時實際支付的 NT$ ' + paidFee.toLocaleString() + '。';
+      note.textContent = '以上場次費用等於或低於您實際支付的 NT$ ' + paidFee.toLocaleString() + '；若場次費用較低，差額恕不退還。';
       note.style.display = 'block';
     }
   } catch (err) {
@@ -331,8 +329,18 @@ async function submitRequest() {
   const name        = document.getElementById('input-name').value.trim();
   const chapter      = document.getElementById('input-chapter').value.trim();
   const deferSelect  = document.getElementById('input-defer-target').value;
-  const deferTarget  = deferSelect === '__other__' ? '（由辦公室協助安排）' : deferSelect;
   const reason       = document.getElementById('input-reason').value.trim();
+
+  // 解析選單值：場次名稱｜日期｜費用｜差價
+  let deferTarget = '（由辦公室協助安排）';
+  let deferTargetFee = '';
+  let priceDiff = '';
+  if (deferSelect && deferSelect !== '__other__') {
+    const parts = deferSelect.split('｜');
+    deferTarget = parts[0] + '｜' + parts[1];
+    deferTargetFee = parts[2] || '';
+    priceDiff = parts[3] || '0';
+  }
 
   let valid = true;
   [['input-name', name], ['input-chapter', chapter]].forEach(([id, val]) => {
@@ -355,7 +363,7 @@ async function submitRequest() {
         name, chapter,
         training: training.name,
         trainingDate: training.date,
-        deferTarget, reason,
+        deferTarget, deferTargetFee, priceDiff, reason,
       }),
     });
     const data = await res.json();

@@ -40,7 +40,7 @@ const SETTINGS = {
 const HEADERS = [
   '報名時間', '培訓名稱', '培訓日期', '地點',
   '姓名', '分會名稱', '電話', 'Email',
-  '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '付款網址', '餐點',
+  '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '付款網址', '餐點', '付款方式', '人工核對', 'ATM末五碼',
 ];
 
 // ══════════════════════════════════════
@@ -68,6 +68,8 @@ function doPost(e) {
     switch (data.action) {
       case 'register':       return handleRegistration(data);
       case 'cancelRequest':  return handleCancelRequest(data);
+      case 'lookupPaidFee':  return handleLookupPaidFee(data);
+      case 'submitFeedback': return handleSubmitFeedback(data);
       default:                return jsonResponse({ status: 'error', message: '未知 action' });
     }
   } catch (err) {
@@ -96,6 +98,9 @@ function handleRegistration(data) {
   }[data.identity] || data.identity;
 
   // 寫入試算表
+  const payMethodLabel = data.fee === 0 ? '免費' : (data.payMethod === 'atm' ? 'ATM轉帳' : '信用卡');
+  const atmLast5 = data.payMethod === 'atm' ? (data.atmLast5 || '未填') : '';
+
   sheet.appendRow([
     now,
     data.trainingName,
@@ -112,6 +117,9 @@ function handleRegistration(data) {
     '',   // 付款時間
     '',   // 付款網址
     data.meal || '不需要',
+    payMethodLabel,
+    '',   // 人工核對
+    atmLast5,
   ]);
 
   // 同步培訓公告報名人數
@@ -122,9 +130,8 @@ function handleRegistration(data) {
     return jsonResponse({ status: 'ok', free: true });
   }
 
-  // ATM 轉帳：記錄末五碼，不建立刷卡訂單
+  // ATM 轉帳：末五碼已存入獨立欄位，不再需要另外覆寫付款狀態
   if (data.payMethod === 'atm') {
-    updatePaymentStatus(tradeNo, 'ATM待確認（末五碼：' + (data.atmLast5||'未填') + '）', '');
     return jsonResponse({ status: 'ok', free: false, atm: true });
   }
 
@@ -311,6 +318,73 @@ function verifyAndUpdateOrder(token, tradeNo) {
 }
 
 // ══════════════════════════════════════
+// 4.8 一次性修正表頭（欄位新增後表頭沒跟著更新時使用）
+//     用法：執行這個函式，會把「報名紀錄」第一列覆蓋成正確的完整欄位標題
+// ══════════════════════════════════════
+function fixHeaderRow() {
+  const sheet = getOrCreateSheet();
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  console.log('表頭已修正為：' + HEADERS.join('、'));
+}
+
+// ══════════════════════════════════════
+// 4.9 排程主函式（觸發條件請指向這個函式，取代單獨的 pollPendingOrders）
+//     每次執行會依序做兩件事：
+//     1) 主動查證信用卡待付款訂單的真實狀態（黑貓PAY 官方 API）
+//     2) 套用你在「人工核對」欄標記 Y 的 ATM 轉帳確認
+// ══════════════════════════════════════
+function scheduledTasks() {
+  pollPendingOrders();
+  applyManualConfirmations();
+}
+
+// ══════════════════════════════════════
+// 4.7 套用人工核對（處理 ATM 或其他人工確認過的付款）
+//     用法：在「報名紀錄」的「人工核對」欄填 Y，存檔後執行這個函式
+// ══════════════════════════════════════
+function applyManualConfirmations() {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+  const headers = data[0];
+
+  const statusCol  = headers.indexOf('付款狀態');
+  const paidAtCol  = headers.indexOf('付款時間');
+  const methodCol  = headers.indexOf('付款方式');
+  const checkCol   = headers.indexOf('人工核對');
+  const nameCol    = headers.indexOf('培訓名稱');
+  const dateCol    = headers.indexOf('培訓日期');
+
+  if (checkCol === -1) {
+    console.error('找不到「人工核對」欄位，請先在「報名紀錄」工作表最後新增一欄，標題填「人工核對」');
+    return;
+  }
+
+  const now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+  let processed = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    const mark = String(data[i][checkCol] || '').trim();
+    if (mark !== 'Y' && mark !== 'y') continue;
+
+    const row = i + 1; // 1-indexed for setRange
+
+    sheet.getRange(row, statusCol + 1).setValue('已付款（人工核對）');
+    if (!data[i][paidAtCol]) {
+      sheet.getRange(row, paidAtCol + 1).setValue(now);
+    }
+    if (methodCol !== -1 && !data[i][methodCol]) {
+      sheet.getRange(row, methodCol + 1).setValue('ATM轉帳');
+    }
+    sheet.getRange(row, checkCol + 1).setValue('已處理');
+
+    updateRegistrationCount(data[i][nameCol], data[i][dateCol]);
+    processed++;
+  }
+
+  console.log('已套用 ' + processed + ' 筆人工核對');
+}
+
+// ══════════════════════════════════════
 // 4.6 定時輪詢（不依賴 APN 是否送達／何時送達）
 //     請在 Apps Script 設定「時間驅動」觸發條件，建議每 5～10 分鐘執行一次
 // ══════════════════════════════════════
@@ -348,6 +422,40 @@ function pollPendingOrders() {
 // ══════════════════════════════════════
 // 5. 同步報名人數到「培訓公告」工作表
 // ══════════════════════════════════════
+// ══════════════════════════════════════
+// 5.5 手動重新計算「所有場次」的報名人數
+//     用途：欄位異動導致人數卡住不動時，手動執行一次修正全部資料
+//     用法：Apps Script 編輯器上方選這個函式 → 執行
+// ══════════════════════════════════════
+function recalculateAllCounts() {
+  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  const announcementSheet = ss.getSheetByName('培訓公告');
+  if (!announcementSheet) {
+    console.error('找不到「培訓公告」工作表');
+    return;
+  }
+
+  const annData    = announcementSheet.getDataRange().getValues();
+  const annHeaders = annData[0];
+  const nameCol = annHeaders.indexOf('培訓名稱');
+  const dateCol = annHeaders.indexOf('培訓日期');
+
+  if (nameCol === -1 || dateCol === -1) {
+    console.error('「培訓公告」工作表找不到必要欄位（培訓名稱／培訓日期）');
+    return;
+  }
+
+  let updated = 0;
+  for (let i = 1; i < annData.length; i++) {
+    const trainingName = annData[i][nameCol];
+    const trainingDate = annData[i][dateCol];
+    if (!trainingName || !trainingDate) continue;
+    updateRegistrationCount(trainingName, trainingDate);
+    updated++;
+  }
+  console.log('已重新計算 ' + updated + ' 場培訓的報名人數');
+}
+
 function updateRegistrationCount(trainingName, trainingDate) {
   try {
     const ss               = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
@@ -356,19 +464,31 @@ function updateRegistrationCount(trainingName, trainingDate) {
 
     const regSheet = getOrCreateSheet();
     const regData  = regSheet.getDataRange().getValues();
+    const targetDate = normalizeDateValue(trainingDate);
 
     let count = 0;
     for (let i = 1; i < regData.length; i++) {
-      if (regData[i][1] === trainingName && regData[i][2] === trainingDate) {
-        const st = regData[i][10];
-        if (st === '已付款' || st === '免費（已完成）') count++;
+      if (String(regData[i][1]).trim() === String(trainingName).trim() && normalizeDateValue(regData[i][2]) === targetDate) {
+        const st = String(regData[i][10] || '');
+        // 免費／已付款（含人工核對）／ATM待確認 皆計入報名人數（避免因尚未收到付款確認而漏算）
+        if (st.indexOf('已付款') === 0 || st === '免費（已完成）' || st.indexOf('ATM待確認') === 0) count++;
       }
     }
 
-    const annData = announcementSheet.getDataRange().getValues();
+    const annData    = announcementSheet.getDataRange().getValues();
+    const annHeaders = annData[0];
+    const nameCol  = annHeaders.indexOf('培訓名稱');
+    const dateCol  = annHeaders.indexOf('培訓日期');
+    const countCol = annHeaders.indexOf('報名人數');
+
+    if (nameCol === -1 || dateCol === -1 || countCol === -1) {
+      console.error('「培訓公告」工作表找不到必要欄位（培訓名稱／培訓日期／報名人數），請確認欄位名稱是否正確');
+      return;
+    }
+
     for (let i = 1; i < annData.length; i++) {
-      if (annData[i][1] === trainingName && annData[i][0] === trainingDate) {
-        announcementSheet.getRange(i + 1, 4).setValue(count);
+      if (String(annData[i][nameCol]).trim() === String(trainingName).trim() && normalizeDateValue(annData[i][dateCol]) === targetDate) {
+        announcementSheet.getRange(i + 1, countCol + 1).setValue(count);
         break;
       }
     }
@@ -383,8 +503,119 @@ function updateRegistrationCount(trainingName, trainingDate) {
 const CANCEL_SHEET_NAME = '延期申請';
 const CANCEL_HEADERS = [
   '申請時間', '姓名', '分會名稱', '原培訓名稱', '原培訓日期',
-  '希望改期至', '申請原因', '對應交易編號', '處理狀態',
+  '希望改期至', '目標場次費用', '價差（恕不退還）', '申請原因', '對應交易編號', '處理狀態',
 ];
+
+// ══════════════════════════════════════
+// 7. 查詢某筆報名的實際付款金額（供延期表單比對用）
+// ══════════════════════════════════════
+// ══════════════════════════════════════
+// 8. 處理會後回饋
+// ══════════════════════════════════════
+const FEEDBACK_SHEET_NAME = '會後回饋';
+const FEEDBACK_HEADERS = [
+  '填寫時間', '姓名', '分會名稱', '培訓名稱', '培訓日期',
+  '滿意度', '講義幫助程度', '印象最深的演練', '培訓建議', '提升參與建議',
+  '願意擔任身份', '對應交易編號',
+];
+
+function handleSubmitFeedback(data) {
+  try {
+    // 核對報名紀錄：培訓名稱+日期+姓名+分會 若對得上，記錄交易編號方便追溯
+    // 目前尚未全面強制系統報名，查無紀錄不擋下送出，僅在資料上註記，避免漏收真實回饋
+    const regSheet = getOrCreateSheet();
+    const regData  = regSheet.getDataRange().getValues();
+    const targetDate = normalizeDateValue(data.trainingDate);
+    let matchedTradeNo = '查無報名紀錄';
+
+    for (let i = 1; i < regData.length; i++) {
+      if (
+        String(regData[i][1]).trim() === String(data.training).trim() &&
+        normalizeDateValue(regData[i][2]) === targetDate &&
+        String(regData[i][4]).trim() === String(data.name).trim() &&
+        String(regData[i][5]).trim() === String(data.chapter).trim()
+      ) {
+        matchedTradeNo = regData[i][11];
+        break;
+      }
+    }
+
+    const sheet = getOrCreateFeedbackSheet();
+    const now   = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+
+    sheet.appendRow([
+      now,
+      data.name || '',
+      data.chapter || '',
+      data.training || '',
+      data.trainingDate || '',
+      data.satisfaction || '',
+      data.materialHelp || '',
+      data.memorablePractice || '',
+      data.timeSuggestion || '',
+      data.participationSuggestion || '',
+      (data.roles || []).join('、'),
+      matchedTradeNo,
+    ]);
+
+    return jsonResponse({ status: 'ok' });
+  } catch (err) {
+    console.error('handleSubmitFeedback error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
+function getOrCreateFeedbackSheet() {
+  const ss    = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  let sheet   = ss.getSheetByName(FEEDBACK_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(FEEDBACK_SHEET_NAME);
+    sheet.appendRow(FEEDBACK_HEADERS);
+    const hr = sheet.getRange(1, 1, 1, FEEDBACK_HEADERS.length);
+    hr.setBackground('#1a1a2e');
+    hr.setFontColor('#C9A84C');
+    hr.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(4, 200);
+    sheet.setColumnWidth(8, 220);
+    sheet.setColumnWidth(9, 220);
+    sheet.setColumnWidth(10, 220);
+  }
+  return sheet;
+}
+
+function handleLookupPaidFee(data) {
+  try {
+    const regSheet = getOrCreateSheet();
+    const regData  = regSheet.getDataRange().getValues();
+    const targetDate = normalizeDateValue(data.trainingDate);
+
+    for (let i = 1; i < regData.length; i++) {
+      if (
+        String(regData[i][1]).trim() === String(data.training).trim() &&
+        normalizeDateValue(regData[i][2]) === targetDate &&
+        String(regData[i][4]).trim() === String(data.name).trim() &&
+        String(regData[i][5]).trim() === String(data.chapter).trim()
+      ) {
+        return jsonResponse({ status: 'ok', fee: Number(regData[i][9]) || 0 });
+      }
+    }
+    return jsonResponse({ status: 'error', message: '查無此筆報名資料，請確認姓名與分會是否與報名時填寫的完全一致。' });
+  } catch (err) {
+    console.error('handleLookupPaidFee error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
+function normalizeDateValue(val) {
+  if (Object.prototype.toString.call(val) === '[object Date]') {
+    return Utilities.formatDate(val, 'Asia/Taipei', 'yyyy/M/d');
+  }
+  const s = String(val || '').trim();
+  const m = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (m) return m[1] + '/' + parseInt(m[2], 10) + '/' + parseInt(m[3], 10);
+  return s;
+}
 
 function handleCancelRequest(data) {
   try {
@@ -393,13 +624,14 @@ function handleCancelRequest(data) {
     const regData  = regSheet.getDataRange().getValues();
     let matched = false;
     let matchedTradeNo = '';
+    const targetDate = normalizeDateValue(data.trainingDate);
 
     for (let i = 1; i < regData.length; i++) {
       if (
-        String(regData[i][1]) === String(data.training) &&      // 培訓名稱
-        String(regData[i][2]) === String(data.trainingDate) &&  // 培訓日期
-        String(regData[i][4]) === String(data.name) &&          // 姓名
-        String(regData[i][5]) === String(data.chapter)          // 分會名稱
+        String(regData[i][1]).trim() === String(data.training).trim() &&  // 培訓名稱
+        normalizeDateValue(regData[i][2]) === targetDate &&                // 培訓日期（正規化後比對）
+        String(regData[i][4]).trim() === String(data.name).trim() &&      // 姓名
+        String(regData[i][5]).trim() === String(data.chapter).trim()      // 分會名稱
       ) {
         matched = true;
         matchedTradeNo = regData[i][11];
@@ -421,6 +653,8 @@ function handleCancelRequest(data) {
       data.training || '',
       data.trainingDate || '',
       data.deferTarget || '',
+      data.deferTargetFee || '',
+      data.priceDiff || '0',
       data.reason || '',
       matchedTradeNo,
       '待審核',
