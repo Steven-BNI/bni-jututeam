@@ -105,6 +105,9 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
           <div style="margin-top:6px;">
             <strong style="color:var(--text)">範例二：</strong>您原本支付 <strong>300 元</strong>。無法選擇費用 <strong>500 元</strong>的場次（較貴），只能選擇 300 元或更低的場次。
           </div>
+          <div style="margin-top:6px;">
+            <strong style="color:var(--text)">範例三（認證導師）：</strong>若您當初是以「認證導師優惠價」報名，系統會改比對候選場次的認證導師優惠價，只列出<strong>同樣有開放導師優惠價</strong>的場次（通常是 MSP 類培訓）。
+          </div>
         </div>
       </details>
     </div>
@@ -197,6 +200,7 @@ function parseDate(str) {
 }
 
 let lookedUpFee = null;
+let lookedUpIdentity = '';
 let lookupInFlight = false;
 
 async function lookupPaidFeeAndLoadOptions() {
@@ -235,7 +239,8 @@ async function lookupPaidFeeAndLoadOptions() {
     }
 
     lookedUpFee = data.fee;
-    await loadDeferOptions(lookedUpFee);
+    lookedUpIdentity = data.identity || '';
+    await loadDeferOptions(lookedUpFee, lookedUpIdentity);
   } catch (err) {
     select.innerHTML = '<option value="">查詢失敗，請稍後再試</option>';
     console.error('lookupPaidFeeAndLoadOptions error:', err);
@@ -245,8 +250,9 @@ async function lookupPaidFeeAndLoadOptions() {
   }
 }
 
-async function loadDeferOptions(paidFee) {
+async function loadDeferOptions(paidFee, identity) {
   const select = document.getElementById('input-defer-target');
+  const isMentor = identity === '認證導師';
   try {
     const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('培訓公告');
     const res  = await fetch(url);
@@ -266,6 +272,7 @@ async function loadDeferOptions(paidFee) {
       const name        = (r[idx('培訓名稱')] || '').trim();
       const date        = (r[idx('培訓日期')] || '').trim();
       const feeGeneral  = parseFloat(r[idx('報名費用')]) || 0;
+      const feeMentor   = parseFloat(r[idx('認證導師費用')]) || 0;
       if (!name || !date) continue;
       if (name.includes('已取消')) continue;
       if (name === training.name && date === training.date) continue; // 排除自己原本的場次
@@ -273,18 +280,26 @@ async function loadDeferOptions(paidFee) {
       const d = parseDate(date);
       if (!d || d < today || d > threeMonthsLater) continue;
 
-      // 目標場次費用需 ≤ 您實際付的金額（可以改到一樣或更便宜的場次，但不能改到更貴的）
-      if (feeGeneral > paidFee) continue;
+      // 若當初是以「認證導師」優惠價報名，改期比對候選場次的認證導師費用（僅限有開放導師優惠的場次）；
+      // 其餘身份則比對一般報名費用。目標費用需 ≤ 您實際付的金額（可以改到一樣或更便宜，不能更貴）。
+      let compareFee;
+      if (isMentor) {
+        if (feeMentor <= 0) continue; // 該場次沒有開放認證導師優惠價，不列入選項
+        compareFee = feeMentor;
+      } else {
+        compareFee = feeGeneral;
+      }
+      if (compareFee > paidFee) continue;
 
-      const diff = paidFee - feeGeneral;
-      options.push({ name, date, fee: feeGeneral, diff });
+      const diff = paidFee - compareFee;
+      options.push({ name, date, fee: compareFee, diff });
     }
 
     select.innerHTML = '';
     const note = document.getElementById('defer-target-note');
     if (options.length === 0) {
       select.innerHTML = '<option value="">未來三個月內查無符合金額之場次</option>';
-      note.textContent = '您報名時實際支付 NT$ ' + paidFee.toLocaleString() + '，目前查無金額相同或更低的場次，請填寫下方原因，或直接聯絡區域辦公室協助安排。';
+      note.textContent = (isMentor ? '（依認證導師優惠價比對）' : '') + '您報名時實際支付 NT$ ' + paidFee.toLocaleString() + '，目前查無金額相同或更低的場次，請填寫下方原因，或直接聯絡區域辦公室協助安排。';
       note.style.display = 'block';
     } else {
       select.innerHTML = '<option value="">請選擇欲改期之場次</option>';
@@ -298,7 +313,7 @@ async function loadDeferOptions(paidFee) {
       other.value = '__other__';
       other.textContent = '以上皆無合適場次（由辦公室協助安排）';
       select.appendChild(other);
-      note.textContent = '以上場次費用等於或低於您實際支付的 NT$ ' + paidFee.toLocaleString() + '；若場次費用較低，差額恕不退還。';
+      note.textContent = (isMentor ? '（依認證導師優惠價比對）' : '') + '以上場次費用等於或低於您實際支付的 NT$ ' + paidFee.toLocaleString() + '；若場次費用較低，差額恕不退還。';
       note.style.display = 'block';
     }
   } catch (err) {
