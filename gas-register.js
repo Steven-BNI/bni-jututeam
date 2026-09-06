@@ -66,11 +66,12 @@ function doPost(e) {
     }
 
     switch (data.action) {
-      case 'register':       return handleRegistration(data);
-      case 'cancelRequest':  return handleCancelRequest(data);
-      case 'lookupPaidFee':  return handleLookupPaidFee(data);
-      case 'submitFeedback': return handleSubmitFeedback(data);
-      default:                return jsonResponse({ status: 'error', message: '未知 action' });
+      case 'register':              return handleRegistration(data);
+      case 'cancelRequest':         return handleCancelRequest(data);
+      case 'lookupPaidFee':         return handleLookupPaidFee(data);
+      case 'submitFeedback':        return handleSubmitFeedback(data);
+      case 'lookupMyRegistrations': return handleLookupMyRegistrations(data);
+      default:                       return jsonResponse({ status: 'error', message: '未知 action' });
     }
   } catch (err) {
     return jsonResponse({ status: 'error', message: err.message });
@@ -86,6 +87,24 @@ function doGet(e) {
 // ══════════════════════════════════════
 function handleRegistration(data) {
   const sheet   = getOrCreateSheet();
+
+  // 防止重複報名：同一人（姓名+分會）已有這場（培訓名稱+日期）非失敗狀態的報名紀錄，就擋下
+  const existingData = sheet.getDataRange().getValues();
+  const targetDate = normalizeDateValue(data.trainingDate);
+  for (let i = 1; i < existingData.length; i++) {
+    const status = String(existingData[i][10] || '');
+    const isFailed = status === '付款失敗' || status === '建單失敗';
+    if (
+      !isFailed &&
+      String(existingData[i][1]).trim() === String(data.trainingName).trim() &&
+      normalizeDateValue(existingData[i][2]) === targetDate &&
+      String(existingData[i][4]).trim() === String(data.name).trim() &&
+      String(existingData[i][5]).trim() === String(data.chapter).trim()
+    ) {
+      return jsonResponse({ status: 'error', message: '您已經報名過這場培訓了，若需要修改或取消，請使用「申請延期」功能，不要重複報名。' });
+    }
+  }
+
   const tradeNo = generateTradeNo();
   const now     = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
   const identityLabel = {
@@ -584,6 +603,38 @@ function getOrCreateFeedbackSheet() {
   return sheet;
 }
 
+// ══════════════════════════════════════
+// 9. 查詢某人（姓名+Email）的所有報名紀錄
+// ══════════════════════════════════════
+function handleLookupMyRegistrations(data) {
+  try {
+    const regSheet = getOrCreateSheet();
+    const regData  = regSheet.getDataRange().getValues();
+    const name  = String(data.name || '').trim();
+    const email = String(data.email || '').trim().toLowerCase();
+
+    const records = [];
+    for (let i = 1; i < regData.length; i++) {
+      const rowName  = String(regData[i][4] || '').trim();
+      const rowEmail = String(regData[i][7] || '').trim().toLowerCase();
+      if (rowName === name && rowEmail === email) {
+        records.push({
+          trainingName: regData[i][1],
+          trainingDate: normalizeDateValue(regData[i][2]),
+          status: regData[i][10],
+          fee: regData[i][9],
+          meal: regData[i][14] || '不需要',
+        });
+      }
+    }
+
+    return jsonResponse({ status: 'ok', records: records });
+  } catch (err) {
+    console.error('handleLookupMyRegistrations error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
 function handleLookupPaidFee(data) {
   try {
     const regSheet = getOrCreateSheet();
@@ -597,7 +648,7 @@ function handleLookupPaidFee(data) {
         String(regData[i][4]).trim() === String(data.name).trim() &&
         String(regData[i][5]).trim() === String(data.chapter).trim()
       ) {
-        return jsonResponse({ status: 'ok', fee: Number(regData[i][9]) || 0 });
+        return jsonResponse({ status: 'ok', fee: Number(regData[i][9]) || 0, identity: String(regData[i][8] || '') });
       }
     }
     return jsonResponse({ status: 'error', message: '查無此筆報名資料，請確認姓名與分會是否與報名時填寫的完全一致。' });

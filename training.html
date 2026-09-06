@@ -166,7 +166,24 @@ h1 em { color:var(--red); font-style:normal; }
   flex-shrink: 0;
 }
 .nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
+.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }/* 查詢我的報名紀錄 */
+.my-reg-wrap { max-width:1200px; margin:0 auto; padding:0 16px; }
+.my-reg-toggle { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:12px 16px; font-size:15px; font-weight:700; color:var(--gold); cursor:pointer; margin-top:14px; display:flex; justify-content:space-between; align-items:center; }
+.my-reg-toggle:hover { border-color:var(--gold); }
+.my-reg-panel { background:var(--surface); border:1.5px solid var(--border); border-top:none; border-radius:0 0 10px 10px; padding:16px; margin-top:-2px; }
+.my-reg-row { display:flex; flex-wrap:wrap; gap:10px; }
+.my-reg-input { flex:1; min-width:140px; padding:11px 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg); color:#fff; font-size:14px; font-family:'Noto Sans TC',sans-serif; outline:none; }
+.my-reg-input:focus { border-color:var(--gold); }
+.my-reg-btn { padding:11px 22px; border-radius:8px; border:none; background:var(--gold); color:#1a1408; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; }
+.my-reg-result-item { background:var(--bg); border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; margin-top:10px; font-size:14px; }
+.my-reg-result-item .rname { font-weight:700; color:#fff; margin-bottom:4px; }
+.my-reg-result-item .rmeta { color:var(--muted); font-size:13px; line-height:1.6; }
+.my-reg-status { display:inline-block; padding:2px 10px; border-radius:20px; font-size:12px; font-weight:700; margin-left:6px; }
+.my-reg-status.paid { background:rgba(0,217,126,0.15); color:var(--green); }
+.my-reg-status.pending { background:rgba(255,217,74,0.15); color:var(--yellow); }
+.my-reg-status.other { background:rgba(255,255,255,0.08); color:var(--muted); }
+.my-reg-empty { color:var(--muted); font-size:14px; padding:10px 0; }
+.my-reg-error { color:var(--red); font-size:13px; padding:10px 0; }
 </style>
 </head>
 <body>
@@ -196,10 +213,80 @@ h1 em { color:var(--red); font-style:normal; }
   <a href="/bni-jututeam/dna-home.html" class="nav-btn">🔒 DnA 專區</a>
 </nav>
 
+<div class="my-reg-wrap" id="myRegWrap">
+  <div class="my-reg-toggle" id="myRegToggle" onclick="toggleMyReg()">🔍 查詢我的報名紀錄 <span id="myRegArrow">▾</span></div>
+  <div class="my-reg-panel" id="myRegPanel" style="display:none;">
+    <div class="my-reg-row">
+      <input type="text" id="myRegName" placeholder="姓名" class="my-reg-input">
+      <input type="email" id="myRegEmail" placeholder="Email" class="my-reg-input">
+      <button class="my-reg-btn" onclick="queryMyRegistrations()">查詢</button>
+    </div>
+    <div id="myRegResult"></div>
+  </div>
+</div>
+
 <div id="mainContent"><div class="loading">載入中...</div></div>
 
 <script>
 var SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
+
+function toggleMyReg() {
+  var panel = document.getElementById('myRegPanel');
+  var arrow = document.getElementById('myRegArrow');
+  var isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▾' : '▴';
+}
+
+function myRegStatusClass(status) {
+  status = status || '';
+  if (status.indexOf('已付款') === 0 || status.indexOf('免費') === 0) return 'paid';
+  if (status.indexOf('待付款') === 0 || status.indexOf('ATM待確認') === 0) return 'pending';
+  return 'other';
+}
+
+async function queryMyRegistrations() {
+  var name  = document.getElementById('myRegName').value.trim();
+  var email = document.getElementById('myRegEmail').value.trim();
+  var resultEl = document.getElementById('myRegResult');
+
+  if (!name || !email) {
+    resultEl.innerHTML = '<div class="my-reg-error">請同時填寫姓名與 Email 才能查詢</div>';
+    return;
+  }
+
+  resultEl.innerHTML = '<div class="my-reg-empty">查詢中...</div>';
+
+  try {
+    var res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'lookupMyRegistrations', name: name, email: email }),
+    });
+    var data = await res.json();
+
+    if (data.status !== 'ok') {
+      resultEl.innerHTML = '<div class="my-reg-error">' + (data.message || '查詢失敗，請確認姓名與 Email 是否正確') + '</div>';
+      return;
+    }
+
+    if (!data.records || data.records.length === 0) {
+      resultEl.innerHTML = '<div class="my-reg-empty">查無符合的報名紀錄，請確認姓名與 Email 是否與報名時填寫的完全一致。</div>';
+      return;
+    }
+
+    resultEl.innerHTML = data.records.map(function(r) {
+      var cls = myRegStatusClass(r.status);
+      return '<div class="my-reg-result-item">'
+        + '<div class="rname">' + r.trainingName + '<span class="my-reg-status ' + cls + '">' + r.status + '</span></div>'
+        + '<div class="rmeta">📅 ' + r.trainingDate + '　💰 NT$ ' + r.fee + '　🍱 ' + r.meal + '</div>'
+        + '</div>';
+    }).join('');
+  } catch (err) {
+    resultEl.innerHTML = '<div class="my-reg-error">查詢失敗，請稍後再試或直接聯絡區域辦公室。</div>';
+    console.error('queryMyRegistrations error:', err);
+  }
+}
 
 function setSyncStatus(s, t) {
   document.getElementById('syncDot').className = 'sync-dot ' + s;
@@ -281,6 +368,18 @@ function renderTraining(rows) {
     if (p.length < 3) return false;
     var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
     return d < today;
+  }
+
+  // 今天或更早：用於判斷是否顯示「填寫會後回饋」連結（今天當下就可以填，不用等到隔天）
+  function isTodayOrEarlier(dateStr) {
+    if (!dateStr) return false;
+    var p = dateStr.split('/');
+    if (p.length < 3) return false;
+    var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    d.setHours(0,0,0,0);
+    var t = new Date(today);
+    t.setHours(0,0,0,0);
+    return d <= t;
   }
 
   function isRegistrationClosed(dateStr) {
@@ -504,6 +603,11 @@ function renderTraining(rows) {
         + '&loc='  + encodeURIComponent(location)
         + '&fee='  + feeGeneral;
 
+      var feedbackUrl = 'feedback.html'
+        + '?name=' + encodeURIComponent(name)
+        + '&date=' + encodeURIComponent(date)
+        + '&loc='  + encodeURIComponent(location);
+
       html += '<div class="register-row">';
 
       // 費用顯示
@@ -528,7 +632,8 @@ function renderTraining(rows) {
       if (name.includes('已取消')) {
         html += '<span style="font-size:13px;color:#ff4444;">⚠️ 活動已取消</span>';
       } else if (expired) {
-        html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
+        html += '<span style="font-size:13px;color:#555;">活動已結束</span>'
+              + '<a href="' + feedbackUrl + '" class="btn-cancel-link">📝 填寫會後回饋</a>';
       } else if (isRegistrationClosed(date)) {
         html += '<a class="btn-register full" style="background:rgba(255,255,255,0.06);cursor:default;">🔒 報名已截止</a>'
               + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請延期</a>';
@@ -538,6 +643,11 @@ function renderTraining(rows) {
       } else {
         html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>'
               + '<a href="' + cancelUrl + '" class="btn-cancel-link">已報名？申請延期</a>';
+      }
+
+      // 今天當天的場次，不論上面顯示哪種狀態，額外加上「填寫會後回饋」連結（培訓尾聲就能填，不用等隔天）
+      if (!expired && !name.includes('已取消') && isTodayOrEarlier(date)) {
+        html += '<br><a href="' + feedbackUrl + '" class="btn-cancel-link" style="margin-top:6px;display:inline-block;">📝 今天課程結束後，點此填寫會後回饋</a>';
       }
 
       // 相簿按鈕
