@@ -370,18 +370,6 @@ function renderTraining(rows) {
     return d < today;
   }
 
-  // 今天或更早：用於判斷是否顯示「填寫會後回饋」連結（今天當下就可以填，不用等到隔天）
-  function isTodayOrEarlier(dateStr) {
-    if (!dateStr) return false;
-    var p = dateStr.split('/');
-    if (p.length < 3) return false;
-    var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
-    d.setHours(0,0,0,0);
-    var t = new Date(today);
-    t.setHours(0,0,0,0);
-    return d <= t;
-  }
-
   function isRegistrationClosed(dateStr) {
     // 培訓日前第3天 23:59:59 為報名截止
     if (!dateStr) return false;
@@ -603,11 +591,6 @@ function renderTraining(rows) {
         + '&loc='  + encodeURIComponent(location)
         + '&fee='  + feeGeneral;
 
-      var feedbackUrl = 'feedback.html'
-        + '?name=' + encodeURIComponent(name)
-        + '&date=' + encodeURIComponent(date)
-        + '&loc='  + encodeURIComponent(location);
-
       html += '<div class="register-row">';
 
       // 費用顯示
@@ -632,8 +615,7 @@ function renderTraining(rows) {
       if (name.includes('已取消')) {
         html += '<span style="font-size:13px;color:#ff4444;">⚠️ 活動已取消</span>';
       } else if (expired) {
-        html += '<span style="font-size:13px;color:#555;">活動已結束</span>'
-              + '<a href="' + feedbackUrl + '" class="btn-cancel-link">📝 填寫會後回饋</a>';
+        html += '<span style="font-size:13px;color:#555;">活動已結束</span>';
       } else if (isRegistrationClosed(date)) {
         html += '<a class="btn-register full" style="background:rgba(255,255,255,0.06);cursor:default;">🔒 報名已截止</a>'
               + '<a href="' + cancelUrl + '" class="btn-cancel-link">申請延期</a>';
@@ -643,11 +625,6 @@ function renderTraining(rows) {
       } else {
         html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>'
               + '<a href="' + cancelUrl + '" class="btn-cancel-link">已報名？申請延期</a>';
-      }
-
-      // 今天當天的場次，不論上面顯示哪種狀態，額外加上「填寫會後回饋」連結（培訓尾聲就能填，不用等隔天）
-      if (!expired && !name.includes('已取消') && isTodayOrEarlier(date)) {
-        html += '<br><a href="' + feedbackUrl + '" class="btn-cancel-link" style="margin-top:6px;display:inline-block;">📝 今天課程結束後，點此填寫會後回饋</a>';
       }
 
       // 相簿按鈕
