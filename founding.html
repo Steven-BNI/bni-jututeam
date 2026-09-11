@@ -150,7 +150,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 /* ════════════════════════════════════════════════════════
    ✏️ 每次更新，只要改這裡的資料就好，改完 Commit 即完成
    ════════════════════════════════════════════════════════ */
-const REPORT_DATE = "2026.09.06";
+const REPORT_DATE = "2026.09.11";
 const TARGET_DATE = "9/30";
 
 const chapters = [
@@ -181,10 +181,11 @@ const chapters = [
     name: "聚盛", tag: "線上分會",
     director: "Steven", ambassador: "李佩玲",
     target: 24, briefing: "9/9、9/21 說明會",
-    newMember: "凃秀菊",
+    newMember: "林盟凱",
     members: [
       ["張嘉仁","精品眼鏡"], ["宋恩廷","會計服務業"],
-      ["凃秀菊","有機食品開發代理"],
+      ["凃秀菊","有機食品開發代理"], ["黃仲睿","食品凍乾製造"],
+      ["林盟凱","客製網頁系統開發"],
     ],
     dna: ["李佩玲","陳虹君","萬翎甄","黃郁婷","陳力銓","朱唯良","詹蕎瑀"],
   },
@@ -226,7 +227,7 @@ function render() {
       </div>`;
     }).join('');
     const dnaHtml = ch.dna.map(d => `<div class="dna-chip">${d}</div>`).join('');
-    const newBadge = ch.newMember ? `<div class="new-badge">今日加入 ${ch.newMember} ✓</div>` : '';
+    const newBadge = ch.newMember ? `<div class="new-badge">新成員加入 ${ch.newMember} ✓</div>` : '';
 
     return `
     <div class="branch-card" style="--accent:${accent}">
