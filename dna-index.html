@@ -281,7 +281,8 @@ const SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
 const MONTHS = [
   '2025-12','2026-01','2026-02','2026-03',
   '2026-04','2026-05','2026-06',
-  '2026-07','2026-08','2026-09'
+  '2026-07','2026-08','2026-09',
+  '2026-10','2026-11','2026-12'
 ];
 
 const MEMBERS = [
@@ -633,14 +634,7 @@ function renderMonths() {
 }
 
 function renderMembers() {
-  document.getElementById('memberScroll').innerHTML = MEMBERS.map(m => {
-    const locked = isMonthLocked(m, curMonth);
-    if (locked) {
-      return `<button class="member-btn locked" disabled>
-        <span class="m-name">${m.name}</span>
-        <span class="m-role">${m.role}</span>
-      </button>`;
-    }
+  document.getElementById('memberScroll').innerHTML = MEMBERS.filter(m => !isMonthLocked(m, curMonth)).map(m => {
     return `<button class="member-btn ${m.id===curMember?'active':''}" onclick="setMember('${m.id}')">
       <span class="m-name">${m.name}</span>
       <span class="m-role">${m.role}</span>
