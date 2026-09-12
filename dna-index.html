@@ -294,7 +294,13 @@ const MEMBERS = [
   { id: 'Super Star Yu',   name: '余明興',  role: '增長大使',     branches: [{name:'聚富',target:50}], hasF5: true },
   { id: 'Anthony Chen', name: '陳臣勝',  role: '增長助理大使', branches: [{name:'聚富',target:50}], hasF5: true },
   { id: 'KK Yang',  name: '楊凱雯',  role: '助理大使',     branches: [], hasF5: false },
-  { id: 'Teresa Tsai',  name: '蔡菱秝',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-04' },
+  { id: 'Teresa Tsai',  name: '蔡菱秝',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-04', endMonth: '2026-06' },
+  { id: 'Shun-Hao Wu',  name: '吳舜豪',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'Dao-Ran Lin',  name: '林道然',  role: '啟動大使',     branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'I-CHEN CHIANG', name: '江宜真', role: '助理大使',    branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'Bo-Lin Jiang', name: '江柏林',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06', endMonth: '2026-07' },
+  { id: 'Bo-Ting Chou', name: '周柏廷',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'One One',  name: '萬翎甄',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06' },
 ];
 
 const F4_ACTIVITIES = [
@@ -492,6 +498,14 @@ function getMemberStartIdx(mid) {
   return idx >= 0 ? idx : 0;
 }
 
+// 判斷該成員在指定月份是否「未加入」或「已離開」，兩種情況都視為鎖定
+function isMonthLocked(m, month) {
+  if (!m) return true;
+  if (m.startMonth && month < m.startMonth) return true;
+  if (m.endMonth && month > m.endMonth) return true;
+  return false;
+}
+
 function calcF1(mid) {
   const idx = MONTHS.indexOf(curMonth);
   const startIdx = getMemberStartIdx(mid);
@@ -620,7 +634,7 @@ function renderMonths() {
 
 function renderMembers() {
   document.getElementById('memberScroll').innerHTML = MEMBERS.map(m => {
-    const locked = m.startMonth && curMonth < m.startMonth;
+    const locked = isMonthLocked(m, curMonth);
     if (locked) {
       return `<button class="member-btn locked" disabled>
         <span class="m-name">${m.name}</span>
@@ -644,9 +658,12 @@ function renderReadonlyNotice() {
 
 function renderOverview() {
   const m = getMember();
-  const locked = m.startMonth && curMonth < m.startMonth;
+  const locked = isMonthLocked(m, curMonth);
   if (locked) {
-    document.getElementById('overviewWrap').innerHTML = `<div class="inactive-note">🔒 ${m.name} 從 2026/04 起啟用</div>`;
+    const lockMsg = (m.endMonth && curMonth > m.endMonth)
+      ? `🔒 ${m.name} 已於 ${m.endMonth.replace('-','/')} 後離開 DnA`
+      : `🔒 ${m.name} 從 ${m.startMonth.replace('-','/')} 起啟用`;
+    document.getElementById('overviewWrap').innerHTML = `<div class="inactive-note">${lockMsg}</div>`;
     return;
   }
   const { ok, total, cls, statusText } = overallStatus(curMember, curMonth);
@@ -663,7 +680,7 @@ function renderOverview() {
 
 function renderCards() {
   const m = getMember();
-  const locked = m.startMonth && curMonth < m.startMonth;
+  const locked = isMonthLocked(m, curMonth);
   if (locked) { document.getElementById('cardsWrap').innerHTML = ''; return; }
 
   const f1 = calcF1(curMember);
