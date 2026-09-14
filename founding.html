@@ -181,11 +181,12 @@ const chapters = [
     name: "聚盛", tag: "線上分會",
     director: "Steven", ambassador: "李佩玲",
     target: 24, briefing: "9/9、9/21 說明會",
-    newMember: "林書玄",
+    newMember: ["林書玄", "徐宇珩"],
     members: [
       ["張嘉仁","精品眼鏡"], ["宋恩廷","會計服務業"],
       ["凃秀菊","有機食品開發代理"], ["黃仲睿","食品凍乾製造"],
       ["林盟凱","客製網頁系統開發"], ["林書玄","玻璃加工"],
+      ["徐宇珩","精油洗沐用品"],
     ],
     dna: ["李佩玲","陳虹君","萬翎甄","黃郁婷","陳力銓","朱唯良","詹蕎瑀"],
   },
@@ -220,14 +221,16 @@ function render() {
     const pct = Math.round(n / ch.target * 100);
     const accent = accentColor(pct);
     const membersHtml = ch.members.map(([name, role]) => {
-      const isNew = ch.newMember === name;
+      const newList = Array.isArray(ch.newMember) ? ch.newMember : (ch.newMember ? [ch.newMember] : []);
+      const isNew = newList.includes(name);
       return `<div class="member-row ${isNew?'is-new':''}">
         <span class="member-name ${isNew?'new':''}">${name}</span>
         <span class="member-role">${role}</span>
       </div>`;
     }).join('');
     const dnaHtml = ch.dna.map(d => `<div class="dna-chip">${d}</div>`).join('');
-    const newBadge = ch.newMember ? `<div class="new-badge">新成員加入 ${ch.newMember} ✓</div>` : '';
+    const newListBadge = Array.isArray(ch.newMember) ? ch.newMember : (ch.newMember ? [ch.newMember] : []);
+    const newBadge = newListBadge.length ? `<div class="new-badge">新成員加入 ${newListBadge.join('、')} ✓</div>` : '';
 
     return `
     <div class="branch-card" style="--accent:${accent}">
