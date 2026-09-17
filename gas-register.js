@@ -74,6 +74,7 @@ function doPost(e) {
       case 'dnaLogin':              return handleDnaLogin(data);
       case 'dnaGetAllData':         return handleDnaGetAllData(data);
       case 'dnaCheckinV2':          return handleDnaCheckinV2(data);
+      case 'dnaChangePassword':     return handleDnaChangePassword(data);
       default:                       return jsonResponse({ status: 'error', message: '未知 action' });
     }
   } catch (err) {
@@ -662,26 +663,87 @@ function parseToken(token) {
     return null;
   }
 }
+const PASSWORD_SHEET = 'DnA帳號密碼';
+
+// 從試算表讀取「姓名 → 目前密碼」，找不到工作表或該人時，退回程式碼裡的初始密碼（保底，避免表格還沒建好就整個掛掉）
+function getPasswordMap() {
+  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(PASSWORD_SHEET);
+  if (!sheet) {
+    // 第一次使用：自動建立並把程式碼裡的初始密碼寫進去，之後就以這張表為準
+    sheet = ss.insertSheet(PASSWORD_SHEET);
+    sheet.appendRow(['姓名', '密碼']);
+    const hr = sheet.getRange(1, 1, 1, 2);
+    hr.setBackground('#1a1a2e'); hr.setFontColor('#C9A84C'); hr.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    MEMBERS_FULL.forEach(m => sheet.appendRow([m.name, m.password]));
+  }
+  const rows = sheet.getDataRange().getValues();
+  const map = {};
+  for (let i = 1; i < rows.length; i++) {
+    const name = String(rows[i][0] || '').trim();
+    if (name) map[name] = String(rows[i][1] || '').trim();
+  }
+  return map;
+}
+
+function getPasswordFor(name) {
+  const map = getPasswordMap();
+  if (map[name] !== undefined) return map[name];
+  const m = MEMBERS_FULL.find(x => x.name === name);
+  return m ? m.password : null; // 保底：表格裡萬一漏了這個人，退回程式碼裡的初始值
+}
+
+function setPasswordFor(name, newPassword) {
+  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(PASSWORD_SHEET);
+  if (!sheet) { getPasswordMap(); sheet = ss.getSheetByName(PASSWORD_SHEET); } // 確保表已存在
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0] || '').trim() === name) {
+      sheet.getRange(i + 1, 2).setValue(newPassword);
+      return true;
+    }
+  }
+  sheet.appendRow([name, newPassword]); // 表裡沒有這個人，補一列
+  return true;
+}
+
 function authenticate(token) {
   const parsed = parseToken(token);
   if (!parsed) return null;
-  return MEMBERS_FULL.find(m => m.name === parsed.name && m.password === parsed.password) || null;
+  const m = MEMBERS_FULL.find(x => x.name === parsed.name);
+  if (!m) return null;
+  const realPassword = getPasswordFor(m.name);
+  return (realPassword === parsed.password) ? m : null;
 }
 
 function handleDnaLogin(data) {
   const name = String(data.name || '').trim();
   const password = String(data.password || '').trim();
-  const member = MEMBERS_FULL.find(m => m.name === name && m.password === password);
-  if (!member) {
+  const member = MEMBERS_FULL.find(m => m.name === name);
+  if (!member || getPasswordFor(name) !== password) {
     return jsonResponse({ status: 'error', message: '帳號或密碼錯誤，請確認後再試一次。' });
   }
   return jsonResponse({
     status: 'ok',
-    token: makeToken(member.name, member.password),
+    token: makeToken(member.name, password),
     name: member.name,
     role: member.role,
     isManager: !!member.isManager,
   });
+}
+
+function handleDnaChangePassword(data) {
+  const member = authenticate(data.token);
+  if (!member) return jsonResponse({ status: 'error', message: '登入已失效，請重新登入。' });
+
+  const newPassword = String(data.newPassword || '').trim();
+  if (!/^\d{4,10}$/.test(newPassword)) {
+    return jsonResponse({ status: 'error', message: '新密碼請輸入 4~10 位數字。' });
+  }
+  setPasswordFor(member.name, newPassword);
+  return jsonResponse({ status: 'ok', token: makeToken(member.name, newPassword) });
 }
 
 // 遞迴往下展開：找出這個人自己＋所有下線（多層）

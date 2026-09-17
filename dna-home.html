@@ -141,7 +141,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
 
 <div id="userBar" style="display:none; position:fixed; top:8px; right:12px; z-index:99998; background:rgba(19,19,26,0.9); border:1px solid rgba(201,168,76,0.3); border-radius:20px; padding:6px 14px; font-size:12px; color:#C9A84C; display:flex; align-items:center; gap:8px;">
   <span id="userBarName"></span>
+  <a href="#" onclick="openChangePw();return false;" style="color:#7a7a99; text-decoration:none;">修改密碼</a>
   <a href="#" onclick="doLogout();return false;" style="color:#7a7a99; text-decoration:none;">登出</a>
+</div>
+
+<div id="changePwModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid rgba(201,168,76,0.4);border-radius:14px;padding:28px 24px;width:90%;max-width:320px;text-align:center;">
+    <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">修改密碼</div>
+    <input id="newPwInput" type="text" inputmode="numeric" placeholder="新密碼（4~10位數字）"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;" />
+    <div id="changePwMsg" style="font-size:12px;color:#E8001D;margin-bottom:10px;display:none;"></div>
+    <button onclick="submitChangePw()" style="width:100%;padding:11px;border-radius:8px;background:#C9A84C;border:none;color:#1a1408;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">確認修改</button>
+    <button onclick="closeChangePw()" style="width:100%;padding:11px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:#aaa;font-size:14px;cursor:pointer;">取消</button>
+  </div>
 </div>
 
 <script>
@@ -189,6 +201,35 @@ function applyLoggedInUI() {
   const bar = document.getElementById('userBar');
   bar.style.display = 'flex';
   document.getElementById('userBarName').textContent = '👤 ' + sessionStorage.getItem('dna_name');
+}
+
+function openChangePw() {
+  document.getElementById('newPwInput').value = '';
+  document.getElementById('changePwMsg').style.display = 'none';
+  document.getElementById('changePwModal').style.display = 'flex';
+}
+function closeChangePw() {
+  document.getElementById('changePwModal').style.display = 'none';
+}
+async function submitChangePw() {
+  const newPassword = document.getElementById('newPwInput').value.trim();
+  const msg = document.getElementById('changePwMsg');
+  const token = sessionStorage.getItem('dna_token');
+  try {
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaChangePassword', token, newPassword }) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      sessionStorage.setItem('dna_token', data.token);
+      closeChangePw();
+      alert('密碼已修改成功，下次登入請使用新密碼。');
+    } else {
+      msg.textContent = data.message || '修改失敗，請稍後再試';
+      msg.style.display = 'block';
+    }
+  } catch (err) {
+    msg.textContent = '連線失敗，請稍後再試';
+    msg.style.display = 'block';
+  }
 }
 
 if (sessionStorage.getItem('dna_token')) {
