@@ -627,11 +627,9 @@ const MEMBERS_FULL = [
   { id: 'Super Star Yu', name: '余明興',  password: '888888', role: '增長大使',     reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
   { id: 'Anthony Chen',  name: '陳臣勝',  password: '888888', role: '增長助理大使', reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
   { id: 'KK Yang',       name: '楊凱雯',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false },
-  { id: 'Teresa Tsai',   name: '蔡菱秝',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-04', endMonth: '2026-06' },
   { id: 'Shun-Hao Wu',   name: '吳舜豪',  password: '888888', role: '助理大使',     reportsTo: '林綉蓉', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
   { id: 'Dao-Ran Lin',   name: '林道然',  password: '888888', role: '啟動大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
   { id: 'I-CHEN CHIANG', name: '江宜真',  password: '888888', role: '助理大使',     reportsTo: '陳臣勝', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'Bo-Lin Jiang',  name: '江柏林',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06', endMonth: '2026-07' },
   { id: 'Bo-Ting Chou',  name: '周柏廷',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
   { id: 'One One',       name: '萬翎甄',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
   { id: 'James Liao',    name: '廖灝明',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
@@ -720,6 +718,138 @@ function authenticate(token) {
 
 const INITIAL_PASSWORD = '888888'; // 所有人共用的初始密碼，登入後系統會強制要求修改
 
+const PERSONAL_MSG_SHEET = 'DnA個人訊息';
+
+// ══════════════════════════════════════
+// 五大地基自動判斷（跟 dna-index.html 前端的 calcF1~F5 規則完全一致）
+// 登入時自動幫這個人算出「目前有哪些地基需要留意」，不用董顧手動寫
+// ══════════════════════════════════════
+const AUTO_F4_ACTIVITIES = [
+  { id: 'M1_H1' }, { id: 'M2_H1' }, { id: 'M1_H2' }, { id: 'M2_H2' }, { id: 'ANNUAL' },
+];
+
+function autoCalcF1(mid, monthData, months, curMonth, startIdx) {
+  const idx = months.indexOf(curMonth);
+  const start = Math.max(startIdx, idx - 5);
+  const absentLabels = [];
+  for (let i = start; i <= idx; i++) {
+    const v = (monthData[months[i]] && monthData[months[i]][mid] && monthData[months[i]][mid]['地基1']) || '';
+    if (v === '0') absentLabels.push(parseInt(months[i].split('-')[1]) + '月缺席');
+  }
+  if (absentLabels.length >= 2) return { status: 'danger', label: '注意（' + absentLabels.join('、') + '）' };
+  if (absentLabels.length === 1) return { status: 'warn', label: '注意（' + absentLabels[0] + '）' };
+  return { status: 'ok', label: '達標' };
+}
+
+function autoCalcF2(mid, monthData, months, curMonth, startIdx) {
+  const idx = months.indexOf(curMonth);
+  const start = Math.max(startIdx, idx - 5);
+  const missingLabels = [];
+  for (let i = start; i <= idx; i++) {
+    const v = (monthData[months[i]] && monthData[months[i]][mid] && monthData[months[i]][mid]['地基2']) || '';
+    if (!v) missingLabels.push(parseInt(months[i].split('-')[1]) + '月');
+  }
+  if (missingLabels.length >= 2) return { status: 'warn', label: '注意（' + missingLabels.join('、') + '未參與）' };
+  return { status: 'ok', label: '已記錄' };
+}
+
+function autoCalcF3(mid, monthData, months, curMonth, startIdx) {
+  const idx = months.indexOf(curMonth);
+  const start = Math.max(startIdx, idx - 5);
+  let streak = 0, maxStreak = 0;
+  let tempStreak = [], streakLabels = [];
+  for (let i = start; i <= idx; i++) {
+    const v = (monthData[months[i]] && monthData[months[i]][mid] && monthData[months[i]][mid]['地基3']) || '';
+    const mNum = parseInt(months[i].split('-')[1]);
+    if (v && v !== '綠') {
+      streak++;
+      tempStreak.push(mNum + '月' + v);
+      if (streak > maxStreak) { maxStreak = streak; streakLabels = tempStreak.slice(); }
+    } else {
+      if (v === '綠') streak = 0;
+      tempStreak = [];
+    }
+  }
+  if (maxStreak >= 3) return { status: 'danger', label: '注意（連續：' + streakLabels.join('、') + '）' };
+  if (maxStreak >= 1) return { status: 'warn', label: '注意（連續 ' + maxStreak + ' 次非綠燈）' };
+  return { status: 'ok', label: '達標' };
+}
+
+function autoCalcF4(mid, f4Data) {
+  const done = AUTO_F4_ACTIVITIES.filter(a => f4Data[mid] && f4Data[mid][a.id] === '1').length;
+  if (done === 0) return { status: 'na', label: '未開始' };
+  if (done < AUTO_F4_ACTIVITIES.length) return { status: 'warn', label: done + '/' + AUTO_F4_ACTIVITIES.length + ' 完成' };
+  return { status: 'ok', label: '全部完成' };
+}
+
+function autoCalcF5(m, monthData, curMonth) {
+  if (!m.hasF5 || !m.branches || m.branches.length === 0) return null;
+  let allEmpty = true;
+  const pcts = [];
+  m.branches.forEach(b => {
+    const v = (monthData[curMonth] && monthData[curMonth][m.id] && monthData[curMonth][m.id]['地基5_' + b.name]) || '';
+    const actual = parseFloat(v);
+    if (!isNaN(actual)) { allEmpty = false; pcts.push(Math.round((actual / b.target) * 100)); }
+  });
+  if (allEmpty) return { status: 'na', label: '未填寫' };
+  const avgPct = Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length);
+  if (avgPct < 60) return { status: 'danger', label: '注意（' + avgPct + '%）' };
+  if (avgPct < 80) return { status: 'warn', label: '注意中（' + avgPct + '%）' };
+  return { status: 'ok', label: '達標（' + avgPct + '%）' };
+}
+
+// 幫這個人自動組出登入警示文字；沒有任何地基需要留意就回傳空字串（不打擾）
+function computeAutoAlert(member) {
+  if (member.isManager) return '';
+  const idx = DNA_MONTHS.indexOf(getCurrentDnaMonth());
+  if (idx === -1) return '';
+  const curMonth = DNA_MONTHS[idx];
+  const startIdx = member.startMonth ? Math.max(0, DNA_MONTHS.indexOf(member.startMonth)) : 0;
+  if (member.endMonth && curMonth > member.endMonth) return ''; // 已離開的人不算
+
+  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  const needMonths = DNA_MONTHS.slice(Math.max(startIdx, idx - 5), idx + 1);
+  const monthData = {};
+  needMonths.forEach(mo => { monthData[mo] = readSheetAsMap(ss, mo); });
+  const f4Data = readSheetAsMap(ss, '地基4');
+
+  const r1 = autoCalcF1(member.id, monthData, DNA_MONTHS, curMonth, startIdx);
+  const r2 = autoCalcF2(member.id, monthData, DNA_MONTHS, curMonth, startIdx);
+  const r3 = autoCalcF3(member.id, monthData, DNA_MONTHS, curMonth, startIdx);
+  const r4 = autoCalcF4(member.id, f4Data);
+  const r5 = autoCalcF5(member, monthData, curMonth);
+
+  const labels = ['地基1（DnA月會出席）', '地基2（每月基礎性培訓）', '地基3（個人紅綠燈）', '地基4（行為與態度）', '地基5（任務與績效）'];
+  const results = [r1, r2, r3, r4, r5];
+  const lines = [];
+  results.forEach((r, i) => {
+    if (r && (r.status === 'danger' || r.status === 'warn')) {
+      lines.push('・' + labels[i] + '：' + r.label);
+    }
+  });
+  if (lines.length === 0) return '';
+  return '系統偵測到您目前有以下地基需要留意：\n' + lines.join('\n');
+}
+
+function getCurrentDnaMonth() {
+  const now = new Date();
+  const todayMonth = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM');
+  return DNA_MONTHS.includes(todayMonth) ? todayMonth : DNA_MONTHS[DNA_MONTHS.length - 1];
+}
+
+function getPersonalMessage(name) {
+  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(PERSONAL_MSG_SHEET);
+  if (!sheet) return '';
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0] || '').trim() === name) {
+      return String(rows[i][1] || '').trim();
+    }
+  }
+  return '';
+}
+
 function handleDnaLogin(data) {
   const name = String(data.name || '').trim();
   const password = String(data.password || '').trim();
@@ -734,6 +864,8 @@ function handleDnaLogin(data) {
     role: member.role,
     isManager: !!member.isManager,
     mustChangePassword: (password === INITIAL_PASSWORD), // 還在用初始密碼，前端要強制擋下來要求先改密碼
+    personalMessage: member.isManager ? '' : getPersonalMessage(member.name), // 董顧留給這個人的個別建議/警示，登入時顯示
+    autoAlert: computeAutoAlert(member), // 系統自動算出的五大地基警示（跟五大地基頁面規則一致，不用手動寫）
   });
 }
 

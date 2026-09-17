@@ -177,7 +177,10 @@ async function doLogin() {
       sessionStorage.setItem('dna_name', data.name);
       sessionStorage.setItem('dna_isManager', data.isManager ? '1' : '0');
       sessionStorage.setItem('dna_mustChange', data.mustChangePassword ? '1' : '0');
+      sessionStorage.setItem('dna_personalMsg', data.personalMessage || '');
+      sessionStorage.setItem('dna_autoAlert', data.autoAlert || '');
       applyLoggedInUI();
+      showPersonalMessage();
       if (data.mustChangePassword) {
         forceChangePw();
       }
@@ -197,6 +200,9 @@ function doLogout() {
   sessionStorage.removeItem('dna_token');
   sessionStorage.removeItem('dna_name');
   sessionStorage.removeItem('dna_isManager');
+  sessionStorage.removeItem('dna_mustChange');
+  sessionStorage.removeItem('dna_personalMsg');
+  sessionStorage.removeItem('dna_autoAlert');
   location.reload();
 }
 
@@ -205,6 +211,19 @@ function applyLoggedInUI() {
   const bar = document.getElementById('userBar');
   bar.style.display = 'flex';
   document.getElementById('userBarName').textContent = '👤 ' + sessionStorage.getItem('dna_name');
+}
+
+function showPersonalMessage() {
+  const msg = sessionStorage.getItem('dna_personalMsg');
+  if (msg && msg.trim()) {
+    document.getElementById('personalMsgText').textContent = msg;
+    document.getElementById('personalMsgBanner').style.display = 'block';
+  }
+  const alertMsg = sessionStorage.getItem('dna_autoAlert');
+  if (alertMsg && alertMsg.trim()) {
+    document.getElementById('autoAlertText').textContent = alertMsg;
+    document.getElementById('autoAlertBanner').style.display = 'block';
+  }
 }
 
 let changePwForced = false;
@@ -261,6 +280,7 @@ async function submitChangePw() {
 if (sessionStorage.getItem('dna_token')) {
   document.addEventListener('DOMContentLoaded', function() {
     applyLoggedInUI();
+    showPersonalMessage();
     if (sessionStorage.getItem('dna_mustChange') === '1') forceChangePw();
   });
 }
@@ -281,6 +301,15 @@ if (sessionStorage.getItem('dna_token')) {
 </nav>
 
 <div class="content">
+  <div id="autoAlertBanner" style="display:none; background:rgba(230,160,48,0.1); border:1.5px solid #E6A030; border-radius:10px; padding:14px 16px; margin-bottom:12px; width:100%; max-width:520px;">
+    <div style="font-size:11px; letter-spacing:2px; color:#E6A030; font-weight:700; margin-bottom:6px;">⚠️ 系統自動偵測</div>
+    <div id="autoAlertText" style="font-size:14px; color:#f0ede6; line-height:1.7; white-space:pre-wrap;"></div>
+  </div>
+  <div id="personalMsgBanner" style="display:none; background:rgba(201,168,76,0.1); border:1.5px solid #C9A84C; border-radius:10px; padding:14px 16px; margin-bottom:16px; width:100%; max-width:520px;">
+    <div style="font-size:11px; letter-spacing:2px; color:#C9A84C; font-weight:700; margin-bottom:6px;">📌 董顧給您的訊息</div>
+    <div id="personalMsgText" style="font-size:14px; color:#f0ede6; line-height:1.7; white-space:pre-wrap;"></div>
+  </div>
+
   <div class="menu-title">請選擇功能</div>
 
   <a href="/bni-jututeam/dna-index.html" class="menu-card">
