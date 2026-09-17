@@ -104,6 +104,16 @@ body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC',
   <a href="#" onclick="doLogout();return false;">登出</a>
 </div>
 
+<div id="changePwModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:100000; align-items:center; justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid rgba(201,168,76,0.4);border-radius:14px;padding:28px 24px;width:90%;max-width:320px;text-align:center;">
+    <div id="changePwTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">請先設定您的專屬密碼</div>
+    <input id="newPwInput" type="text" inputmode="numeric" placeholder="新密碼（4~10位數字）"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;" />
+    <div id="changePwMsg" style="font-size:12px;color:var(--gold-light);margin-bottom:10px;display:block;">偵測到您使用的是初始密碼，請先設定專屬密碼才能繼續使用。</div>
+    <button onclick="submitChangePw()" style="width:100%;padding:11px;border-radius:8px;background:#C9A84C;border:none;color:#1a1408;font-size:14px;font-weight:700;cursor:pointer;">確認修改</button>
+  </div>
+</div>
+
 <div class="header">
   <div class="header-eyebrow">BNI 聚團隊</div>
   <h1>DnA 月會 <em>簽到</em></h1>
@@ -167,7 +177,11 @@ async function doLogin() {
       }
       sessionStorage.setItem('dna_token', data.token);
       sessionStorage.setItem('dna_name', data.name);
+      sessionStorage.setItem('dna_mustChange', data.mustChangePassword ? '1' : '0');
       afterLogin(data.name);
+      if (data.mustChangePassword) {
+        document.getElementById('changePwModal').style.display = 'flex';
+      }
     } else {
       document.getElementById('pwError').textContent = data.message || '帳號或密碼錯誤';
       document.getElementById('pwError').style.display = 'block';
@@ -290,9 +304,36 @@ async function submitCheckin() {
   }
 }
 
+async function submitChangePw() {
+  const newPassword = document.getElementById('newPwInput').value.trim();
+  const msg = document.getElementById('changePwMsg');
+  const token = sessionStorage.getItem('dna_token');
+  try {
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaChangePassword', token: token, newPassword: newPassword }) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      sessionStorage.setItem('dna_token', data.token);
+      sessionStorage.setItem('dna_mustChange', '0');
+      document.getElementById('changePwModal').style.display = 'none';
+      alert('密碼設定成功！下次登入請使用您剛剛設定的新密碼。');
+    } else {
+      msg.style.color = '#E05252';
+      msg.textContent = data.message || '修改失敗，請稍後再試';
+      msg.style.display = 'block';
+    }
+  } catch (err) {
+    msg.style.color = '#E05252';
+    msg.textContent = '連線失敗，請稍後再試';
+    msg.style.display = 'block';
+  }
+}
+
 if (sessionStorage.getItem('dna_token')) {
   document.addEventListener('DOMContentLoaded', function() {
     afterLogin(sessionStorage.getItem('dna_name'));
+    if (sessionStorage.getItem('dna_mustChange') === '1') {
+      document.getElementById('changePwModal').style.display = 'flex';
+    }
   });
 }
 </script>

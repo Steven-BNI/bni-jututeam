@@ -618,31 +618,31 @@ function getOrCreateFeedbackSheet() {
 //    reportsTo：直屬上層姓名，null 代表頂層（沒有上層）
 //    isManager：true 代表管理者視角（例如 Steven）—— 看得到所有人，但不計入地基追蹤數據
 const MEMBERS_FULL = [
-  { id: 'Steven Chou',   name: 'Steven',  password: '669815', role: 'ED', reportsTo: null, isManager: true,  branches: [], hasF5: false },
-  { id: 'Popo Lin',      name: '林綉蓉',  password: '856676', role: '董事顧問',     reportsTo: null, isManager: false, branches: [{name:'聚大',target:51}], hasF5: true },
-  { id: 'Archie Wu',     name: '吳宗憲',  password: '212676', role: '董事顧問',     reportsTo: null, isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
-  { id: 'Brenda Chen',   name: '陳虹君',  password: '541481', role: '區域培訓大使', reportsTo: null, isManager: false, branches: [], hasF5: false },
-  { id: 'Shawn Chen',    name: '陳世祥',  password: '456840', role: '啟動大使',     reportsTo: '吳宗憲', isManager: false, branches: [], hasF5: false },
-  { id: 'Penny Li',      name: '李佩玲',  password: '000392', role: '增長大使',     reportsTo: null, isManager: false, branches: [{name:'聚道',target:60}], hasF5: true },
-  { id: 'Super Star Yu', name: '余明興',  password: '994576', role: '增長大使',     reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
-  { id: 'Anthony Chen',  name: '陳臣勝',  password: '052580', role: '增長助理大使', reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
-  { id: 'KK Yang',       name: '楊凱雯',  password: '032116', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false },
-  { id: 'Teresa Tsai',   name: '蔡菱秝',  password: '889033', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-04', endMonth: '2026-06' },
-  { id: 'Shun-Hao Wu',   name: '吳舜豪',  password: '574136', role: '助理大使',     reportsTo: '林綉蓉', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'Dao-Ran Lin',   name: '林道然',  password: '644197', role: '啟動大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'I-CHEN CHIANG', name: '江宜真',  password: '614828', role: '助理大使',     reportsTo: '陳臣勝', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'Bo-Lin Jiang',  name: '江柏林',  password: '399711', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06', endMonth: '2026-07' },
-  { id: 'Bo-Ting Chou',  name: '周柏廷',  password: '951453', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'One One',       name: '萬翎甄',  password: '838437', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'James Liao',    name: '廖灝明',  password: '787907', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Joanna Chou',   name: '周虹邑',  password: '342270', role: '助理大使',     reportsTo: '林道然', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Li-Chuan Chen', name: '陳力銓',  password: '620154', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Chu Wei Liang', name: '朱唯良',  password: '607767', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'OZ LIN',        name: '林煜珵',  password: '800644', role: '助理大使',     reportsTo: '余明興', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Jiang Tian yu', name: '江天昱',  password: '799424', role: '助理大使',     reportsTo: '林道然', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Melissa Chan',  name: '詹蕎瑀',  password: '669048', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Tina Huang',    name: '黃郁婷',  password: '413941', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
-  { id: 'Jeff Lin',      name: '林瑞營',  password: '640733', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Steven Chou',   name: 'Steven',  password: '888888', role: 'ED', reportsTo: null, isManager: true,  branches: [], hasF5: false },
+  { id: 'Popo Lin',      name: '林綉蓉',  password: '888888', role: '董事顧問',     reportsTo: null, isManager: false, branches: [{name:'聚大',target:51}], hasF5: true },
+  { id: 'Archie Wu',     name: '吳宗憲',  password: '888888', role: '董事顧問',     reportsTo: null, isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'Brenda Chen',   name: '陳虹君',  password: '888888', role: '區域培訓大使', reportsTo: null, isManager: false, branches: [], hasF5: false },
+  { id: 'Shawn Chen',    name: '陳世祥',  password: '888888', role: '啟動大使',     reportsTo: '吳宗憲', isManager: false, branches: [], hasF5: false },
+  { id: 'Penny Li',      name: '李佩玲',  password: '888888', role: '增長大使',     reportsTo: null, isManager: false, branches: [{name:'聚道',target:60}], hasF5: true },
+  { id: 'Super Star Yu', name: '余明興',  password: '888888', role: '增長大使',     reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'Anthony Chen',  name: '陳臣勝',  password: '888888', role: '增長助理大使', reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'KK Yang',       name: '楊凱雯',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false },
+  { id: 'Teresa Tsai',   name: '蔡菱秝',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-04', endMonth: '2026-06' },
+  { id: 'Shun-Hao Wu',   name: '吳舜豪',  password: '888888', role: '助理大使',     reportsTo: '林綉蓉', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'Dao-Ran Lin',   name: '林道然',  password: '888888', role: '啟動大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'I-CHEN CHIANG', name: '江宜真',  password: '888888', role: '助理大使',     reportsTo: '陳臣勝', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'Bo-Lin Jiang',  name: '江柏林',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06', endMonth: '2026-07' },
+  { id: 'Bo-Ting Chou',  name: '周柏廷',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'One One',       name: '萬翎甄',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'James Liao',    name: '廖灝明',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Joanna Chou',   name: '周虹邑',  password: '888888', role: '助理大使',     reportsTo: '林道然', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Li-Chuan Chen', name: '陳力銓',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Chu Wei Liang', name: '朱唯良',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'OZ LIN',        name: '林煜珵',  password: '888888', role: '助理大使',     reportsTo: '余明興', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Jiang Tian yu', name: '江天昱',  password: '888888', role: '助理大使',     reportsTo: '林道然', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Melissa Chan',  name: '詹蕎瑀',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Tina Huang',    name: '黃郁婷',  password: '888888', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Jeff Lin',      name: '林瑞營',  password: '888888', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
 ];
 
 const CHECKIN_LOG_SHEET = 'DnA月會簽到記錄';
@@ -718,6 +718,8 @@ function authenticate(token) {
   return (realPassword === parsed.password) ? m : null;
 }
 
+const INITIAL_PASSWORD = '888888'; // 所有人共用的初始密碼，登入後系統會強制要求修改
+
 function handleDnaLogin(data) {
   const name = String(data.name || '').trim();
   const password = String(data.password || '').trim();
@@ -731,6 +733,7 @@ function handleDnaLogin(data) {
     name: member.name,
     role: member.role,
     isManager: !!member.isManager,
+    mustChangePassword: (password === INITIAL_PASSWORD), // 還在用初始密碼，前端要強制擋下來要求先改密碼
   });
 }
 
@@ -741,6 +744,9 @@ function handleDnaChangePassword(data) {
   const newPassword = String(data.newPassword || '').trim();
   if (!/^\d{4,10}$/.test(newPassword)) {
     return jsonResponse({ status: 'error', message: '新密碼請輸入 4~10 位數字。' });
+  }
+  if (newPassword === INITIAL_PASSWORD) {
+    return jsonResponse({ status: 'error', message: '請設定跟初始密碼不同的新密碼。' });
   }
   setPasswordFor(member.name, newPassword);
   return jsonResponse({ status: 'ok', token: makeToken(member.name, newPassword) });

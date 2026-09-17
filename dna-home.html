@@ -147,12 +147,12 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
 
 <div id="changePwModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center;">
   <div style="background:#13131a;border:1.5px solid rgba(201,168,76,0.4);border-radius:14px;padding:28px 24px;width:90%;max-width:320px;text-align:center;">
-    <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">修改密碼</div>
+    <div id="changePwTitle" style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">修改密碼</div>
     <input id="newPwInput" type="text" inputmode="numeric" placeholder="新密碼（4~10位數字）"
       style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;" />
     <div id="changePwMsg" style="font-size:12px;color:#E8001D;margin-bottom:10px;display:none;"></div>
     <button onclick="submitChangePw()" style="width:100%;padding:11px;border-radius:8px;background:#C9A84C;border:none;color:#1a1408;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">確認修改</button>
-    <button onclick="closeChangePw()" style="width:100%;padding:11px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:#aaa;font-size:14px;cursor:pointer;">取消</button>
+    <button id="changePwCancelBtn" onclick="closeChangePw()" style="width:100%;padding:11px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:#aaa;font-size:14px;cursor:pointer;">取消</button>
   </div>
 </div>
 
@@ -176,7 +176,11 @@ async function doLogin() {
       sessionStorage.setItem('dna_token', data.token);
       sessionStorage.setItem('dna_name', data.name);
       sessionStorage.setItem('dna_isManager', data.isManager ? '1' : '0');
+      sessionStorage.setItem('dna_mustChange', data.mustChangePassword ? '1' : '0');
       applyLoggedInUI();
+      if (data.mustChangePassword) {
+        forceChangePw();
+      }
     } else {
       document.getElementById('pwError').textContent = data.message || '帳號或密碼錯誤';
       document.getElementById('pwError').style.display = 'block';
@@ -203,12 +207,28 @@ function applyLoggedInUI() {
   document.getElementById('userBarName').textContent = '👤 ' + sessionStorage.getItem('dna_name');
 }
 
+let changePwForced = false;
+
 function openChangePw() {
+  changePwForced = false;
   document.getElementById('newPwInput').value = '';
   document.getElementById('changePwMsg').style.display = 'none';
   document.getElementById('changePwModal').style.display = 'flex';
+  document.getElementById('changePwCancelBtn').style.display = 'block';
+  document.getElementById('changePwTitle').textContent = '修改密碼';
+}
+function forceChangePw() {
+  changePwForced = true;
+  document.getElementById('newPwInput').value = '';
+  document.getElementById('changePwMsg').textContent = '偵測到您使用的是初始密碼，請先設定專屬於您自己的新密碼才能繼續使用。';
+  document.getElementById('changePwMsg').style.display = 'block';
+  document.getElementById('changePwMsg').style.color = '#E8C96A';
+  document.getElementById('changePwModal').style.display = 'flex';
+  document.getElementById('changePwCancelBtn').style.display = 'none';
+  document.getElementById('changePwTitle').textContent = '請先設定您的專屬密碼';
 }
 function closeChangePw() {
+  if (changePwForced) return; // 強制模式下不能取消
   document.getElementById('changePwModal').style.display = 'none';
 }
 async function submitChangePw() {
@@ -220,20 +240,29 @@ async function submitChangePw() {
     const data = await res.json();
     if (data.status === 'ok') {
       sessionStorage.setItem('dna_token', data.token);
+      sessionStorage.setItem('dna_mustChange', '0');
+      const wasForced = changePwForced;
+      changePwForced = false;
       closeChangePw();
-      alert('密碼已修改成功，下次登入請使用新密碼。');
+      document.getElementById('changePwModal').style.display = 'none'; // 保險：即使是強制模式，成功後也要能關掉
+      alert(wasForced ? '密碼設定成功！下次登入請使用您剛剛設定的新密碼。' : '密碼已修改成功，下次登入請使用新密碼。');
     } else {
+      msg.style.color = '#E8001D';
       msg.textContent = data.message || '修改失敗，請稍後再試';
       msg.style.display = 'block';
     }
   } catch (err) {
+    msg.style.color = '#E8001D';
     msg.textContent = '連線失敗，請稍後再試';
     msg.style.display = 'block';
   }
 }
 
 if (sessionStorage.getItem('dna_token')) {
-  document.addEventListener('DOMContentLoaded', applyLoggedInUI);
+  document.addEventListener('DOMContentLoaded', function() {
+    applyLoggedInUI();
+    if (sessionStorage.getItem('dna_mustChange') === '1') forceChangePw();
+  });
 }
 </script>
 
