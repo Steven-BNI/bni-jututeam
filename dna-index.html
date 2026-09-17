@@ -201,39 +201,27 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
   <div style="background:#13131a;border:1.5px solid #E8001D;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;text-align:center;">
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;color:#E8001D;margin-bottom:12px">BNI 聚團隊</div>
     <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">DnA 專區</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入專區密碼</div>
-    <input id="pwInput" type="password" placeholder="••••••••"
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入您的姓名與密碼</div>
+    <input id="loginName" type="text" placeholder="姓名"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;" />
+    <input id="loginPassword" type="password" placeholder="密碼"
       style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;letter-spacing:4px;margin-bottom:12px;font-family:'Noto Sans TC',sans-serif;"
-      onkeydown="if(event.key==='Enter')checkPw()" />
-    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
-    <button onclick="checkPw()"
+      onkeydown="if(event.key==='Enter')doLogin()" />
+    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">帳號或密碼錯誤，請再試一次</div>
+    <button id="loginBtn" onclick="doLogin()"
       style="width:100%;padding:12px;border-radius:8px;background:#E8001D;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
-      進入 DnA 專區
+      登入 DnA 專區
     </button>
     <div style="margin-top:16px">
       <a href="/bni-jututeam/calendar.html" style="font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;">← 返回區域行事曆</a>
     </div>
   </div>
 </div>
-<script>
-function checkPw() {
-  const pw = document.getElementById('pwInput').value;
-  if (pw === '20333000') {
-    document.getElementById('passwordOverlay').style.display = 'none';
-    sessionStorage.setItem('dna_auth', '1');
-  } else {
-    document.getElementById('pwError').style.display = 'block';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
-  }
-}
-// Check if already authenticated
-if (sessionStorage.getItem('dna_auth') === '1') {
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('passwordOverlay').style.display = 'none';
-  });
-}
-</script>
+
+<div id="userBar" style="display:none; position:fixed; top:8px; right:12px; z-index:99998; background:rgba(19,19,26,0.9); border:1px solid rgba(201,168,76,0.3); border-radius:20px; padding:6px 14px; font-size:12px; color:#C9A84C; align-items:center; gap:8px;">
+  <span id="userBarName"></span>
+  <a href="#" onclick="doLogout();return false;" style="color:#7a7a99; text-decoration:none;">登出</a>
+</div>
 
 <div class="header">
   <div class="header-eyebrow">BNI 聚團隊</div>
@@ -276,33 +264,12 @@ if (sessionStorage.getItem('dna_auth') === '1') {
 // ============================================================
 // CONFIG
 // ============================================================
-const SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
 
-const MONTHS = [
-  '2025-12','2026-01','2026-02','2026-03',
-  '2026-04','2026-05','2026-06',
-  '2026-07','2026-08','2026-09',
-  '2026-10','2026-11','2026-12'
-];
-
-const MEMBERS = [
-  { id: 'Popo Lin',   name: '林綉蓉',  role: '董事顧問',     branches: [{name:'聚大',target:51}], hasF5: true },
-  { id: 'Archie Wu',   name: '吳宗憲',  role: '董事顧問',     branches: [{name:'聚富',target:50}], hasF5: true },
-  { id: 'Brenda Chen', name: '陳虹君',  role: '區域培訓大使', branches: [], hasF5: false },
-  { id: 'Shawn Chen',  name: '陳世祥',  role: '啟動大使',     branches: [], hasF5: false },
-  { id: 'Penny Li',    name: '李佩玲',  role: '增長大使',     branches: [{name:'聚道',target:60}], hasF5: true },
-  { id: 'Super Star Yu',   name: '余明興',  role: '增長大使',     branches: [{name:'聚富',target:50}], hasF5: true },
-  { id: 'Anthony Chen', name: '陳臣勝',  role: '增長助理大使', branches: [{name:'聚富',target:50}], hasF5: true },
-  { id: 'KK Yang',  name: '楊凱雯',  role: '助理大使',     branches: [], hasF5: false },
-  { id: 'Teresa Tsai',  name: '蔡菱秝',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-04', endMonth: '2026-06' },
-  { id: 'Shun-Hao Wu',  name: '吳舜豪',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'Dao-Ran Lin',  name: '林道然',  role: '啟動大使',     branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'I-CHEN CHIANG', name: '江宜真', role: '助理大使',    branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'Bo-Lin Jiang', name: '江柏林',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06', endMonth: '2026-07' },
-  { id: 'Bo-Ting Chou', name: '周柏廷',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'One One',  name: '萬翎甄',  role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-06' },
-  { id: 'James Liao', name: '廖灝明', role: '助理大使',     branches: [], hasF5: false, startMonth: '2026-09' },
-];
+// 這三個現在都由登入後的後端回應動態填入，不再寫死在前端
+let MONTHS = [];
+let MEMBERS = [];
+let isManagerView = false;
 
 const F4_ACTIVITIES = [
   { id: 'M1_H1', label: 'M1 培訓（上半年）', period: '1–6月至少一次' },
@@ -315,158 +282,101 @@ const F4_ACTIVITIES = [
 // ============================================================
 // STATE
 // ============================================================
-let curMonth = '2025-12';
-let curMember = 'Popo Lin';
-let sheetData = {}; // sheetData[sheetName][row][col]
+let curMonth = '';
+let curMember = '';
+let sheetData = {}; // sheetData[month][memberId] = {field: value}，sheetData['f4'] = {memberId: {field: value}}
 let isReadOnly = true; // always readonly — editing done in Google Sheet
 
 // ============================================================
-// GOOGLE SHEET FETCH
+// 登入
 // ============================================================
-// We fetch each sheet tab via the public CSV export URL
-async function fetchSheet(tabName) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('fetch failed');
-  const text = await res.text();
-  return parseCSV(text);
-}
-
-function parseCSV(text) {
-  const rows = [];
-  // Normalize line endings
-  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  let row = [], cur = '', inQ = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (c === '"') {
-      if (inQ && text[i+1] === '"') { cur += '"'; i++; } // escaped quote
-      else { inQ = !inQ; }
-    } else if (c === ',' && !inQ) {
-      row.push(cur.trim());
-      cur = '';
-    } else if (c === '\n' && !inQ) {
-      row.push(cur.trim());
-      if (row.some(r => r !== '')) rows.push(row);
-      row = []; cur = '';
-    } else {
-      cur += c;
-    }
+async function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const btn = document.getElementById('loginBtn');
+  if (!name || !password) {
+    document.getElementById('pwError').textContent = '請輸入姓名與密碼';
+    document.getElementById('pwError').style.display = 'block';
+    return;
   }
-  if (cur || row.length) { row.push(cur.trim()); if (row.some(r => r !== '')) rows.push(row); }
-  return rows;
-}
-
-// Parse a monthly sheet into our data structure
-// Expected columns: 成員ID | 地基1(1/0) | 地基2(場次) | 地基3(燈) | 地基5_分會1 | 地基5_分會2...
-function parseMonthSheet(rows, month) {
-  const result = {};
-  if (!rows || rows.length < 2) return result;
-  
-  // Clean headers - handle cases where Google Sheets merges cells in CSV export
-  let headers = rows[0].map(h => h.replace(/"/g,'').trim());
-  
-  // If first header contains spaces (like "成員ID Steven Chou"), it means
-  // the CSV export merged columns - we need to re-split the data
-  if (headers[0] && headers[0].includes(' ') && !headers[0].includes('_')) {
-    // Rebuild: treat first word as ID column header
-    headers[0] = '成員ID';
-  }
-  
-  // Find name column
-  const nameColIdx = headers.findIndex(h => h === '姓名' || h === '中文名字' || h === '名字');
-  
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    let memberId = (row[0]||'').replace(/"/g,'').trim();
-    if (!memberId) continue;
-    
-    // Normalize memberId: strip any trailing Chinese characters and role titles
-    // Handles formats like:
-    //   "Popo Lin 林綉蓉 董顧" → "Popo Lin"
-    //   "Popo Lin 林綉蓉" → "Popo Lin"
-    //   "Popo Lin" → "Popo Lin" (unchanged)
-    const cleanedId = memberId.replace(/\s+[\u4e00-\u9fff].*$/, '').trim();
-    if (cleanedId) memberId = cleanedId;
-    
-    result[memberId] = {};
-    headers.forEach((h, idx) => {
-      if (idx === 0) return;
-      if (idx === nameColIdx && nameColIdx > 0) return;
-      if (!h) return;
-      result[memberId][h] = (row[idx]||'').replace(/"/g,'').trim();
-    });
-  }
-  return result;
-}
-
-// Parse F4 sheet
-function parseF4Sheet(rows) {
-  const result = {};
-  if (!rows || rows.length < 2) return result;
-  const headers = rows[0].map(h => h.replace(/"/g,"").trim());
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    let memberId = (row[0]||"").replace(/"/g,"").trim();
-    if (!memberId) continue;
-    const cleanedId = memberId.replace(/\s+[\u4e00-\u9fff].*$/, '').trim();
-    if (cleanedId) memberId = cleanedId;
-    result[memberId] = {};
-    headers.forEach((h, idx) => {
-      if (idx === 0) return;
-      if (idx === 1 && (h === "姓名" || h === "中文名字" || h === "名字")) return;
-      result[memberId][h] = (row[idx]||"").replace(/"/g,"").trim();
-    });
-  }
-  return result;
-}
-
-async function fetchWithTimeout(tabName, timeout=8000) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+  btn.disabled = true; btn.textContent = '登入中...';
   try {
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error('fetch failed');
-    return await res.text();
-  } catch(e) {
-    clearTimeout(timer);
-    throw e;
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaLogin', name, password }) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      sessionStorage.setItem('dna_token', data.token);
+      sessionStorage.setItem('dna_name', data.name);
+      sessionStorage.setItem('dna_isManager', data.isManager ? '1' : '0');
+      document.getElementById('passwordOverlay').style.display = 'none';
+      const bar = document.getElementById('userBar');
+      bar.style.display = 'flex';
+      document.getElementById('userBarName').textContent = '👤 ' + data.name;
+      initApp();
+    } else {
+      document.getElementById('pwError').textContent = data.message || '帳號或密碼錯誤';
+      document.getElementById('pwError').style.display = 'block';
+      btn.disabled = false; btn.textContent = '登入 DnA 專區';
+    }
+  } catch (err) {
+    document.getElementById('pwError').textContent = '連線失敗，請稍後再試';
+    document.getElementById('pwError').style.display = 'block';
+    btn.disabled = false; btn.textContent = '登入 DnA 專區';
   }
 }
 
+function doLogout() {
+  sessionStorage.removeItem('dna_token');
+  sessionStorage.removeItem('dna_name');
+  sessionStorage.removeItem('dna_isManager');
+  location.reload();
+}
+
+// ============================================================
+// 向後端要資料（已依登入者權限過濾，只會拿到看得到的人）
+// ============================================================
 async function loadAllData() {
   setSyncStatus('loading', '正在載入資料...');
-  // Show UI immediately so user isn't staring at blank screen
   document.getElementById('mainContent').style.display = 'block';
   document.getElementById('errorWrap').style.display = 'none';
-  render();
-  
+
+  const token = sessionStorage.getItem('dna_token');
+  if (!token) {
+    document.getElementById('passwordOverlay').style.display = 'flex';
+    return;
+  }
+
   try {
-    // Load current month first for fast display
-    const curIdx = MONTHS.indexOf(curMonth);
-    const priority = [curMonth, '地基4'];
-    const rest = MONTHS.filter(m => m !== curMonth);
-    
-    // Load current month + F4 first
-    await Promise.all([
-      fetchWithTimeout(curMonth).then(t => { sheetData[curMonth] = parseMonthSheet(parseCSV(t), curMonth); }).catch(() => { sheetData[curMonth] = {}; }),
-      fetchWithTimeout('地基4').then(t => { sheetData['f4'] = parseF4Sheet(parseCSV(t)); }).catch(() => { sheetData['f4'] = {}; }),
-    ]);
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaGetAllData', token }) });
+    const data = await res.json();
+
+    if (data.status !== 'ok') {
+      // token 失效或其他錯誤，退回登入畫面
+      setSyncStatus('error', data.message || '連線失敗');
+      sessionStorage.removeItem('dna_token');
+      document.getElementById('passwordOverlay').style.display = 'flex';
+      document.getElementById('pwError').textContent = data.message || '登入已失效，請重新登入';
+      document.getElementById('pwError').style.display = 'block';
+      return;
+    }
+
+    MONTHS = data.months;
+    MEMBERS = data.members;
+    isManagerView = data.isManager;
+    sheetData = {};
+    MONTHS.forEach(m => { sheetData[m] = data.monthData[m] || {}; });
+    sheetData['f4'] = data.f4Data || {};
+
+    // 預設月份：抓得到今天所屬月份就用，否則用清單裡最後一個月
+    const todayMonth = new Date().toISOString().slice(0, 7);
+    curMonth = MONTHS.includes(todayMonth) ? todayMonth : MONTHS[MONTHS.length - 1];
+    // 預設成員：登入者自己（若管理者視角則挑清單第一位）
+    const loginName = data.loginName;
+    curMember = MEMBERS.find(m => m.name === loginName) ? MEMBERS.find(m => m.name === loginName).id
+              : (MEMBERS[0] ? MEMBERS[0].id : '');
+
     setSyncStatus('ok', '資料已同步 Google Sheet');
     render();
-    
-    // Load rest in background
-    for (const m of rest) {
-      try {
-        const text = await fetchWithTimeout(m, 6000);
-        sheetData[m] = parseMonthSheet(parseCSV(text), m);
-      } catch(e) {
-        sheetData[m] = {};
-      }
-    }
-  } catch(e) {
+  } catch (e) {
     setSyncStatus('error', '連線失敗');
     render();
   }
@@ -831,10 +741,19 @@ async function initApp() {
   await loadAllData();
 }
 
-// Auto-refresh every 2 minutes
-setInterval(() => { loadAllData(); }, 120000);
+// Auto-refresh every 2 minutes（只有登入後才會真的抓資料）
+setInterval(() => { if (sessionStorage.getItem('dna_token')) loadAllData(); }, 120000);
 
-initApp();
+// 頁面載入時：如果已經有登入過的 token，直接進系統；否則顯示登入畫面（預設就是顯示的，不用額外處理）
+if (sessionStorage.getItem('dna_token')) {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('passwordOverlay').style.display = 'none';
+    const bar = document.getElementById('userBar');
+    bar.style.display = 'flex';
+    document.getElementById('userBarName').textContent = '👤 ' + sessionStorage.getItem('dna_name');
+    initApp();
+  });
+}
 </script>
 
 

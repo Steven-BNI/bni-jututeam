@@ -71,6 +71,9 @@ function doPost(e) {
       case 'lookupPaidFee':         return handleLookupPaidFee(data);
       case 'submitFeedback':        return handleSubmitFeedback(data);
       case 'lookupMyRegistrations': return handleLookupMyRegistrations(data);
+      case 'dnaLogin':              return handleDnaLogin(data);
+      case 'dnaGetAllData':         return handleDnaGetAllData(data);
+      case 'dnaCheckinV2':          return handleDnaCheckinV2(data);
       default:                       return jsonResponse({ status: 'error', message: '未知 action' });
     }
   } catch (err) {
@@ -606,6 +609,280 @@ function getOrCreateFeedbackSheet() {
 // ══════════════════════════════════════
 // 9. 查詢某人（姓名+Email）的所有報名紀錄
 // ══════════════════════════════════════
+// ══════════════════════════════════════
+// 10. DnA 帳密系統｜多層權限｜GPS 月會簽到
+// ══════════════════════════════════════
+// ⚠️ 這份名單是整個 DnA 專區帳密系統的唯一資料來源
+//    DnA 成員異動時（新增/離開/密碼重設/改組織結構），只需要改這裡
+//    reportsTo：直屬上層姓名，null 代表頂層（沒有上層）
+//    isManager：true 代表管理者視角（例如 Steven）—— 看得到所有人，但不計入地基追蹤數據
+const MEMBERS_FULL = [
+  { id: 'Steven Chou',   name: 'Steven',  password: '669815', role: 'ED', reportsTo: null, isManager: true,  branches: [], hasF5: false },
+  { id: 'Popo Lin',      name: '林綉蓉',  password: '856676', role: '董事顧問',     reportsTo: null, isManager: false, branches: [{name:'聚大',target:51}], hasF5: true },
+  { id: 'Archie Wu',     name: '吳宗憲',  password: '212676', role: '董事顧問',     reportsTo: null, isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'Brenda Chen',   name: '陳虹君',  password: '541481', role: '區域培訓大使', reportsTo: null, isManager: false, branches: [], hasF5: false },
+  { id: 'Shawn Chen',    name: '陳世祥',  password: '456840', role: '啟動大使',     reportsTo: '吳宗憲', isManager: false, branches: [], hasF5: false },
+  { id: 'Penny Li',      name: '李佩玲',  password: '000392', role: '增長大使',     reportsTo: null, isManager: false, branches: [{name:'聚道',target:60}], hasF5: true },
+  { id: 'Super Star Yu', name: '余明興',  password: '994576', role: '增長大使',     reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'Anthony Chen',  name: '陳臣勝',  password: '052580', role: '增長助理大使', reportsTo: '吳宗憲', isManager: false, branches: [{name:'聚富',target:50}], hasF5: true },
+  { id: 'KK Yang',       name: '楊凱雯',  password: '032116', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false },
+  { id: 'Teresa Tsai',   name: '蔡菱秝',  password: '889033', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-04', endMonth: '2026-06' },
+  { id: 'Shun-Hao Wu',   name: '吳舜豪',  password: '574136', role: '助理大使',     reportsTo: '林綉蓉', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'Dao-Ran Lin',   name: '林道然',  password: '644197', role: '啟動大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'I-CHEN CHIANG', name: '江宜真',  password: '614828', role: '助理大使',     reportsTo: '陳臣勝', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'Bo-Lin Jiang',  name: '江柏林',  password: '399711', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-06', endMonth: '2026-07' },
+  { id: 'Bo-Ting Chou',  name: '周柏廷',  password: '951453', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'One One',       name: '萬翎甄',  password: '838437', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-06' },
+  { id: 'James Liao',    name: '廖灝明',  password: '787907', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Joanna Chou',   name: '周虹邑',  password: '342270', role: '助理大使',     reportsTo: '林道然', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Li-Chuan Chen', name: '陳力銓',  password: '620154', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Chu Wei Liang', name: '朱唯良',  password: '607767', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'OZ LIN',        name: '林煜珵',  password: '800644', role: '助理大使',     reportsTo: '余明興', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Jiang Tian yu', name: '江天昱',  password: '799424', role: '助理大使',     reportsTo: '林道然', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Melissa Chan',  name: '詹蕎瑀',  password: '669048', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Tina Huang',    name: '黃郁婷',  password: '413941', role: '助理大使',     reportsTo: '李佩玲', isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+  { id: 'Jeff Lin',      name: '林瑞營',  password: '640733', role: '助理大使',     reportsTo: null, isManager: false, branches: [], hasF5: false, startMonth: '2026-09' },
+];
+
+const CHECKIN_LOG_SHEET = 'DnA月會簽到記錄';
+const CHECKIN_CONFIG_SHEET = 'DnA簽到設定';
+
+// ── 登入 Token（無狀態，token = base64(姓名 + 分隔符 + 密碼)，每次請求都重新驗證）──
+function makeToken(name, password) {
+  return Utilities.base64Encode(name + '\u0001' + password, Utilities.Charset.UTF_8);
+}
+function parseToken(token) {
+  try {
+    const bytes = Utilities.base64Decode(token);
+    const decoded = Utilities.newBlob(bytes).getDataAsString('UTF-8');
+    const idx = decoded.indexOf('\u0001');
+    if (idx === -1) return null;
+    return { name: decoded.substring(0, idx), password: decoded.substring(idx + 1) };
+  } catch (e) {
+    return null;
+  }
+}
+function authenticate(token) {
+  const parsed = parseToken(token);
+  if (!parsed) return null;
+  return MEMBERS_FULL.find(m => m.name === parsed.name && m.password === parsed.password) || null;
+}
+
+function handleDnaLogin(data) {
+  const name = String(data.name || '').trim();
+  const password = String(data.password || '').trim();
+  const member = MEMBERS_FULL.find(m => m.name === name && m.password === password);
+  if (!member) {
+    return jsonResponse({ status: 'error', message: '帳號或密碼錯誤，請確認後再試一次。' });
+  }
+  return jsonResponse({
+    status: 'ok',
+    token: makeToken(member.name, member.password),
+    name: member.name,
+    role: member.role,
+    isManager: !!member.isManager,
+  });
+}
+
+// 遞迴往下展開：找出這個人自己＋所有下線（多層）
+function getVisibleNames(member) {
+  if (member.isManager) {
+    return MEMBERS_FULL.filter(m => !m.isManager).map(m => m.name);
+  }
+  const visible = [member.name];
+  let frontier = [member.name];
+  while (frontier.length > 0) {
+    const next = [];
+    MEMBERS_FULL.forEach(m => {
+      if (m.reportsTo && frontier.includes(m.reportsTo) && !visible.includes(m.name)) {
+        visible.push(m.name);
+        next.push(m.name);
+      }
+    });
+    frontier = next;
+  }
+  return visible;
+}
+
+// 取得某成員的完整可見清單（含角色、id等資訊，給前端渲染用）
+// 這份月份清單需與 dna-index.html 的 MONTHS 保持同步（DnA 月會工作表建立新月份時，兩處都要加）
+const DNA_MONTHS = [
+  '2025-12','2026-01','2026-02','2026-03',
+  '2026-04','2026-05','2026-06',
+  '2026-07','2026-08','2026-09',
+  '2026-10','2026-11','2026-12'
+];
+
+function readSheetAsMap(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
+  const map = {};
+  if (!sheet) return map;
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0] || [];
+  for (let i = 1; i < rows.length; i++) {
+    const rawId = String(rows[i][0] || '').trim();
+    if (!rawId) continue;
+    const cleanedId = rawId.replace(/\s+[\u4e00-\u9fff].*$/, '').trim();
+    const rowObj = {};
+    headers.forEach((h, idx) => { if (h) rowObj[h] = String(rows[i][idx] || ''); });
+    map[cleanedId] = rowObj;
+  }
+  return map;
+}
+
+// 一次登入後，把這個人看得到的所有成員資訊＋全部月份資料＋地基4資料一次回傳
+// （資料量小，一次拉完比較簡單，也不用前端一直來回問後端）
+function handleDnaGetAllData(data) {
+  try {
+    const member = authenticate(data.token);
+    if (!member) return jsonResponse({ status: 'error', message: '登入已失效，請重新登入。' });
+
+    const visibleNames = getVisibleNames(member);
+    const visibleMembers = MEMBERS_FULL.filter(m => !m.isManager && visibleNames.includes(m.name));
+
+    const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+
+    const monthData = {};
+    DNA_MONTHS.forEach(month => { monthData[month] = readSheetAsMap(ss, month); });
+    const f4Data = readSheetAsMap(ss, '地基4');
+
+    const members = visibleMembers.map(m => ({
+      id: m.id, name: m.name, role: m.role, branches: m.branches, hasF5: m.hasF5,
+      startMonth: m.startMonth || null, endMonth: m.endMonth || null,
+    }));
+
+    return jsonResponse({
+      status: 'ok', isManager: !!member.isManager, loginName: member.name,
+      months: DNA_MONTHS, members: members, monthData: monthData, f4Data: f4Data,
+    });
+  } catch (err) {
+    console.error('handleDnaGetAllData error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
+// Haversine 公式：計算兩組經緯度之間的距離（公尺）
+function distanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function handleDnaCheckinV2(data) {
+  try {
+    const member = authenticate(data.token);
+    if (!member) return jsonResponse({ status: 'error', message: '登入已失效，請重新登入。' });
+    if (member.isManager) return jsonResponse({ status: 'error', message: '管理者帳號不需要簽到。' });
+
+    const month = String(data.month || '').trim();
+    const lat = Number(data.lat);
+    const lng = Number(data.lng);
+    if (!/^\d{4}-\d{2}$/.test(month)) return jsonResponse({ status: 'error', message: '月份格式錯誤。' });
+    if (isNaN(lat) || isNaN(lng)) return jsonResponse({ status: 'error', message: '未取得您的定位資訊，請允許定位權限後再試一次。' });
+
+    const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+
+    // 讀取當月簽到設定
+    let cfgSheet = ss.getSheetByName(CHECKIN_CONFIG_SHEET);
+    if (!cfgSheet) {
+      cfgSheet = ss.insertSheet(CHECKIN_CONFIG_SHEET);
+      cfgSheet.appendRow(['月份','地點名稱','緯度','經度','允許範圍(公尺)','報到時間','遲到時間','未到時間','遲到罰款','未到罰款']);
+      const hr = cfgSheet.getRange(1, 1, 1, 10);
+      hr.setBackground('#1a1a2e'); hr.setFontColor('#C9A84C'); hr.setFontWeight('bold');
+      cfgSheet.setFrozenRows(1);
+    }
+    const cfgRows = cfgSheet.getDataRange().getValues();
+    const cfgHeaders = cfgRows[0];
+    const monthColIdx = cfgHeaders.indexOf('月份');
+    let cfg = null;
+    for (let i = 1; i < cfgRows.length; i++) {
+      if (String(cfgRows[i][monthColIdx]).trim() === month) {
+        cfg = {};
+        cfgHeaders.forEach((h, idx) => { cfg[h] = cfgRows[i][idx]; });
+        break;
+      }
+    }
+    if (!cfg) {
+      return jsonResponse({ status: 'error', message: `尚未設定 ${month} 的月會地點與時間，請聯絡辦公室在「${CHECKIN_CONFIG_SHEET}」工作表新增這個月的設定。` });
+    }
+
+    const allowRadius = Number(cfg['允許範圍(公尺)']) || 150;
+    const dist = distanceMeters(lat, lng, Number(cfg['緯度']), Number(cfg['經度']));
+    if (dist > allowRadius) {
+      return jsonResponse({ status: 'error', message: `您目前距離會場約 ${Math.round(dist)} 公尺，超過允許範圍（${allowRadius} 公尺），請到場後再簽到。` });
+    }
+
+    // 判斷準時／遲到／未到
+    const now = new Date();
+    const nowStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+    const todayStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd');
+    const onTimeDeadline = new Date(`${todayStr}T${cfg['報到時間']}:00+08:00`);
+    const lateDeadline   = new Date(`${todayStr}T${cfg['遲到時間']}:00+08:00`);
+
+    let attendanceStatus, fine;
+    if (now <= onTimeDeadline) {
+      attendanceStatus = '準時'; fine = 0;
+    } else if (now <= lateDeadline) {
+      attendanceStatus = '遲到'; fine = Number(cfg['遲到罰款']) || 100;
+    } else {
+      attendanceStatus = '嚴重遲到'; fine = Number(cfg['未到罰款']) || 200;
+    }
+
+    // 寫入當月工作表地基1
+    const monthSheet = ss.getSheetByName(month);
+    if (!monthSheet) return jsonResponse({ status: 'error', message: `找不到 ${month} 工作表。` });
+    const data2d = monthSheet.getDataRange().getValues();
+    const headers = data2d[0] || [];
+    const f1Col = headers.indexOf('地基1');
+    if (f1Col === -1) return jsonResponse({ status: 'error', message: `${month} 工作表找不到「地基1」欄位。` });
+
+    let targetRow = -1;
+    let alreadyChecked = false;
+    for (let i = 1; i < data2d.length; i++) {
+      const rawId = String(data2d[i][0] || '').trim();
+      const cleanedId = rawId.replace(/\s+[\u4e00-\u9fff].*$/, '').trim();
+      if (cleanedId === member.id) {
+        targetRow = i + 1;
+        alreadyChecked = String(data2d[i][f1Col] || '') === '1';
+        break;
+      }
+    }
+    if (targetRow === -1) {
+      const newRow = new Array(headers.length).fill('');
+      newRow[0] = `${member.id} ${member.name}`;
+      newRow[f1Col] = '1';
+      monthSheet.appendRow(newRow);
+    } else {
+      monthSheet.getRange(targetRow, f1Col + 1).setValue('1');
+    }
+
+    // 寫入簽到記錄（稽核用，含GPS與罰款資訊）
+    let logSheet = ss.getSheetByName(CHECKIN_LOG_SHEET);
+    if (!logSheet) {
+      logSheet = ss.insertSheet(CHECKIN_LOG_SHEET);
+      logSheet.appendRow(['簽到時間','月份','英文ID','姓名','出席狀態','罰款','距離會場(公尺)','緯度','經度']);
+      const hr = logSheet.getRange(1, 1, 1, 9);
+      hr.setBackground('#1a1a2e'); hr.setFontColor('#C9A84C'); hr.setFontWeight('bold');
+      logSheet.setFrozenRows(1);
+    }
+    logSheet.appendRow([nowStr, month, member.id, member.name, attendanceStatus, fine, Math.round(dist), lat, lng]);
+
+    return jsonResponse({
+      status: 'ok', name: member.name, alreadyChecked: alreadyChecked,
+      attendanceStatus: attendanceStatus, fine: fine, distance: Math.round(dist),
+    });
+  } catch (err) {
+    console.error('handleDnaCheckinV2 error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
 function handleLookupMyRegistrations(data) {
   try {
     const regSheet = getOrCreateSheet();

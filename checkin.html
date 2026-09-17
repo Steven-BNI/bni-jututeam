@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d0d14">
+<title>BNI 聚團隊｜DnA 月會簽到</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6R66G555ZY");
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --gold-dim: rgba(201,168,76,0.15);
+  --dark: #0d0d14;
+  --dark2: #161616;
+  --border: rgba(201,168,76,0.25);
+  --text: #E8E8E0;
+  --text-dim: #888;
+  --red: #E05252;
+  --yellow: #E6A030;
+  --green: #52C07A;
+  --radius: 12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--dark); color-scheme: dark; }
+body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; }
+
+.header { padding: 32px 20px 26px; text-align: center; border-bottom: 2px solid var(--gold); background: linear-gradient(135deg, #0d0d14 0%, #1a1408 100%); }
+.header-eyebrow { font-size: 11px; letter-spacing: 4px; color: var(--gold); font-weight: 700; margin-bottom: 8px; }
+.header h1 { font-size: 24px; font-weight: 900; color: #fff; }
+.header h1 em { color: var(--gold); font-style: normal; }
+.header-sub { font-size: 13px; color: var(--text-dim); margin-top: 8px; }
+
+.main { max-width: 480px; margin: 0 auto; padding: 28px 20px 60px; background: var(--dark); }
+
+.month-badge { text-align: center; margin-bottom: 24px; }
+.month-badge span { display: inline-block; background: var(--gold-dim); border: 1.5px solid var(--gold); color: var(--gold-light); padding: 8px 22px; border-radius: 99px; font-size: 15px; font-weight: 700; }
+
+.form-group { margin-bottom: 22px; }
+.form-label { display: block; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.form-input, .form-select {
+  width: 100%; padding: 14px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--dark2); color: var(--text); font-size: 16px; font-family: 'Noto Sans TC', sans-serif;
+  outline: none;
+}
+.form-input:focus, .form-select:focus { border-color: var(--gold); }
+
+.btn-primary {
+  width: 100%; padding: 16px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: #1a1408; font-size: 17px; font-weight: 900; cursor: pointer;
+}
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.inline-error { font-size: 13px; color: var(--red); margin-top: 12px; text-align: center; display: none; }
+.gps-status { font-size: 13px; color: var(--text-dim); text-align: center; margin-bottom: 18px; min-height: 18px; }
+
+.result-box { display: none; text-align: center; padding: 40px 20px; }
+.result-icon { font-size: 56px; margin-bottom: 18px; }
+.result-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 10px; }
+.result-desc { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+.result-name { color: var(--gold-light); font-weight: 700; }
+
+.status-pill { display: inline-block; padding: 8px 24px; border-radius: 99px; font-size: 18px; font-weight: 900; margin: 14px 0; }
+.status-pill.ontime { background: rgba(82,192,122,0.15); color: var(--green); border: 1.5px solid var(--green); }
+.status-pill.late   { background: rgba(230,160,48,0.15); color: var(--yellow); border: 1.5px solid var(--yellow); }
+.status-pill.verylate { background: rgba(224,82,82,0.15); color: var(--red); border: 1.5px solid var(--red); }
+.fine-amount { color: var(--red); font-weight: 900; font-size: 20px; }
+
+.userbar { display:none; position:fixed; top:8px; right:12px; z-index:99998; background:rgba(19,19,26,0.9); border:1px solid rgba(201,168,76,0.3); border-radius:20px; padding:6px 14px; font-size:12px; color:var(--gold); align-items:center; gap:8px; }
+.userbar a { color: #7a7a99; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid #E8001D;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;text-align:center;">
+    <div style="font-size:11px;letter-spacing:3px;color:#E8001D;margin-bottom:12px">BNI 聚團隊</div>
+    <div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:6px">DnA 簽到登入</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入您的姓名與密碼</div>
+    <input id="loginName" type="text" placeholder="姓名"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;" />
+    <input id="loginPassword" type="password" placeholder="密碼"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;letter-spacing:4px;margin-bottom:12px;font-family:'Noto Sans TC',sans-serif;"
+      onkeydown="if(event.key==='Enter')doLogin()" />
+    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">帳號或密碼錯誤，請再試一次</div>
+    <button id="loginBtn" onclick="doLogin()"
+      style="width:100%;padding:12px;border-radius:8px;background:#E8001D;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
+      登入
+    </button>
+  </div>
+</div>
+
+<div class="userbar" id="userBar">
+  <span id="userBarName"></span>
+  <a href="#" onclick="doLogout();return false;">登出</a>
+</div>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <h1>DnA 月會 <em>簽到</em></h1>
+  <div class="header-sub">新北市西A區｜GPS 現場簽到</div>
+</div>
+
+<div class="main">
+
+  <div class="month-badge"><span id="monthLabel">載入中...</span></div>
+
+  <div id="form-view">
+    <div class="form-group" style="text-align:center;">
+      <div class="form-label" style="text-align:center;">簽到人</div>
+      <div style="font-size:20px; font-weight:900; color:var(--gold-light);" id="checkinAsName">—</div>
+    </div>
+
+    <div class="gps-status" id="gpsStatus">正在準備定位...</div>
+
+    <button class="btn-primary" id="btn-submit" onclick="submitCheckin()" disabled>完成簽到</button>
+    <div class="inline-error" id="inline-error"></div>
+  </div>
+
+  <div class="result-box" id="result-view">
+    <div class="result-icon" id="resultIcon">OK</div>
+    <div class="result-title" id="resultTitle">簽到成功</div>
+    <div class="status-pill ontime" id="statusPill">準時</div>
+    <div class="result-desc" id="resultDesc"></div>
+  </div>
+
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
+
+function getCurrentMonth() {
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+}
+const curMonth = getCurrentMonth();
+let gpsCoords = null;
+
+async function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const btn = document.getElementById('loginBtn');
+  if (!name || !password) {
+    document.getElementById('pwError').textContent = '請輸入姓名與密碼';
+    document.getElementById('pwError').style.display = 'block';
+    return;
+  }
+  btn.disabled = true; btn.textContent = '登入中...';
+  try {
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaLogin', name: name, password: password }) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      if (data.isManager) {
+        document.getElementById('pwError').textContent = '管理者帳號不需要簽到，請改用五大地基頁面查看資料。';
+        document.getElementById('pwError').style.display = 'block';
+        btn.disabled = false; btn.textContent = '登入';
+        return;
+      }
+      sessionStorage.setItem('dna_token', data.token);
+      sessionStorage.setItem('dna_name', data.name);
+      afterLogin(data.name);
+    } else {
+      document.getElementById('pwError').textContent = data.message || '帳號或密碼錯誤';
+      document.getElementById('pwError').style.display = 'block';
+      btn.disabled = false; btn.textContent = '登入';
+    }
+  } catch (err) {
+    document.getElementById('pwError').textContent = '連線失敗，請稍後再試';
+    document.getElementById('pwError').style.display = 'block';
+    btn.disabled = false; btn.textContent = '登入';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('dna_token');
+  sessionStorage.removeItem('dna_name');
+  location.reload();
+}
+
+function afterLogin(name) {
+  document.getElementById('loginOverlay').style.display = 'none';
+  const bar = document.getElementById('userBar');
+  bar.style.display = 'flex';
+  document.getElementById('userBarName').textContent = '登入：' + name;
+  document.getElementById('checkinAsName').textContent = name;
+  document.getElementById('monthLabel').textContent = curMonth.replace('-', ' 年 ') + ' 月 DnA 月會';
+  requestLocation();
+}
+
+function requestLocation() {
+  const statusEl = document.getElementById('gpsStatus');
+  const btn = document.getElementById('btn-submit');
+  if (!navigator.geolocation) {
+    statusEl.textContent = '此裝置不支援定位功能，無法簽到';
+    return;
+  }
+  statusEl.textContent = '定位中，請允許位置權限...';
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      gpsCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      statusEl.textContent = '已取得您的位置，可以簽到了';
+      btn.disabled = false;
+    },
+    function(err) {
+      statusEl.textContent = '無法取得您的位置，請允許定位權限後點此重新嘗試';
+      statusEl.style.cursor = 'pointer';
+      statusEl.onclick = requestLocation;
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+async function submitCheckin() {
+  const errorEl = document.getElementById('inline-error');
+  errorEl.style.display = 'none';
+
+  const token = sessionStorage.getItem('dna_token');
+  if (!token) { location.reload(); return; }
+  if (!gpsCoords) {
+    errorEl.textContent = '尚未取得定位資訊，請稍候或允許定位權限。';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = '簽到中...';
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'dnaCheckinV2', token: token, month: curMonth, lat: gpsCoords.lat, lng: gpsCoords.lng }),
+    });
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('result-view').style.display = 'block';
+
+      const pill = document.getElementById('statusPill');
+      const icon = document.getElementById('resultIcon');
+      const title = document.getElementById('resultTitle');
+      const desc = document.getElementById('resultDesc');
+
+      if (data.alreadyChecked) {
+        icon.textContent = 'i';
+        title.textContent = '您本月已經簽到過了';
+        pill.style.display = 'none';
+        desc.innerHTML = '<span class="result-name">' + data.name + '</span> 這次再次確認';
+      } else if (data.attendanceStatus === '準時') {
+        icon.textContent = '✓';
+        title.textContent = '簽到成功';
+        pill.className = 'status-pill ontime';
+        pill.textContent = '準時';
+        desc.innerHTML = '<span class="result-name">' + data.name + '</span> 您好，已為您記錄本月出席，感謝準時參與！';
+      } else if (data.attendanceStatus === '遲到') {
+        icon.textContent = '!';
+        title.textContent = '簽到成功（遲到）';
+        pill.className = 'status-pill late';
+        pill.textContent = '遲到';
+        desc.innerHTML = '<span class="result-name">' + data.name + '</span> 您好，已記錄出席，但依規定遲到罰款 <span class="fine-amount">NT$ ' + data.fine + '</span>';
+      } else {
+        icon.textContent = '!!';
+        title.textContent = '簽到成功（嚴重遲到）';
+        pill.className = 'status-pill verylate';
+        pill.textContent = '嚴重遲到';
+        desc.innerHTML = '<span class="result-name">' + data.name + '</span> 您好，已記錄出席，依規定罰款 <span class="fine-amount">NT$ ' + data.fine + '</span>';
+      }
+    } else {
+      errorEl.textContent = data.message || '簽到失敗，請稍後再試';
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '完成簽到';
+    }
+  } catch (err) {
+    errorEl.textContent = '簽到失敗，請稍後再試，或直接聯絡區域辦公室。';
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '完成簽到';
+    console.error('submitCheckin error:', err);
+  }
+}
+
+if (sessionStorage.getItem('dna_token')) {
+  document.addEventListener('DOMContentLoaded', function() {
+    afterLogin(sessionStorage.getItem('dna_name'));
+  });
+}
+</script>
+</body>
+</html>

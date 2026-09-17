@@ -116,20 +116,22 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
 </head>
 <body>
 
-<!-- Password overlay -->
+<!-- Login overlay -->
 <div id="passwordOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0c;z-index:99999;display:flex;align-items:center;justify-content:center;">
   <div style="background:#13131a;border:1.5px solid #E8001D;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;text-align:center;">
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;color:#E8001D;margin-bottom:12px">BNI 聚團隊</div>
 
     <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">DnA 專區</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入專區密碼</div>
-    <input id="pwInput" type="password" placeholder="••••••••"
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">請輸入您的姓名與密碼</div>
+    <input id="loginName" type="text" placeholder="姓名"
+      style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;" />
+    <input id="loginPassword" type="password" placeholder="密碼"
       style="width:100%;padding:12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:#1c1c28;color:#fff;font-size:16px;text-align:center;outline:none;letter-spacing:4px;margin-bottom:12px;font-family:'Noto Sans TC',sans-serif;"
-      onkeydown="if(event.key==='Enter')checkPw()" />
-    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
-    <button onclick="checkPw()"
+      onkeydown="if(event.key==='Enter')doLogin()" />
+    <div id="pwError" style="font-size:12px;color:#E8001D;margin-bottom:12px;display:none">帳號或密碼錯誤，請再試一次</div>
+    <button id="loginBtn" onclick="doLogin()"
       style="width:100%;padding:12px;border-radius:8px;background:#E8001D;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
-      進入 DnA 專區
+      登入 DnA 專區
     </button>
     <div style="margin-top:16px">
       <a href="/bni-jututeam/calendar.html" style="font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;">← 返回區域行事曆</a>
@@ -137,22 +139,60 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', s
   </div>
 </div>
 
+<div id="userBar" style="display:none; position:fixed; top:8px; right:12px; z-index:99998; background:rgba(19,19,26,0.9); border:1px solid rgba(201,168,76,0.3); border-radius:20px; padding:6px 14px; font-size:12px; color:#C9A84C; display:flex; align-items:center; gap:8px;">
+  <span id="userBarName"></span>
+  <a href="#" onclick="doLogout();return false;" style="color:#7a7a99; text-decoration:none;">登出</a>
+</div>
+
 <script>
-function checkPw() {
-  const pw = document.getElementById('pwInput').value;
-  if (pw === '20333000') {
-    document.getElementById('passwordOverlay').style.display = 'none';
-    sessionStorage.setItem('dna_auth', '1');
-  } else {
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
+
+async function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const btn = document.getElementById('loginBtn');
+  if (!name || !password) {
+    document.getElementById('pwError').textContent = '請輸入姓名與密碼';
     document.getElementById('pwError').style.display = 'block';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
+    return;
+  }
+  btn.disabled = true; btn.textContent = '登入中...';
+  try {
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaLogin', name, password }) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      sessionStorage.setItem('dna_token', data.token);
+      sessionStorage.setItem('dna_name', data.name);
+      sessionStorage.setItem('dna_isManager', data.isManager ? '1' : '0');
+      applyLoggedInUI();
+    } else {
+      document.getElementById('pwError').textContent = data.message || '帳號或密碼錯誤';
+      document.getElementById('pwError').style.display = 'block';
+      btn.disabled = false; btn.textContent = '登入 DnA 專區';
+    }
+  } catch (err) {
+    document.getElementById('pwError').textContent = '連線失敗，請稍後再試';
+    document.getElementById('pwError').style.display = 'block';
+    btn.disabled = false; btn.textContent = '登入 DnA 專區';
   }
 }
-if (sessionStorage.getItem('dna_auth') === '1') {
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('passwordOverlay').style.display = 'none';
-  });
+
+function doLogout() {
+  sessionStorage.removeItem('dna_token');
+  sessionStorage.removeItem('dna_name');
+  sessionStorage.removeItem('dna_isManager');
+  location.reload();
+}
+
+function applyLoggedInUI() {
+  document.getElementById('passwordOverlay').style.display = 'none';
+  const bar = document.getElementById('userBar');
+  bar.style.display = 'flex';
+  document.getElementById('userBarName').textContent = '👤 ' + sessionStorage.getItem('dna_name');
+}
+
+if (sessionStorage.getItem('dna_token')) {
+  document.addEventListener('DOMContentLoaded', applyLoggedInUI);
 }
 </script>
 
@@ -178,6 +218,15 @@ if (sessionStorage.getItem('dna_auth') === '1') {
     <div class="menu-info">
       <div class="menu-name">五大地基追蹤</div>
       <div class="menu-desc">DnA成員個人地基狀態<br>出席、培訓、紅綠燈、活動、績效</div>
+    </div>
+    <div class="menu-arrow">›</div>
+  </a>
+
+  <a href="/bni-jututeam/checkin.html" class="menu-card">
+    <div class="menu-icon">✅</div>
+    <div class="menu-info">
+      <div class="menu-name">DnA 月會簽到</div>
+      <div class="menu-desc">成員自助簽到，自動記錄地基1</div>
     </div>
     <div class="menu-arrow">›</div>
   </a>
