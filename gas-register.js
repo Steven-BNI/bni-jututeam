@@ -800,12 +800,12 @@ function autoCalcF5(m, monthData, curMonth) {
 
 // 幫這個人自動組出登入警示文字；沒有任何地基需要留意就回傳空字串（不打擾）
 function computeAutoAlert(member) {
-  if (member.isManager) return '';
+  if (member.isManager) return { alert: '', greatJob: false };
   const idx = DNA_MONTHS.indexOf(getCurrentDnaMonth());
-  if (idx === -1) return '';
+  if (idx === -1) return { alert: '', greatJob: false };
   const curMonth = DNA_MONTHS[idx];
   const startIdx = member.startMonth ? Math.max(0, DNA_MONTHS.indexOf(member.startMonth)) : 0;
-  if (member.endMonth && curMonth > member.endMonth) return ''; // 已離開的人不算
+  if (member.endMonth && curMonth > member.endMonth) return { alert: '', greatJob: false }; // 已離開的人不算
 
   const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
   const needMonths = DNA_MONTHS.slice(Math.max(startIdx, idx - 5), idx + 1);
@@ -817,7 +817,7 @@ function computeAutoAlert(member) {
   const r2 = autoCalcF2(member.id, monthData, DNA_MONTHS, curMonth, startIdx);
   const r3 = autoCalcF3(member.id, monthData, DNA_MONTHS, curMonth, startIdx);
   const r4 = autoCalcF4(member.id, f4Data);
-  const r5 = autoCalcF5(member, monthData, curMonth);
+  const r5 = autoCalcF5(member, monthData, curMonth); // 沒有分會目標的人，這裡永遠是 null，不列入判斷
 
   const labels = ['地基1（DnA月會出席）', '地基2（每月基礎性培訓）', '地基3（個人紅綠燈）', '地基4（行為與態度）', '地基5（任務與績效）'];
   const results = [r1, r2, r3, r4, r5];
@@ -827,8 +827,16 @@ function computeAutoAlert(member) {
       lines.push('・' + labels[i] + '：' + r.label);
     }
   });
-  if (lines.length === 0) return '';
-  return '系統偵測到您目前有以下地基需要留意：\n' + lines.join('\n');
+
+  if (lines.length > 0) {
+    return { alert: '系統偵測到您目前有以下地基需要留意：\n' + lines.join('\n'), greatJob: false };
+  }
+
+  // 「你超棒」判定：只看這個人實際有在追蹤、而且已經有資料可判斷的地基（排除 na 未填寫、排除沒有地基5的人）
+  // 要「每一項都是真正的 ok」，不能只是矇混過關的未填寫
+  const counted = results.filter(r => r && r.status !== 'na');
+  const allOk = counted.length > 0 && counted.every(r => r.status === 'ok');
+  return { alert: '', greatJob: allOk };
 }
 
 function getCurrentDnaMonth() {
@@ -857,6 +865,7 @@ function handleDnaLogin(data) {
   if (!member || getPasswordFor(name) !== password) {
     return jsonResponse({ status: 'error', message: '帳號或密碼錯誤，請確認後再試一次。' });
   }
+  const autoResult = computeAutoAlert(member);
   return jsonResponse({
     status: 'ok',
     token: makeToken(member.name, password),
@@ -865,7 +874,8 @@ function handleDnaLogin(data) {
     isManager: !!member.isManager,
     mustChangePassword: (password === INITIAL_PASSWORD), // 還在用初始密碼，前端要強制擋下來要求先改密碼
     personalMessage: member.isManager ? '' : getPersonalMessage(member.name), // 董顧留給這個人的個別建議/警示，登入時顯示
-    autoAlert: computeAutoAlert(member), // 系統自動算出的五大地基警示（跟五大地基頁面規則一致，不用手動寫）
+    autoAlert: autoResult.alert, // 系統自動算出的五大地基警示（跟五大地基頁面規則一致，不用手動寫）
+    greatJob: autoResult.greatJob, // 所有「有在追蹤的」地基都真正達標（排除未填寫、排除不適用的地基5）
   });
 }
 

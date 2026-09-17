@@ -179,6 +179,7 @@ async function doLogin() {
       sessionStorage.setItem('dna_mustChange', data.mustChangePassword ? '1' : '0');
       sessionStorage.setItem('dna_personalMsg', data.personalMessage || '');
       sessionStorage.setItem('dna_autoAlert', data.autoAlert || '');
+      sessionStorage.setItem('dna_greatJob', data.greatJob ? '1' : '0');
       applyLoggedInUI();
       showPersonalMessage();
       if (data.mustChangePassword) {
@@ -203,6 +204,7 @@ function doLogout() {
   sessionStorage.removeItem('dna_mustChange');
   sessionStorage.removeItem('dna_personalMsg');
   sessionStorage.removeItem('dna_autoAlert');
+  sessionStorage.removeItem('dna_greatJob');
   location.reload();
 }
 
@@ -214,6 +216,9 @@ function applyLoggedInUI() {
 }
 
 function showPersonalMessage() {
+  if (sessionStorage.getItem('dna_greatJob') === '1') {
+    document.getElementById('greatJobBanner').style.display = 'block';
+  }
   const msg = sessionStorage.getItem('dna_personalMsg');
   if (msg && msg.trim()) {
     document.getElementById('personalMsgText').textContent = msg;
@@ -301,6 +306,11 @@ if (sessionStorage.getItem('dna_token')) {
 </nav>
 
 <div class="content">
+  <div id="greatJobBanner" style="display:none; background:rgba(82,192,122,0.12); border:1.5px solid #52C07A; border-radius:10px; padding:20px 16px; margin-bottom:12px; width:100%; max-width:520px; text-align:center;">
+    <div style="font-size:28px; margin-bottom:4px;">🎉</div>
+    <div style="font-size:24px; font-weight:900; color:#52C07A; letter-spacing:2px; margin-bottom:6px;">你超棒</div>
+    <div style="font-size:13px; color:#f0ede6; line-height:1.6;">目前追蹤中的地基全數達標，持續保持這股氣勢！</div>
+  </div>
   <div id="autoAlertBanner" style="display:none; background:rgba(230,160,48,0.1); border:1.5px solid #E6A030; border-radius:10px; padding:14px 16px; margin-bottom:12px; width:100%; max-width:520px;">
     <div style="font-size:11px; letter-spacing:2px; color:#E6A030; font-weight:700; margin-bottom:6px;">⚠️ 系統自動偵測</div>
     <div id="autoAlertText" style="font-size:14px; color:#f0ede6; line-height:1.7; white-space:pre-wrap;"></div>
