@@ -370,6 +370,15 @@ function renderTraining(rows) {
     return d < today;
   }
 
+  // 判斷是否為今天（用於顯示培訓簽到／簽退連結）
+  function isToday(dateStr) {
+    if (!dateStr) return false;
+    var p = dateStr.split('/');
+    if (p.length < 3) return false;
+    var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    return d.getTime() === today.getTime();
+  }
+
   function isRegistrationClosed(dateStr) {
     // 培訓日前第3天 23:59:59 為報名截止
     if (!dateStr) return false;
@@ -591,6 +600,11 @@ function renderTraining(rows) {
         + '&loc='  + encodeURIComponent(location)
         + '&fee='  + feeGeneral;
 
+      var checkinUrl = 'training-checkin.html'
+        + '?name=' + encodeURIComponent(name)
+        + '&date=' + encodeURIComponent(date)
+        + '&loc='  + encodeURIComponent(location);
+
       html += '<div class="register-row">';
 
       // 費用顯示
@@ -625,6 +639,11 @@ function renderTraining(rows) {
       } else {
         html += '<a href="' + registerUrl + '" class="btn-register">📝 立即報名</a>'
               + '<a href="' + cancelUrl + '" class="btn-cancel-link">已報名？申請延期</a>';
+      }
+
+      // 今天當天的場次，額外加上「培訓簽到／簽退」連結
+      if (!name.includes('已取消') && isToday(date)) {
+        html += '<br><a href="' + checkinUrl + '" class="btn-cancel-link" style="margin-top:6px;display:inline-block;">📍 今天上課，點此培訓簽到／簽退</a>';
       }
 
       // 相簿按鈕

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d0d14">
+<title>BNI 聚團隊｜培訓簽到簽退</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6R66G555ZY");
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --gold-dim: rgba(201,168,76,0.15);
+  --dark: #0d0d14;
+  --dark2: #161616;
+  --border: rgba(201,168,76,0.25);
+  --text: #E8E8E0;
+  --text-dim: #888;
+  --red: #E05252;
+  --yellow: #E6A030;
+  --green: #52C07A;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--dark); color-scheme: dark; }
+body { background: var(--dark); color: var(--text); font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; }
+
+.header { padding: 28px 20px 22px; text-align: center; border-bottom: 2px solid var(--gold); background: linear-gradient(135deg, #0d0d14 0%, #1a1408 100%); }
+.header-eyebrow { font-size: 11px; letter-spacing: 4px; color: var(--gold); font-weight: 700; margin-bottom: 8px; }
+.header h1 { font-size: 22px; font-weight: 900; color: #fff; }
+.header h1 em { color: var(--gold); font-style: normal; }
+.header-sub { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+
+.main { max-width: 480px; margin: 0 auto; padding: 24px 20px 60px; background: var(--dark); }
+
+.training-card { background: var(--dark2); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; }
+.training-card .label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.training-card .value { font-size: 17px; font-weight: 700; color: var(--gold-light); margin-bottom: 8px; }
+.training-card .meta { font-size: 13px; color: var(--text-dim); }
+.training-card .missing { color: var(--red); font-size: 13px; }
+
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.form-input {
+  width: 100%; padding: 13px 14px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--dark2); color: var(--text); font-size: 16px; font-family: 'Noto Sans TC', sans-serif;
+  outline: none;
+}
+.form-input:focus { border-color: var(--gold); }
+
+.gps-status { font-size: 13px; color: var(--text-dim); text-align: center; margin: 14px 0; min-height: 18px; }
+
+.btn-row { display: flex; gap: 10px; margin-top: 8px; }
+.btn-action {
+  flex: 1; padding: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 900; cursor: pointer;
+}
+.btn-checkin { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #1a1408; }
+.btn-checkout { background: var(--dark2); border: 1.5px solid var(--gold); color: var(--gold-light); }
+.btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.inline-error { font-size: 13px; color: var(--red); margin-top: 12px; text-align: center; display: none; }
+.inline-notice { font-size: 13px; color: var(--yellow); margin-top: 12px; text-align: center; display: none; background: rgba(230,160,48,0.1); border: 1px solid var(--yellow); border-radius: 8px; padding: 10px; }
+
+.result-line { font-size: 14px; color: var(--green); text-align: center; margin-top: 10px; display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">BNI 聚團隊</div>
+  <h1>培訓 <em>簽到／簽退</em></h1>
+  <div class="header-sub">新北市西A區｜GPS 現場簽到</div>
+</div>
+
+<div class="main">
+
+  <div class="training-card" id="training-card"></div>
+
+  <div class="form-group">
+    <label class="form-label">姓名<span style="color:var(--red)">*</span></label>
+    <input class="form-input" type="text" id="input-name" placeholder="請輸入報名時填寫的姓名">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Email<span style="color:var(--red)">*</span></label>
+    <input class="form-input" type="email" id="input-email" placeholder="請輸入報名時填寫的 Email">
+  </div>
+
+  <div class="gps-status" id="gpsStatus">準備定位中...</div>
+
+  <div class="btn-row">
+    <button class="btn-action btn-checkin" id="btn-checkin" onclick="doCheckin()" disabled>簽到</button>
+    <button class="btn-action btn-checkout" id="btn-checkout" onclick="doCheckout()" disabled>簽退</button>
+  </div>
+
+  <div class="inline-error" id="inline-error"></div>
+  <div class="inline-notice" id="inline-notice"></div>
+  <div class="result-line" id="result-checkin">✅ 簽到成功</div>
+  <div class="result-line" id="result-checkout">✅ 簽退成功</div>
+
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
+
+const params = new URLSearchParams(window.location.search);
+const training = {
+  name: params.get('name') || '',
+  date: params.get('date') || '',
+  loc:  params.get('loc')  || '',
+};
+
+let gpsCoords = null;
+
+function renderTrainingCard() {
+  const card = document.getElementById('training-card');
+  if (!training.name || !training.date) {
+    card.innerHTML = '<div class="missing">⚠️ 未偵測到培訓場次資訊，請從培訓公告頁面點擊簽到／簽退連結進入。</div>';
+    return;
+  }
+  card.innerHTML = `
+    <div class="label">簽到場次</div>
+    <div class="value">${training.name}</div>
+    <div class="meta">📅 ${training.date}${training.loc ? '　📍 ' + training.loc : ''}</div>
+  `;
+}
+renderTrainingCard();
+
+function requestLocation() {
+  const statusEl = document.getElementById('gpsStatus');
+  if (!navigator.geolocation) {
+    statusEl.textContent = '此裝置不支援定位功能，無法簽到／簽退';
+    return;
+  }
+  statusEl.textContent = '定位中，請允許位置權限...';
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      gpsCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      statusEl.textContent = '已取得您的位置';
+      document.getElementById('btn-checkin').disabled = false;
+      document.getElementById('btn-checkout').disabled = false;
+    },
+    function(err) {
+      statusEl.textContent = '無法取得您的位置，請允許定位權限後點此重新嘗試';
+      statusEl.style.cursor = 'pointer';
+      statusEl.onclick = requestLocation;
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+requestLocation();
+
+function getNameEmail() {
+  const name = document.getElementById('input-name').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  const errorEl = document.getElementById('inline-error');
+  if (!name || !email) {
+    errorEl.textContent = '請填寫姓名與 Email';
+    errorEl.style.display = 'block';
+    return null;
+  }
+  return { name, email };
+}
+
+async function doCheckin() {
+  const errorEl = document.getElementById('inline-error');
+  const noticeEl = document.getElementById('inline-notice');
+  errorEl.style.display = 'none';
+  noticeEl.style.display = 'none';
+  document.getElementById('result-checkin').style.display = 'none';
+
+  const ne = getNameEmail();
+  if (!ne) return;
+  if (!gpsCoords) { errorEl.textContent = '尚未取得定位資訊，請稍候。'; errorEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('btn-checkin');
+  btn.disabled = true; btn.textContent = '簽到中...';
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'trainingCheckin',
+        training: training.name, trainingDate: training.date,
+        name: ne.name, email: ne.email,
+        lat: gpsCoords.lat, lng: gpsCoords.lng,
+      }),
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      const resultEl = document.getElementById('result-checkin');
+      resultEl.textContent = data.alreadyChecked ? 'ℹ️ 您已經簽到過了' : '✅ 簽到成功';
+      resultEl.style.display = 'block';
+      if (data.notice) { noticeEl.textContent = data.notice; noticeEl.style.display = 'block'; }
+      btn.textContent = '已簽到';
+    } else {
+      errorEl.textContent = data.message || '簽到失敗，請稍後再試';
+      errorEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = '簽到';
+    }
+  } catch (err) {
+    errorEl.textContent = '簽到失敗，請稍後再試，或直接聯絡區域辦公室。';
+    errorEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = '簽到';
+  }
+}
+
+async function doCheckout() {
+  const errorEl = document.getElementById('inline-error');
+  const noticeEl = document.getElementById('inline-notice');
+  errorEl.style.display = 'none';
+  noticeEl.style.display = 'none';
+  document.getElementById('result-checkout').style.display = 'none';
+
+  const ne = getNameEmail();
+  if (!ne) return;
+  if (!gpsCoords) { errorEl.textContent = '尚未取得定位資訊，請稍候。'; errorEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('btn-checkout');
+  btn.disabled = true; btn.textContent = '簽退中...';
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'trainingCheckout',
+        training: training.name, trainingDate: training.date,
+        name: ne.name, email: ne.email,
+        lat: gpsCoords.lat, lng: gpsCoords.lng,
+      }),
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      const resultEl = document.getElementById('result-checkout');
+      resultEl.textContent = data.alreadyChecked ? 'ℹ️ 您已經簽退過了' : '✅ 簽退成功';
+      resultEl.style.display = 'block';
+      if (data.notice) { noticeEl.textContent = data.notice; noticeEl.style.display = 'block'; }
+      btn.textContent = '已簽退';
+    } else {
+      errorEl.textContent = data.message || '簽退失敗，請稍後再試';
+      errorEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = '簽退';
+    }
+  } catch (err) {
+    errorEl.textContent = '簽退失敗，請稍後再試，或直接聯絡區域辦公室。';
+    errorEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = '簽退';
+  }
+}
+</script>
+</body>
+</html>

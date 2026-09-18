@@ -73,6 +73,8 @@ function doPost(e) {
       case 'lookupMyRegistrations': return handleLookupMyRegistrations(data);
       case 'dnaLogin':              return handleDnaLogin(data);
       case 'dnaGetAlert':           return handleDnaGetAlert(data);
+      case 'trainingCheckin':       return handleTrainingCheckin(data);
+      case 'trainingCheckout':      return handleTrainingCheckout(data);
       case 'dnaGetAllData':         return handleDnaGetAllData(data);
       case 'dnaCheckinV2':          return handleDnaCheckinV2(data);
       case 'dnaChangePassword':     return handleDnaChangePassword(data);
@@ -690,14 +692,14 @@ const PASSWORD_SHEET = 'DnA帳號密碼';
 const PW_CACHE_KEY = 'dna_password_map_v1';
 const PW_CACHE_SECONDS = 60; // 快取1分鐘，大幅降低多人同時登入時互搶試算表的機率
 
-function getPasswordMap() {
+function getPasswordMap(ssParam) {
   const cache = CacheService.getScriptCache();
   const cached = cache.get(PW_CACHE_KEY);
   if (cached) {
     try { return JSON.parse(cached); } catch (e) { /* 快取壞掉就當作沒有，繼續往下重新讀 */ }
   }
 
-  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  const ss = ssParam || SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
   let sheet = ss.getSheetByName(PASSWORD_SHEET);
   if (!sheet) {
     // 第一次使用：自動建立並把程式碼裡的初始密碼寫進去，之後就以這張表為準
@@ -718,8 +720,8 @@ function getPasswordMap() {
   return map;
 }
 
-function getPasswordFor(name) {
-  const map = getPasswordMap();
+function getPasswordFor(name, ssParam) {
+  const map = getPasswordMap(ssParam);
   if (map[name] !== undefined) return map[name];
   const m = MEMBERS_FULL.find(x => x.name === name);
   return m ? m.password : null; // 保底：表格裡萬一漏了這個人，退回程式碼裡的初始值
@@ -883,13 +885,13 @@ function getCurrentDnaMonth() {
 
 const PERSONAL_MSG_CACHE_KEY = 'dna_personal_msg_map_v1';
 
-function getPersonalMessageMap() {
+function getPersonalMessageMap(ssParam) {
   const cache = CacheService.getScriptCache();
   const cached = cache.get(PERSONAL_MSG_CACHE_KEY);
   if (cached) {
     try { return JSON.parse(cached); } catch (e) { /* 快取壞掉就當作沒有，繼續往下重新讀 */ }
   }
-  const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+  const ss = ssParam || SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
   const sheet = ss.getSheetByName(PERSONAL_MSG_SHEET);
   const map = {};
   if (sheet) {
@@ -903,8 +905,8 @@ function getPersonalMessageMap() {
   return map;
 }
 
-function getPersonalMessage(name) {
-  const map = getPersonalMessageMap();
+function getPersonalMessage(name, ssParam) {
+  const map = getPersonalMessageMap(ssParam);
   return map[name] || '';
 }
 
@@ -912,7 +914,15 @@ function handleDnaLogin(data) {
   const name = String(data.name || '').trim();
   const password = String(data.password || '').trim();
   const member = MEMBERS_FULL.find(m => m.name === name);
-  if (!member || getPasswordFor(name) !== password) {
+  if (!member) {
+    return jsonResponse({ status: 'error', message: '帳號或密碼錯誤，請確認後再試一次。' });
+  }
+
+  // 密碼表跟個人訊息表如果都沒命中快取，共用同一個 ss 連線，避免重複開兩次試算表
+  const needsSheet = !CacheService.getScriptCache().get(PW_CACHE_KEY) || (!member.isManager && !CacheService.getScriptCache().get(PERSONAL_MSG_CACHE_KEY));
+  const ss = needsSheet ? SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID) : null;
+
+  if (getPasswordFor(name, ss) !== password) {
     return jsonResponse({ status: 'error', message: '帳號或密碼錯誤，請確認後再試一次。' });
   }
   return jsonResponse({
@@ -922,7 +932,7 @@ function handleDnaLogin(data) {
     role: member.role,
     isManager: !!member.isManager,
     mustChangePassword: (password === INITIAL_PASSWORD), // 還在用初始密碼，前端要強制擋下來要求先改密碼
-    personalMessage: member.isManager ? '' : getPersonalMessage(member.name), // 董顧留給這個人的個別建議/警示，登入時顯示（單筆查詢，速度快）
+    personalMessage: member.isManager ? '' : getPersonalMessage(member.name, ss), // 董顧留給這個人的個別建議/警示，登入時顯示（單筆查詢，速度快）
   });
 }
 
@@ -1043,6 +1053,43 @@ function distanceMeters(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+const CHECKIN_CFG_CACHE_PREFIX = 'dna_checkin_cfg_v1_';
+
+// 帶快取的簽到設定查詢：同一個月份 1 分鐘內重複查詢直接用快取，避免多人同時打卡互搶試算表
+function getCheckinConfigForMonth(ss, month) {
+  const cache = CacheService.getScriptCache();
+  const cacheKey = CHECKIN_CFG_CACHE_PREFIX + month;
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      return parsed === null ? null : parsed; // null 代表「查過但這個月沒設定」，也快取起來避免重複查表
+    } catch (e) { /* 快取壞掉就當作沒有，繼續往下重新讀 */ }
+  }
+
+  let cfgSheet = ss.getSheetByName(CHECKIN_CONFIG_SHEET);
+  if (!cfgSheet) {
+    cfgSheet = ss.insertSheet(CHECKIN_CONFIG_SHEET);
+    cfgSheet.appendRow(['月份','地點名稱','緯度','經度','允許範圍(公尺)','報到時間','遲到時間','未到時間','遲到罰款','未到罰款']);
+    const hr = cfgSheet.getRange(1, 1, 1, 10);
+    hr.setBackground('#1a1a2e'); hr.setFontColor('#C9A84C'); hr.setFontWeight('bold');
+    cfgSheet.setFrozenRows(1);
+  }
+  const cfgRows = cfgSheet.getDataRange().getValues();
+  const cfgHeaders = cfgRows[0];
+  const monthColIdx = cfgHeaders.indexOf('月份');
+  let cfg = null;
+  for (let i = 1; i < cfgRows.length; i++) {
+    if (normalizeMonthValue(cfgRows[i][monthColIdx]) === month) {
+      cfg = {};
+      cfgHeaders.forEach((h, idx) => { cfg[h] = cfgRows[i][idx]; });
+      break;
+    }
+  }
+  try { cache.put(cacheKey, JSON.stringify(cfg), PW_CACHE_SECONDS); } catch (e) { /* 快取寫入失敗不影響主流程 */ }
+  return cfg;
+}
+
 function handleDnaCheckinV2(data) {
   try {
     const member = authenticate(data.token);
@@ -1057,26 +1104,8 @@ function handleDnaCheckinV2(data) {
 
     const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
 
-    // 讀取當月簽到設定
-    let cfgSheet = ss.getSheetByName(CHECKIN_CONFIG_SHEET);
-    if (!cfgSheet) {
-      cfgSheet = ss.insertSheet(CHECKIN_CONFIG_SHEET);
-      cfgSheet.appendRow(['月份','地點名稱','緯度','經度','允許範圍(公尺)','報到時間','遲到時間','未到時間','遲到罰款','未到罰款']);
-      const hr = cfgSheet.getRange(1, 1, 1, 10);
-      hr.setBackground('#1a1a2e'); hr.setFontColor('#C9A84C'); hr.setFontWeight('bold');
-      cfgSheet.setFrozenRows(1);
-    }
-    const cfgRows = cfgSheet.getDataRange().getValues();
-    const cfgHeaders = cfgRows[0];
-    const monthColIdx = cfgHeaders.indexOf('月份');
-    let cfg = null;
-    for (let i = 1; i < cfgRows.length; i++) {
-      if (normalizeMonthValue(cfgRows[i][monthColIdx]) === month) {
-        cfg = {};
-        cfgHeaders.forEach((h, idx) => { cfg[h] = cfgRows[i][idx]; });
-        break;
-      }
-    }
+    // 讀取當月簽到設定（帶快取，避免多人同時打卡時每個人都重新讀一次設定表）
+    const cfg = getCheckinConfigForMonth(ss, month);
     if (!cfg) {
       return jsonResponse({ status: 'error', message: `尚未設定 ${month} 的月會地點與時間，請聯絡辦公室在「${CHECKIN_CONFIG_SHEET}」工作表新增這個月的設定。` });
     }
@@ -1162,6 +1191,210 @@ function handleDnaCheckinV2(data) {
     });
   } catch (err) {
     console.error('handleDnaCheckinV2 error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
+// ══════════════════════════════════════
+// 11. 培訓簽到／簽退（姓名+Email 核對報名紀錄，GPS 確認在現場，不擋時間只跳趣味提醒）
+// ══════════════════════════════════════
+const TRAINING_CHECKIN_SHEET = '培訓簽到記錄';
+
+// 找出「培訓公告」裡這場培訓的簽到設定（座標、允許範圍、開始/結束時間）
+function getTrainingCheckinConfig(ss, trainingName, trainingDate) {
+  const sheet = ss.getSheetByName('培訓公告');
+  if (!sheet) return null;
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0];
+  const nameCol = headers.indexOf('培訓名稱');
+  const dateCol = headers.indexOf('培訓日期');
+  const latCol  = headers.indexOf('簽到緯度');
+  const lngCol  = headers.indexOf('簽到經度');
+  const radiusCol = headers.indexOf('允許範圍(公尺)');
+  const startCol  = headers.indexOf('培訓開始時間');
+  const endCol    = headers.indexOf('培訓結束時間');
+  if (nameCol === -1 || dateCol === -1) return null;
+
+  const targetDate = normalizeDateValue(trainingDate);
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][nameCol]).trim() === String(trainingName).trim() && normalizeDateValue(rows[i][dateCol]) === targetDate) {
+      return {
+        lat: latCol !== -1 ? Number(rows[i][latCol]) : null,
+        lng: lngCol !== -1 ? Number(rows[i][lngCol]) : null,
+        radius: radiusCol !== -1 ? (Number(rows[i][radiusCol]) || 150) : 150,
+        startTime: startCol !== -1 ? normalizeTimeValue(rows[i][startCol]) : '',
+        endTime: endCol !== -1 ? normalizeTimeValue(rows[i][endCol]) : '',
+      };
+    }
+  }
+  return null;
+}
+
+// 核對這個人是否真的報名過這場培訓
+function verifyTrainingRegistration(regData, trainingName, trainingDate, name, email) {
+  const targetDate = normalizeDateValue(trainingDate);
+  for (let i = 1; i < regData.length; i++) {
+    if (
+      String(regData[i][1]).trim() === String(trainingName).trim() &&
+      normalizeDateValue(regData[i][2]) === targetDate &&
+      String(regData[i][4]).trim() === String(name).trim() &&
+      String(regData[i][7]).trim().toLowerCase() === String(email).trim().toLowerCase()
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getOrCreateTrainingCheckinSheet(ss) {
+  let sheet = ss.getSheetByName(TRAINING_CHECKIN_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(TRAINING_CHECKIN_SHEET);
+    sheet.appendRow(['培訓名稱','培訓日期','姓名','Email','簽到時間','簽到提醒','簽到緯度','簽到經度','簽退時間','簽退提醒','簽退緯度','簽退經度']);
+    const hr = sheet.getRange(1, 1, 1, 12);
+    hr.setBackground('#1a1a2e'); hr.setFontColor('#C9A84C'); hr.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// 找這個人這場培訓的簽到記錄列（回傳列號，1-indexed；找不到回傳 -1）
+function findTrainingCheckinRow(sheet, trainingName, trainingDate, name, email) {
+  const rows = sheet.getDataRange().getValues();
+  const targetDate = normalizeDateValue(trainingDate);
+  for (let i = 1; i < rows.length; i++) {
+    if (
+      String(rows[i][0]).trim() === String(trainingName).trim() &&
+      normalizeDateValue(rows[i][1]) === targetDate &&
+      String(rows[i][2]).trim() === String(name).trim() &&
+      String(rows[i][3]).trim().toLowerCase() === String(email).trim().toLowerCase()
+    ) {
+      return { row: i + 1, values: rows[i] };
+    }
+  }
+  return null;
+}
+
+// 用時間字串比較「早於/晚於」多少分鐘（time格式 HH:mm，now是Date物件）
+function minutesDiffFromTime(now, todayStr, timeStr) {
+  if (!timeStr) return null;
+  const target = new Date(`${todayStr}T${timeStr}:00+08:00`);
+  if (isNaN(target.getTime())) return null;
+  return Math.round((now.getTime() - target.getTime()) / 60000); // 正數=晚於，負數=早於
+}
+
+function handleTrainingCheckin(data) {
+  try {
+    const trainingName = String(data.training || '').trim();
+    const trainingDate = String(data.trainingDate || '').trim();
+    const name  = String(data.name || '').trim();
+    const email = String(data.email || '').trim();
+    const lat = Number(data.lat);
+    const lng = Number(data.lng);
+
+    if (!name || !email) return jsonResponse({ status: 'error', message: '請填寫姓名與 Email。' });
+    if (isNaN(lat) || isNaN(lng)) return jsonResponse({ status: 'error', message: '未取得您的定位資訊，請允許定位權限後再試一次。' });
+
+    const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+    const regSheet = getOrCreateSheet();
+    const regData = regSheet.getDataRange().getValues();
+
+    if (!verifyTrainingRegistration(regData, trainingName, trainingDate, name, email)) {
+      return jsonResponse({ status: 'error', message: '查無此筆報名資料，請確認姓名與 Email 是否與報名時填寫的完全一致。' });
+    }
+
+    const cfg = getTrainingCheckinConfig(ss, trainingName, trainingDate);
+    if (!cfg || cfg.lat === null || isNaN(cfg.lat) || cfg.lng === null || isNaN(cfg.lng)) {
+      return jsonResponse({ status: 'error', message: '這場培訓尚未設定簽到地點，請聯絡辦公室在「培訓公告」補上簽到緯度/經度。' });
+    }
+
+    const dist = distanceMeters(lat, lng, cfg.lat, cfg.lng);
+    if (dist > cfg.radius) {
+      return jsonResponse({ status: 'error', message: `您目前距離會場約 ${Math.round(dist)} 公尺，超過允許範圍（${cfg.radius} 公尺），請到場後再簽到。` });
+    }
+
+    const checkinSheet = getOrCreateTrainingCheckinSheet(ss);
+    const existing = findTrainingCheckinRow(checkinSheet, trainingName, trainingDate, name, email);
+    if (existing && existing.values[4]) {
+      return jsonResponse({ status: 'ok', alreadyChecked: true, name: name });
+    }
+
+    const now = new Date();
+    const nowStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+    const todayStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd');
+
+    // 趣味提醒：不擋，只是幽默提示一下（跟開始時間差超過門檻才提示）
+    let notice = '';
+    const diff = minutesDiffFromTime(now, todayStr, cfg.startTime);
+    if (diff !== null) {
+      if (diff < -15) notice = '哇，這麼早就到了，是不是走錯棚了？😄';
+      else if (diff > 30) notice = '課程已經開始一段時間囉，下次早點來聽課～😉';
+    }
+
+    if (existing) {
+      checkinSheet.getRange(existing.row, 5).setValue(nowStr);
+      checkinSheet.getRange(existing.row, 6).setValue(notice);
+      checkinSheet.getRange(existing.row, 7).setValue(lat);
+      checkinSheet.getRange(existing.row, 8).setValue(lng);
+    } else {
+      checkinSheet.appendRow([trainingName, trainingDate, name, email, nowStr, notice, lat, lng, '', '', '', '']);
+    }
+
+    return jsonResponse({ status: 'ok', alreadyChecked: false, name: name, notice: notice });
+  } catch (err) {
+    console.error('handleTrainingCheckin error:', err);
+    return jsonResponse({ status: 'error', message: err.message });
+  }
+}
+
+function handleTrainingCheckout(data) {
+  try {
+    const trainingName = String(data.training || '').trim();
+    const trainingDate = String(data.trainingDate || '').trim();
+    const name  = String(data.name || '').trim();
+    const email = String(data.email || '').trim();
+    const lat = Number(data.lat);
+    const lng = Number(data.lng);
+
+    if (!name || !email) return jsonResponse({ status: 'error', message: '請填寫姓名與 Email。' });
+    if (isNaN(lat) || isNaN(lng)) return jsonResponse({ status: 'error', message: '未取得您的定位資訊，請允許定位權限後再試一次。' });
+
+    const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
+    const checkinSheet = getOrCreateTrainingCheckinSheet(ss);
+    const existing = findTrainingCheckinRow(checkinSheet, trainingName, trainingDate, name, email);
+
+    if (!existing || !existing.values[4]) {
+      return jsonResponse({ status: 'error', message: '您尚未簽到，請先完成簽到後再簽退。' });
+    }
+    if (existing.values[8]) {
+      return jsonResponse({ status: 'ok', alreadyChecked: true, name: name });
+    }
+
+    const cfg = getTrainingCheckinConfig(ss, trainingName, trainingDate);
+    if (!cfg || cfg.lat === null || isNaN(cfg.lat) || cfg.lng === null || isNaN(cfg.lng)) {
+      return jsonResponse({ status: 'error', message: '這場培訓尚未設定簽到地點，請聯絡辦公室確認。' });
+    }
+    const dist = distanceMeters(lat, lng, cfg.lat, cfg.lng);
+    if (dist > cfg.radius) {
+      return jsonResponse({ status: 'error', message: `您目前距離會場約 ${Math.round(dist)} 公尺，超過允許範圍（${cfg.radius} 公尺），請到場後再簽退。` });
+    }
+
+    const now = new Date();
+    const nowStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+    const todayStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd');
+
+    let notice = '';
+    const diff = minutesDiffFromTime(now, todayStr, cfg.endTime);
+    if (diff !== null && diff < -15) notice = '這麼早想開溜？講師應該還沒講完喔～😏';
+
+    checkinSheet.getRange(existing.row, 9).setValue(nowStr);
+    checkinSheet.getRange(existing.row, 10).setValue(notice);
+    checkinSheet.getRange(existing.row, 11).setValue(lat);
+    checkinSheet.getRange(existing.row, 12).setValue(lng);
+
+    return jsonResponse({ status: 'ok', alreadyChecked: false, name: name, notice: notice });
+  } catch (err) {
+    console.error('handleTrainingCheckout error:', err);
     return jsonResponse({ status: 'error', message: err.message });
   }
 }
