@@ -335,14 +335,13 @@ async function doLogin() {
       sessionStorage.setItem('dna_isManager', data.isManager ? '1' : '0');
       sessionStorage.setItem('dna_mustChange', data.mustChangePassword ? '1' : '0');
       sessionStorage.setItem('dna_personalMsg', data.personalMessage || '');
-      sessionStorage.setItem('dna_autoAlert', data.autoAlert || '');
-      sessionStorage.setItem('dna_greatJob', data.greatJob ? '1' : '0');
       document.getElementById('passwordOverlay').style.display = 'none';
       const bar = document.getElementById('userBar');
       bar.style.display = 'flex';
       document.getElementById('userBarName').textContent = '👤 ' + data.name;
       initApp();
       showPersonalMessage();
+      fetchAutoAlert(); // 地基警示運算較慢，不卡登入，背景抓好後自動補顯示
       if (data.mustChangePassword) forceChangePw();
     } else {
       document.getElementById('pwError').textContent = data.message || '帳號或密碼錯誤';
@@ -365,6 +364,28 @@ function doLogout() {
   sessionStorage.removeItem('dna_autoAlert');
   sessionStorage.removeItem('dna_greatJob');
   location.reload();
+}
+
+async function fetchAutoAlert() {
+  const token = sessionStorage.getItem('dna_token');
+  if (!token) return;
+  try {
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'dnaGetAlert', token }) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      sessionStorage.setItem('dna_autoAlert', data.autoAlert || '');
+      sessionStorage.setItem('dna_greatJob', data.greatJob ? '1' : '0');
+      if (data.greatJob) {
+        document.getElementById('greatJobBanner').style.display = 'block';
+      }
+      if (data.autoAlert && data.autoAlert.trim()) {
+        document.getElementById('autoAlertText').textContent = data.autoAlert;
+        document.getElementById('autoAlertBanner').style.display = 'block';
+      }
+    }
+  } catch (err) {
+    console.error('fetchAutoAlert error:', err);
+  }
 }
 
 function showPersonalMessage() {
@@ -853,6 +874,7 @@ if (sessionStorage.getItem('dna_token')) {
     document.getElementById('userBarName').textContent = '👤 ' + sessionStorage.getItem('dna_name');
     initApp();
     showPersonalMessage();
+    fetchAutoAlert();
     if (sessionStorage.getItem('dna_mustChange') === '1') forceChangePw();
   });
 }
