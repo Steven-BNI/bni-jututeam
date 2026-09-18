@@ -72,6 +72,7 @@ function doPost(e) {
       case 'submitFeedback':        return handleSubmitFeedback(data);
       case 'lookupMyRegistrations': return handleLookupMyRegistrations(data);
       case 'dnaLogin':              return handleDnaLogin(data);
+      case 'dnaGetAlert':           return handleDnaGetAlert(data);
       case 'dnaGetAllData':         return handleDnaGetAllData(data);
       case 'dnaCheckinV2':          return handleDnaCheckinV2(data);
       case 'dnaChangePassword':     return handleDnaChangePassword(data);
@@ -646,6 +647,28 @@ const MEMBERS_FULL = [
 const CHECKIN_LOG_SHEET = 'DnA月會簽到記錄';
 const CHECKIN_CONFIG_SHEET = 'DnA簽到設定';
 
+// 把「月份」欄位統一轉成 yyyy-MM 格式比對，不管試算表裡存的是文字還是被自動轉成的日期物件
+function normalizeMonthValue(val) {
+  if (Object.prototype.toString.call(val) === '[object Date]') {
+    return Utilities.formatDate(val, 'Asia/Taipei', 'yyyy-MM');
+  }
+  const s = String(val || '').trim();
+  const m = s.match(/(\d{4})[\/\-](\d{1,2})/);
+  if (m) return m[1] + '-' + m[2].padStart(2, '0');
+  return s;
+}
+
+// 把「報到時間／遲到時間」欄位統一轉成 HH:mm 格式，不管試算表裡存的是文字還是被自動轉成的時間物件
+function normalizeTimeValue(val) {
+  if (Object.prototype.toString.call(val) === '[object Date]') {
+    return Utilities.formatDate(val, 'Asia/Taipei', 'HH:mm');
+  }
+  const s2 = String(val || '').trim();
+  const m2 = s2.match(/^(\d{1,2}):(\d{2})/);
+  if (m2) return m2[1].padStart(2, '0') + ':' + m2[2];
+  return s2;
+}
+
 // ── 登入 Token（無狀態，token = base64(姓名 + 分隔符 + 密碼)，每次請求都重新驗證）──
 function makeToken(name, password) {
   return Utilities.base64Encode(name + '\u0001' + password, Utilities.Charset.UTF_8);
@@ -664,7 +687,16 @@ function parseToken(token) {
 const PASSWORD_SHEET = 'DnA帳號密碼';
 
 // 從試算表讀取「姓名 → 目前密碼」，找不到工作表或該人時，退回程式碼裡的初始密碼（保底，避免表格還沒建好就整個掛掉）
+const PW_CACHE_KEY = 'dna_password_map_v1';
+const PW_CACHE_SECONDS = 60; // 快取1分鐘，大幅降低多人同時登入時互搶試算表的機率
+
 function getPasswordMap() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get(PW_CACHE_KEY);
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) { /* 快取壞掉就當作沒有，繼續往下重新讀 */ }
+  }
+
   const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
   let sheet = ss.getSheetByName(PASSWORD_SHEET);
   if (!sheet) {
@@ -682,6 +714,7 @@ function getPasswordMap() {
     const name = String(rows[i][0] || '').trim();
     if (name) map[name] = String(rows[i][1] || '').trim();
   }
+  try { cache.put(PW_CACHE_KEY, JSON.stringify(map), PW_CACHE_SECONDS); } catch (e) { /* 快取寫入失敗不影響主流程 */ }
   return map;
 }
 
@@ -697,13 +730,16 @@ function setPasswordFor(name, newPassword) {
   let sheet = ss.getSheetByName(PASSWORD_SHEET);
   if (!sheet) { getPasswordMap(); sheet = ss.getSheetByName(PASSWORD_SHEET); } // 確保表已存在
   const rows = sheet.getDataRange().getValues();
+  let updated = false;
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0] || '').trim() === name) {
       sheet.getRange(i + 1, 2).setValue(newPassword);
-      return true;
+      updated = true;
+      break;
     }
   }
-  sheet.appendRow([name, newPassword]); // 表裡沒有這個人，補一列
+  if (!updated) sheet.appendRow([name, newPassword]); // 表裡沒有這個人，補一列
+  try { CacheService.getScriptCache().remove(PW_CACHE_KEY); } catch (e) { /* 清快取失敗也不影響密碼已經改成功 */ }
   return true;
 }
 
@@ -845,17 +881,31 @@ function getCurrentDnaMonth() {
   return DNA_MONTHS.includes(todayMonth) ? todayMonth : DNA_MONTHS[DNA_MONTHS.length - 1];
 }
 
-function getPersonalMessage(name) {
+const PERSONAL_MSG_CACHE_KEY = 'dna_personal_msg_map_v1';
+
+function getPersonalMessageMap() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get(PERSONAL_MSG_CACHE_KEY);
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) { /* 快取壞掉就當作沒有，繼續往下重新讀 */ }
+  }
   const ss = SpreadsheetApp.openById(SETTINGS.SPREADSHEET_ID);
   const sheet = ss.getSheetByName(PERSONAL_MSG_SHEET);
-  if (!sheet) return '';
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][0] || '').trim() === name) {
-      return String(rows[i][1] || '').trim();
+  const map = {};
+  if (sheet) {
+    const rows = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      const name = String(rows[i][0] || '').trim();
+      if (name) map[name] = String(rows[i][1] || '').trim();
     }
   }
-  return '';
+  try { cache.put(PERSONAL_MSG_CACHE_KEY, JSON.stringify(map), PW_CACHE_SECONDS); } catch (e) { /* 快取寫入失敗不影響主流程 */ }
+  return map;
+}
+
+function getPersonalMessage(name) {
+  const map = getPersonalMessageMap();
+  return map[name] || '';
 }
 
 function handleDnaLogin(data) {
@@ -865,7 +915,6 @@ function handleDnaLogin(data) {
   if (!member || getPasswordFor(name) !== password) {
     return jsonResponse({ status: 'error', message: '帳號或密碼錯誤，請確認後再試一次。' });
   }
-  const autoResult = computeAutoAlert(member);
   return jsonResponse({
     status: 'ok',
     token: makeToken(member.name, password),
@@ -873,9 +922,19 @@ function handleDnaLogin(data) {
     role: member.role,
     isManager: !!member.isManager,
     mustChangePassword: (password === INITIAL_PASSWORD), // 還在用初始密碼，前端要強制擋下來要求先改密碼
-    personalMessage: member.isManager ? '' : getPersonalMessage(member.name), // 董顧留給這個人的個別建議/警示，登入時顯示
-    autoAlert: autoResult.alert, // 系統自動算出的五大地基警示（跟五大地基頁面規則一致，不用手動寫）
-    greatJob: autoResult.greatJob, // 所有「有在追蹤的」地基都真正達標（排除未填寫、排除不適用的地基5）
+    personalMessage: member.isManager ? '' : getPersonalMessage(member.name), // 董顧留給這個人的個別建議/警示，登入時顯示（單筆查詢，速度快）
+  });
+}
+
+// 地基警示運算量較大（要讀多個月份工作表），拆成獨立、登入後才非同步補抓的動作，避免拖慢登入本身
+function handleDnaGetAlert(data) {
+  const member = authenticate(data.token);
+  if (!member) return jsonResponse({ status: 'error', message: '登入已失效，請重新登入。' });
+  const autoResult = computeAutoAlert(member);
+  return jsonResponse({
+    status: 'ok',
+    autoAlert: autoResult.alert,
+    greatJob: autoResult.greatJob,
   });
 }
 
@@ -1012,7 +1071,7 @@ function handleDnaCheckinV2(data) {
     const monthColIdx = cfgHeaders.indexOf('月份');
     let cfg = null;
     for (let i = 1; i < cfgRows.length; i++) {
-      if (String(cfgRows[i][monthColIdx]).trim() === month) {
+      if (normalizeMonthValue(cfgRows[i][monthColIdx]) === month) {
         cfg = {};
         cfgHeaders.forEach((h, idx) => { cfg[h] = cfgRows[i][idx]; });
         break;
@@ -1029,22 +1088,19 @@ function handleDnaCheckinV2(data) {
     }
 
     // 判斷準時／遲到／未到
+    // 報到時間(13:30)只是「開始可以報到」的時間點，不是準時的截止點
+    // 真正的兩個判斷邊界是：遲到時間(準時的截止點) 與 未到時間(遲到轉嚴重遲到的截止點)
     const now = new Date();
     const nowStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
     const todayStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd');
-    const onTimeDeadline = new Date(`${todayStr}T${cfg['報到時間']}:00+08:00`);
-    const lateDeadline   = new Date(`${todayStr}T${cfg['遲到時間']}:00+08:00`);
+    const lateDeadline   = new Date(`${todayStr}T${normalizeTimeValue(cfg['遲到時間'])}:59+08:00`); // 該分鐘結束前都算數
+    const absentDeadline = new Date(`${todayStr}T${normalizeTimeValue(cfg['未到時間'])}:59+08:00`);
 
-    let attendanceStatus, fine;
-    if (now <= onTimeDeadline) {
-      attendanceStatus = '準時'; fine = 0;
-    } else if (now <= lateDeadline) {
-      attendanceStatus = '遲到'; fine = Number(cfg['遲到罰款']) || 100;
-    } else {
-      attendanceStatus = '嚴重遲到'; fine = Number(cfg['未到罰款']) || 200;
+    if (isNaN(lateDeadline.getTime()) || isNaN(absentDeadline.getTime())) {
+      return jsonResponse({ status: 'error', message: `「${CHECKIN_CONFIG_SHEET}」裡 ${month} 這列的時間格式看不懂，請聯絡辦公室確認「遲到時間」「未到時間」欄位格式。` });
     }
 
-    // 寫入當月工作表地基1
+    // 先檢查這個月是否已經簽到過，已簽到過就直接擋下，不再重新計算/重新寫入
     const monthSheet = ss.getSheetByName(month);
     if (!monthSheet) return jsonResponse({ status: 'error', message: `找不到 ${month} 工作表。` });
     const data2d = monthSheet.getDataRange().getValues();
@@ -1063,6 +1119,23 @@ function handleDnaCheckinV2(data) {
         break;
       }
     }
+
+    if (alreadyChecked) {
+      // 已經簽到過：不重新計算準時/遲到、不重複寫入簽到記錄，直接回覆
+      return jsonResponse({ status: 'ok', name: member.name, alreadyChecked: true });
+    }
+
+    // 判斷準時／遲到／未到（13:30~13:45 準時；13:45~14:00 遲到；14:00 之後嚴重遲到／未到）
+    let attendanceStatus, fine;
+    if (now <= lateDeadline) {
+      attendanceStatus = '準時'; fine = 0;
+    } else if (now <= absentDeadline) {
+      attendanceStatus = '遲到'; fine = Number(cfg['遲到罰款']) || 100;
+    } else {
+      attendanceStatus = '嚴重遲到'; fine = Number(cfg['未到罰款']) || 200;
+    }
+
+    // 寫入當月工作表地基1
     if (targetRow === -1) {
       const newRow = new Array(headers.length).fill('');
       newRow[0] = `${member.id} ${member.name}`;
@@ -1084,7 +1157,7 @@ function handleDnaCheckinV2(data) {
     logSheet.appendRow([nowStr, month, member.id, member.name, attendanceStatus, fine, Math.round(dist), lat, lng]);
 
     return jsonResponse({
-      status: 'ok', name: member.name, alreadyChecked: alreadyChecked,
+      status: 'ok', name: member.name, alreadyChecked: false,
       attendanceStatus: attendanceStatus, fine: fine, distance: Math.round(dist),
     });
   } catch (err) {
