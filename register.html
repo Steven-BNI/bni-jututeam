@@ -796,6 +796,9 @@
         <div class="atm-row"><span class="atm-key">帳號</span><span class="atm-val">265-03-500266-2</span></div>
         <div class="atm-row"><span class="atm-key">戶名</span><span class="atm-val">佳訊達國際開發有限公司</span></div>
         <div class="atm-note">⚠️ 請確認轉帳完成後，填入轉帳末五碼供核對。</div>
+        <div style="margin-top:10px; padding:12px 14px; background:rgba(230,160,48,0.1); border:1.5px solid #E6A030; border-radius:8px; font-size:13px; color:#E6A030; line-height:1.7;">
+          ⏰ <strong>請於 <span id="atm-deadline-text">--</span> 前完成轉帳。</strong>逾期系統將自動取消此筆報名、釋放名額，屆時需要重新報名（無法沿用原本的報名資料）。
+        </div>
         <div class="atm-input-wrap">
           <div class="atm-input-label">請輸入轉帳末五碼 <span style="color:var(--red)">*</span></div>
           <input class="atm-input" type="tel" id="atm-last5" maxlength="5" placeholder="例：12345" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
@@ -1185,10 +1188,30 @@ function selectPayMethod(method) {
   if (method === 'atm') {
     btn.textContent = '確認送出（ATM 轉帳）→';
     notice.innerHTML = '🏦 送出後請依照帳號資訊完成 ATM 轉帳，並確認已填入末五碼。';
+    updateAtmDeadlineText();
   } else {
     btn.textContent = '確認送出並前往付款 →';
     notice.innerHTML = '💳 點擊「確認送出」後將跳轉至<strong>統一金流</strong>進行線上付款，請準備信用卡或其他支付方式。';
   }
+}
+
+// 計算並顯示 ATM 轉帳期限（報名後2天，但不會晚於培訓當天），跟後端邏輯一致
+function updateAtmDeadlineText() {
+  const el = document.getElementById('atm-deadline-text');
+  if (!el) return;
+  let deadline = new Date();
+  deadline.setDate(deadline.getDate() + 2);
+  deadline.setHours(23, 59, 0, 0);
+
+  // 不晚於培訓當天：解析 state.training.date（例如 "2026/9/23"）
+  var m = (state.training && state.training.date) ? state.training.date.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/) : null;
+  if (m) {
+    var trainingEnd = new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]), 23, 59, 0);
+    if (trainingEnd < deadline) deadline = trainingEnd;
+  }
+
+  var label = (deadline.getMonth() + 1) + '/' + deadline.getDate() + ' 23:59';
+  el.textContent = label;
 }
 
 // ═══════════════════════════════════════

@@ -32,6 +32,9 @@ const SETTINGS = {
 
   // 付款成功後跳回的頁面（給用戶看的）
   SUCCESS_URL: 'https://steven-bni.github.io/bni-jututeam/register-return.html?result=success',
+
+  // 事件通知信箱（延期申請等事件會寄信到這些信箱，可填多組）
+  NOTIFY_EMAILS: ['bluephone168@gmail.com', 'uj111990@gmail.com'],
 };
 
 // ══════════════════════════════════════
@@ -40,7 +43,7 @@ const SETTINGS = {
 const HEADERS = [
   '報名時間', '培訓名稱', '培訓日期', '地點',
   '姓名', '分會名稱', '電話', 'Email',
-  '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '付款網址', '餐點', '付款方式', '人工核對', 'ATM末五碼',
+  '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '付款網址', '餐點', '付款方式', '人工核對', 'ATM末五碼', '提醒信已寄',
 ];
 
 // ══════════════════════════════════════
@@ -100,7 +103,7 @@ function handleRegistration(data) {
   const targetDate = normalizeDateValue(data.trainingDate);
   for (let i = 1; i < existingData.length; i++) {
     const status = String(existingData[i][10] || '');
-    const isFailed = status === '付款失敗' || status === '建單失敗';
+    const isFailed = status === '付款失敗' || status === '建單失敗' || status.indexOf('已取消') === 0;
     if (
       !isFailed &&
       String(existingData[i][1]).trim() === String(data.trainingName).trim() &&
@@ -146,6 +149,7 @@ function handleRegistration(data) {
     payMethodLabel,
     '',   // 人工核對
     atmLast5,
+    '',   // 提醒信已寄
   ]);
 
   // 同步培訓公告報名人數
@@ -362,6 +366,167 @@ function fixHeaderRow() {
 function scheduledTasks() {
   pollPendingOrders();
   applyManualConfirmations();
+  handlePendingPaymentFollowUp();
+}
+
+// ══════════════════════════════════════
+// 4.6.5 未完成付款追蹤（刷卡＋ATM 通用）
+//     規則：報名當天沒完成付款 → 寄提醒信（已付款請忽略）
+//          滿 3 天還沒完成 → 自動取消，並寄取消通知信
+// ══════════════════════════════════════
+// 把「培訓日期」文字（例如 2026/9/23）轉成當天 23:59:59 的 Date 物件，抓不到格式就回傳 null
+function parseTrainingDateEnd(trainingDateStr) {
+  const s = String(trainingDateStr || '').trim();
+  const m = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (!m) return null;
+  const d = new Date(`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}T23:59:59+08:00`);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function handlePendingPaymentFollowUp() {
+  try {
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const statusCol   = headers.indexOf('付款狀態');
+    const checkCol    = headers.indexOf('人工核對');
+    const emailCol    = headers.indexOf('Email');
+    const nameCol     = headers.indexOf('姓名');
+    const trainingCol = headers.indexOf('培訓名稱');
+    const dateCol     = headers.indexOf('培訓日期');
+    const chapterCol  = headers.indexOf('分會名稱');
+    const reminderCol = headers.indexOf('提醒信已寄'); // ATM用：存「最後一次提醒信寄出的日期」（yyyy-MM-dd）
+    const timeCol     = 0; // 報名時間固定在第一欄
+
+    const now = new Date();
+    const todayStr = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd');
+    const currentHour = Number(Utilities.formatDate(now, 'Asia/Taipei', 'H'));
+
+    for (let i = 1; i < data.length; i++) {
+      const status = String(data[i][statusCol] || '');
+      const isCardPending = status === '待付款';
+      const isAtmPending  = status.indexOf('ATM待確認') === 0;
+      if (!isCardPending && !isAtmPending) continue; // 只處理還沒完成付款的（不是免費、不是已付款、不是已取消）
+
+      const checkMark = String(data[i][checkCol] || '').trim();
+      if (checkMark === 'Y' || checkMark === '已處理') continue; // 已經人工核對過，跳過
+
+      const regTimeStr = String(data[i][timeCol] || '');
+      const regDateStr = regTimeStr.split(' ')[0]; // "yyyy-MM-dd HH:mm:ss" 取日期部分
+      if (!regDateStr) continue;
+
+      const email = String(data[i][emailCol] || '').trim();
+      const name  = String(data[i][nameCol] || '').trim();
+      const trainingName = String(data[i][trainingCol] || '').trim();
+      const trainingDate = String(data[i][dateCol] || '').trim();
+      const chapter = String(data[i][chapterCol] || '').trim();
+      const row = i + 1;
+
+      if (isCardPending) {
+        // 信用卡：報名當天 23:59:59 截止，過了就自動取消＋請他重新報名
+        const cutoff = new Date(`${regDateStr}T23:59:59+08:00`);
+        if (isNaN(cutoff.getTime())) continue;
+        if (now < cutoff) continue; // 還沒到當天23:59，先跳過，下次排程再檢查
+
+        sheet.getRange(row, statusCol + 1).setValue('已取消（逾期未付款）');
+        if (email) {
+          try {
+            MailApp.sendEmail(
+              email,
+              `【報名取消通知】${trainingName} 因未於期限內完成付款，報名已取消`,
+              `${name} 您好，\n\n您報名的「${trainingName}」（${trainingDate}）因隔日仍未查到完成付款的紀錄，報名已自動取消。\n\n` +
+              `如果您已經完成付款、只是還沒被系統核對到，請直接聯絡區域辦公室協助確認，不需要重新報名。\n` +
+              `如果仍想參加這場培訓，請重新前往報名頁面完成報名。\n\n` +
+              `造成不便敬請見諒。`
+            );
+          } catch (e) {
+            console.error('寄送逾期取消通知信失敗（' + email + '）：', e);
+          }
+        }
+        if (trainingName && trainingDate) updateRegistrationCount(trainingName, trainingDate);
+
+      } else if (isAtmPending) {
+        // ATM：報名隔天起每天寄一封溫和提醒信；滿2天（含）仍未人工核對，自動取消、請他重新報名
+        if (regDateStr >= todayStr) continue; // 還是報名當天，先不動作
+
+        let cancelCutoff = new Date(`${regDateStr}T23:59:59+08:00`);
+        cancelCutoff.setDate(cancelCutoff.getDate() + 2); // 報名日+2天 23:59:59 為底線
+
+        // 保險：取消期限不會晚於培訓當天結束（避免培訓都快開始了名額還卡著）
+        const trainingDayEnd = parseTrainingDateEnd(trainingDate);
+        if (trainingDayEnd && trainingDayEnd < cancelCutoff) {
+          cancelCutoff = trainingDayEnd;
+        }
+        const deadlineLabel = Utilities.formatDate(cancelCutoff, 'Asia/Taipei', 'M/d HH:mm');
+
+        if (now >= cancelCutoff) {
+          // 滿期限仍未核對：自動取消，請他重新報名
+          sheet.getRange(row, statusCol + 1).setValue('已取消（逾期未轉帳）');
+          if (email) {
+            try {
+              MailApp.sendEmail(
+                email,
+                `【報名取消通知】${trainingName} 因未於期限內查到轉帳，報名已取消`,
+                `${name} 您好，\n\n您報名的「${trainingName}」（${trainingDate}）因截至 ${deadlineLabel} 仍未查到 ATM 轉帳紀錄，報名已自動取消。\n\n` +
+                `如果您已經完成轉帳、只是還沒被核對到，請直接聯絡區域辦公室協助確認，不需要重新報名。\n` +
+                `如果仍想參加這場培訓，請重新前往報名頁面完成報名。\n\n` +
+                `造成不便敬請見諒。`
+              );
+            } catch (e) {
+              console.error('寄送ATM逾期取消通知信失敗（' + email + '）：', e);
+            }
+          }
+          // 同步通知辦公室：避免款項其實已到、只是還沒被人工核對到，卻被系統取消，方便你回頭核對補救
+          if (SETTINGS.NOTIFY_EMAILS && SETTINGS.NOTIFY_EMAILS.length > 0) {
+            SETTINGS.NOTIFY_EMAILS.forEach(officeEmail => {
+              try {
+                MailApp.sendEmail(
+                  officeEmail,
+                  `【系統自動取消】${name}（${trainingName}）ATM逾期未核對已自動取消`,
+                  `系統已自動取消以下這筆 ATM 待確認報名，因為截至 ${deadlineLabel} 仍未人工核對：\n\n` +
+                  `姓名：${name}\n分會：${chapter}\n培訓：${trainingName}（${trainingDate}）\nEmail：${email}\n\n` +
+                  `如果這筆款項其實已經入帳、只是還沒來得及核對，請至「報名紀錄」查看並協助處理（該筆狀態已改為「已取消（逾期未轉帳）」，如需恢復請手動改回並補登付款狀態）。`
+                );
+              } catch (e) {
+                console.error('寄送辦公室ATM取消通知失敗（' + officeEmail + '）：', e);
+              }
+            });
+          }
+          if (trainingName && trainingDate) updateRegistrationCount(trainingName, trainingDate);
+          continue;
+        }
+
+        // 還沒到期限：每天寄一次溫和提醒信（不是威脅口吻，只是告知明確期限）
+        const lastSentDate = String(data[i][reminderCol] || '').trim();
+        if (lastSentDate === todayStr) continue; // 今天已經寄過了
+
+        // 集中在早上7點這個時段寄，避免半夜寄信
+        if (currentHour !== 7) continue;
+
+        if (email) {
+          try {
+            MailApp.sendEmail(
+              email,
+              `【轉帳提醒】${trainingName} 尚未查到轉帳紀錄`,
+              `${name} 您好，\n\n提醒您，報名的「${trainingName}」（${trainingDate}）目前尚未查到您的 ATM 轉帳紀錄。\n\n` +
+              `ATM 轉帳資訊：\n` +
+              `銀行：國泰世華（013）\n` +
+              `帳號：265-03-500266-2\n` +
+              `戶名：佳訊達國際開發有限公司\n\n` +
+              `如果您已經完成轉帳，請忽略此封通知信，辦公室確認到款項後會協助更新您的報名狀態，不需要重新報名。\n` +
+              `如果尚未轉帳，請於 ${deadlineLabel} 前完成轉帳，逾期系統將自動取消此筆報名並釋放名額。\n\n` +
+              `謝謝您。`
+            );
+            sheet.getRange(row, reminderCol + 1).setValue(todayStr);
+          } catch (e) {
+            console.error('寄送ATM提醒信失敗（' + email + '）：', e);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('handlePendingPaymentFollowUp error:', err);
+  }
 }
 
 // ══════════════════════════════════════
@@ -1461,6 +1626,36 @@ function normalizeDateValue(val) {
   return s;
 }
 
+// 有新的延期申請時，寄信通知（寄信失敗不影響申請本身成功，避免因為信箱設定錯誤擋住整個流程）
+function notifyCancelRequest(data, submittedAt) {
+  try {
+    if (!SETTINGS.NOTIFY_EMAILS || SETTINGS.NOTIFY_EMAILS.length === 0) return;
+
+    const subject = `【延期申請通知】${data.name || ''}（${data.chapter || ''}）申請延期 - ${data.training || ''}`;
+    const body =
+      `收到一筆新的延期申請，內容如下：\n\n` +
+      `申請時間：${submittedAt}\n` +
+      `姓名：${data.name || ''}\n` +
+      `分會：${data.chapter || ''}\n` +
+      `原培訓：${data.training || ''}（${data.trainingDate || ''}）\n` +
+      `希望改期至：${data.deferTarget || '（由辦公室協助安排）'}\n` +
+      `目標場次費用：${data.deferTargetFee || '-'}\n` +
+      `價差（恕不退還）：${data.priceDiff || '0'}\n` +
+      `申請原因：${data.reason || '（未填寫）'}\n\n` +
+      `請至「延期申請」工作表查看並處理。`;
+
+    SETTINGS.NOTIFY_EMAILS.forEach(email => {
+      try {
+        MailApp.sendEmail(email, subject, body);
+      } catch (e) {
+        console.error('寄送延期申請通知信失敗（' + email + '）：', e);
+      }
+    });
+  } catch (err) {
+    console.error('notifyCancelRequest error:', err);
+  }
+}
+
 function handleCancelRequest(data) {
   try {
     // 核對報名紀錄：培訓名稱+日期+姓名+分會 需完全對上才允許送出
@@ -1503,6 +1698,8 @@ function handleCancelRequest(data) {
       matchedTradeNo,
       '待審核',
     ]);
+
+    notifyCancelRequest(data, now);
 
     return jsonResponse({ status: 'ok' });
   } catch (err) {
