@@ -35,6 +35,9 @@ const SETTINGS = {
 
   // 事件通知信箱（延期申請等事件會寄信到這些信箱，可填多組）
   NOTIFY_EMAILS: ['bluephone168@gmail.com', 'uj111990@gmail.com'],
+
+  // 系統自動信件的寄件人（需先在 Gmail「帳戶和匯入」→「寄件地址」驗證過，才能用 GmailApp 指定這個當寄件人）
+  SEND_FROM_EMAIL: 'bni.xinbeiwesta@gmail.com',
 };
 
 // ══════════════════════════════════════
@@ -45,6 +48,17 @@ const HEADERS = [
   '姓名', '分會名稱', '電話', 'Email',
   '報名身份', '費用', '付款狀態', '交易編號', '付款時間', '付款網址', '餐點', '付款方式', '人工核對', 'ATM末五碼', '提醒信已寄',
 ];
+
+// 統一寄信包裝：用指定的寄件別名寄出（該信箱需先在 Gmail 完成「寄件地址」驗證）
+// 如果驗證失效或有問題，自動退回用 MailApp（原本帳號）寄出，確保通知不會整個寄不出去
+function sendNotifyEmail(to, subject, body) {
+  try {
+    GmailApp.sendEmail(to, subject, body, { from: SETTINGS.SEND_FROM_EMAIL });
+  } catch (e) {
+    console.error('用指定寄件人寄信失敗，改用預設帳號寄出：', e);
+    MailApp.sendEmail(to, subject, body);
+  }
+}
 
 // ══════════════════════════════════════
 // 主入口
@@ -439,7 +453,7 @@ function applyApprovedDeferrals() {
       // 寄信通知申請人本人：延期已核准，並告知新場次
       if (personEmail) {
         try {
-          MailApp.sendEmail(
+          sendNotifyEmail(
             personEmail,
             `【延期核准通知】您的延期申請已審核通過`,
             `${personName} 您好，\n\n您申請的延期已經審核通過，報名已改為以下新場次：\n\n` +
@@ -519,7 +533,7 @@ function handlePendingPaymentFollowUp() {
         sheet.getRange(row, statusCol + 1).setValue('已取消（逾期未付款）');
         if (email) {
           try {
-            MailApp.sendEmail(
+            sendNotifyEmail(
               email,
               `【報名取消通知】${trainingName} 因未於期限內完成付款，報名已取消`,
               `${name} 您好，\n\n您報名的「${trainingName}」（${trainingDate}）因隔日仍未查到完成付款的紀錄，報名已自動取消。\n\n` +
@@ -552,7 +566,7 @@ function handlePendingPaymentFollowUp() {
           sheet.getRange(row, statusCol + 1).setValue('已取消（逾期未轉帳）');
           if (email) {
             try {
-              MailApp.sendEmail(
+              sendNotifyEmail(
                 email,
                 `【報名取消通知】${trainingName} 因未於期限內查到轉帳，報名已取消`,
                 `${name} 您好，\n\n您報名的「${trainingName}」（${trainingDate}）因截至 ${deadlineLabel} 仍未查到 ATM 轉帳紀錄，報名已自動取消。\n\n` +
@@ -568,7 +582,7 @@ function handlePendingPaymentFollowUp() {
           if (SETTINGS.NOTIFY_EMAILS && SETTINGS.NOTIFY_EMAILS.length > 0) {
             SETTINGS.NOTIFY_EMAILS.forEach(officeEmail => {
               try {
-                MailApp.sendEmail(
+                sendNotifyEmail(
                   officeEmail,
                   `【系統自動取消】${name}（${trainingName}）ATM逾期未核對已自動取消`,
                   `系統已自動取消以下這筆 ATM 待確認報名，因為截至 ${deadlineLabel} 仍未人工核對：\n\n` +
@@ -593,7 +607,7 @@ function handlePendingPaymentFollowUp() {
 
         if (email) {
           try {
-            MailApp.sendEmail(
+            sendNotifyEmail(
               email,
               `【轉帳提醒】${trainingName} 尚未查到轉帳紀錄`,
               `${name} 您好，\n\n提醒您，報名的「${trainingName}」（${trainingDate}）目前尚未查到您的 ATM 轉帳紀錄。\n\n` +
@@ -1734,7 +1748,7 @@ function notifyCancelRequest(data, submittedAt) {
 
     SETTINGS.NOTIFY_EMAILS.forEach(email => {
       try {
-        MailApp.sendEmail(email, subject, body);
+        sendNotifyEmail(email, subject, body);
       } catch (e) {
         console.error('寄送延期申請通知信失敗（' + email + '）：', e);
       }
@@ -1794,7 +1808,7 @@ function handleCancelRequest(data) {
     // 寄信通知申請人本人：已收到申請，審核中
     if (matchedEmail) {
       try {
-        MailApp.sendEmail(
+        sendNotifyEmail(
           matchedEmail,
           `【延期申請已收到】${data.training} 審核中`,
           `${data.name} 您好，\n\n已收到您的延期申請，內容如下：\n\n` +
