@@ -367,6 +367,94 @@ function scheduledTasks() {
   pollPendingOrders();
   applyManualConfirmations();
   handlePendingPaymentFollowUp();
+  applyApprovedDeferrals();
+}
+
+// ══════════════════════════════════════
+// 延期核准自動套用：「延期申請」處理狀態改成「核准」，
+// 系統自動把「報名紀錄」對應那一列的培訓名稱/日期改成新場次，不用手動改欄位
+// ══════════════════════════════════════
+function applyApprovedDeferrals() {
+  try {
+    const cancelSheet = getOrCreateCancelSheet();
+    const cancelData = cancelSheet.getDataRange().getValues();
+    const cancelHeaders = cancelData[0];
+    const statusColC   = cancelHeaders.indexOf('處理狀態');
+    const targetColC   = cancelHeaders.indexOf('希望改期至');
+    const tradeNoColC  = cancelHeaders.indexOf('對應交易編號');
+    const nameColC     = cancelHeaders.indexOf('姓名');
+    if (statusColC === -1 || targetColC === -1 || tradeNoColC === -1) return;
+
+    const regSheet = getOrCreateSheet();
+    const regData = regSheet.getDataRange().getValues();
+    const regHeaders = regData[0];
+    const tradeNoColR = regHeaders.indexOf('交易編號');
+    const trainingColR = regHeaders.indexOf('培訓名稱');
+    const dateColR = regHeaders.indexOf('培訓日期');
+    const nameColR = regHeaders.indexOf('姓名');
+    const emailColR = regHeaders.indexOf('Email');
+    if (tradeNoColR === -1 || trainingColR === -1 || dateColR === -1) return;
+
+    for (let i = 1; i < cancelData.length; i++) {
+      const status = String(cancelData[i][statusColC] || '').trim();
+      if (status !== '核准') continue; // 只處理你標記「核准」的那些
+
+      const target = String(cancelData[i][targetColC] || '').trim();
+      const parts = target.split('｜');
+      if (parts.length < 2) {
+        // 「（由辦公室協助安排）」這種沒有明確目標場次的，系統無法自動判斷改到哪一場，跳過讓你人工處理
+        continue;
+      }
+      const newTrainingName = parts[0].trim();
+      const newTrainingDate = parts[1].trim();
+      const tradeNo = String(cancelData[i][tradeNoColC] || '').trim();
+      if (!tradeNo) continue;
+
+      // 在報名紀錄裡找到對應交易編號那一列
+      let foundRow = -1;
+      let oldTrainingName = '', oldTrainingDate = '', personName = '', personEmail = '';
+      for (let j = 1; j < regData.length; j++) {
+        if (String(regData[j][tradeNoColR] || '').trim() === tradeNo) {
+          foundRow = j + 1;
+          oldTrainingName = String(regData[j][trainingColR] || '').trim();
+          oldTrainingDate = String(regData[j][dateColR] || '').trim();
+          personName = String(regData[j][nameColR] || '').trim();
+          personEmail = String(regData[j][emailColR] || '').trim();
+          break;
+        }
+      }
+      if (foundRow === -1) continue; // 找不到對應報名紀錄，跳過讓你人工處理
+
+      // 套用新場次
+      regSheet.getRange(foundRow, trainingColR + 1).setValue(newTrainingName);
+      regSheet.getRange(foundRow, dateColR + 1).setValue(newTrainingDate);
+
+      // 同步更新新舊兩場的報名人數
+      if (oldTrainingName && oldTrainingDate) updateRegistrationCount(oldTrainingName, oldTrainingDate);
+      updateRegistrationCount(newTrainingName, newTrainingDate);
+
+      // 標記這筆延期申請「已處理」，避免下次排程重複套用
+      cancelSheet.getRange(i + 1, statusColC + 1).setValue('已處理');
+
+      // 寄信通知申請人本人：延期已核准，並告知新場次
+      if (personEmail) {
+        try {
+          MailApp.sendEmail(
+            personEmail,
+            `【延期核准通知】您的延期申請已審核通過`,
+            `${personName} 您好，\n\n您申請的延期已經審核通過，報名已改為以下新場次：\n\n` +
+            `原場次：${oldTrainingName}（${oldTrainingDate}）\n` +
+            `新場次：${newTrainingName}（${newTrainingDate}）\n\n` +
+            `如有任何問題，請聯絡區域辦公室。謝謝您。`
+          );
+        } catch (e) {
+          console.error('寄送延期核准通知信失敗（' + personEmail + '）：', e);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('applyApprovedDeferrals error:', err);
+  }
 }
 
 // ══════════════════════════════════════
@@ -1663,6 +1751,7 @@ function handleCancelRequest(data) {
     const regData  = regSheet.getDataRange().getValues();
     let matched = false;
     let matchedTradeNo = '';
+    let matchedEmail = '';
     const targetDate = normalizeDateValue(data.trainingDate);
 
     for (let i = 1; i < regData.length; i++) {
@@ -1674,6 +1763,7 @@ function handleCancelRequest(data) {
       ) {
         matched = true;
         matchedTradeNo = regData[i][11];
+        matchedEmail = String(regData[i][7] || '').trim();
         break;
       }
     }
@@ -1700,6 +1790,22 @@ function handleCancelRequest(data) {
     ]);
 
     notifyCancelRequest(data, now);
+
+    // 寄信通知申請人本人：已收到申請，審核中
+    if (matchedEmail) {
+      try {
+        MailApp.sendEmail(
+          matchedEmail,
+          `【延期申請已收到】${data.training} 審核中`,
+          `${data.name} 您好，\n\n已收到您的延期申請，內容如下：\n\n` +
+          `原場次：${data.training}（${data.trainingDate}）\n` +
+          `希望改期至：${data.deferTarget || '（由辦公室協助安排）'}\n\n` +
+          `目前審核中，審核通過後會再寄信通知您新場次確認結果，請耐心等候。如有問題請聯絡區域辦公室。謝謝您。`
+        );
+      } catch (e) {
+        console.error('寄送延期申請已收到通知信失敗（' + matchedEmail + '）：', e);
+      }
+    }
 
     return jsonResponse({ status: 'ok' });
   } catch (err) {
