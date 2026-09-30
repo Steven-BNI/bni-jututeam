@@ -60,6 +60,40 @@ function sendNotifyEmail(to, subject, body) {
   }
 }
 
+// 報名成功確認信（刷卡自動確認、ATM人工核對確認，兩條路徑共用同一封信）
+function sendRegistrationSuccessEmail(name, email, trainingName, trainingDate, fee, payMethodLabel) {
+  if (!email) return;
+  try {
+    sendNotifyEmail(
+      email,
+      `【報名成功】${trainingName} 付款已確認`,
+      `${name} 您好，\n\n您報名的以下培訓，付款已確認完成，報名成功：\n\n` +
+      `培訓名稱：${trainingName}\n` +
+      `培訓日期：${trainingDate}\n` +
+      `付款金額：NT$ ${fee}\n` +
+      `付款方式：${payMethodLabel || ''}\n\n` +
+      `期待您的參與，謝謝！`
+    );
+  } catch (e) {
+    console.error('寄送報名成功確認信失敗（' + email + '）：', e);
+  }
+}
+
+// 依交易編號取得完整報名資訊（姓名、Email、培訓場次、費用），供寄送報名成功信使用
+function findRegistrationInfoByTradeNo(tradeNo) {
+  const sheet = getOrCreateSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][11] === tradeNo) {
+      return {
+        trainingName: data[i][1], trainingDate: data[i][2],
+        name: data[i][4], email: data[i][7], fee: data[i][9],
+      };
+    }
+  }
+  return null;
+}
+
 // ══════════════════════════════════════
 // 主入口
 // ══════════════════════════════════════
@@ -171,6 +205,7 @@ function handleRegistration(data) {
 
   // 免費：直接回傳成功
   if (data.fee === 0) {
+    sendRegistrationSuccessEmail(data.name, data.email, data.trainingName, data.trainingDate, 0, '免費場次');
     return jsonResponse({ status: 'ok', free: true });
   }
 
@@ -350,6 +385,8 @@ function verifyAndUpdateOrder(token, tradeNo) {
     updatePaymentStatus(tradeNo, '已付款', paidAt);
     const rowData = findRowByTradeNo(tradeNo);
     if (rowData) updateRegistrationCount(rowData.trainingName, rowData.trainingDate);
+    const fullInfo = findRegistrationInfoByTradeNo(tradeNo);
+    if (fullInfo) sendRegistrationSuccessEmail(fullInfo.name, fullInfo.email, fullInfo.trainingName, fullInfo.trainingDate, fullInfo.fee, '信用卡');
     console.log('官方查證付款成功：' + tradeNo + ' process_code=' + code);
   } else if (code === 16 || code === 18) {
     // 16=授權失敗 18=取消授權失敗
@@ -646,6 +683,9 @@ function applyManualConfirmations() {
   const checkCol   = headers.indexOf('人工核對');
   const nameCol    = headers.indexOf('培訓名稱');
   const dateCol    = headers.indexOf('培訓日期');
+  const personNameCol = headers.indexOf('姓名');
+  const emailCol      = headers.indexOf('Email');
+  const feeCol         = headers.indexOf('費用');
 
   if (checkCol === -1) {
     console.error('找不到「人工核對」欄位，請先在「報名紀錄」工作表最後新增一欄，標題填「人工核對」');
@@ -665,12 +705,15 @@ function applyManualConfirmations() {
     if (!data[i][paidAtCol]) {
       sheet.getRange(row, paidAtCol + 1).setValue(now);
     }
-    if (methodCol !== -1 && !data[i][methodCol]) {
-      sheet.getRange(row, methodCol + 1).setValue('ATM轉帳');
+    let payMethodLabel = data[i][methodCol];
+    if (methodCol !== -1 && !payMethodLabel) {
+      payMethodLabel = 'ATM轉帳';
+      sheet.getRange(row, methodCol + 1).setValue(payMethodLabel);
     }
     sheet.getRange(row, checkCol + 1).setValue('已處理');
 
     updateRegistrationCount(data[i][nameCol], data[i][dateCol]);
+    sendRegistrationSuccessEmail(data[i][personNameCol], data[i][emailCol], data[i][nameCol], data[i][dateCol], data[i][feeCol], payMethodLabel);
     processed++;
   }
 
