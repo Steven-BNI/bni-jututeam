@@ -1340,14 +1340,14 @@ function goBack(toStep) {
 
 // 啟動
 function checkRegistrationDeadline(dateStr) {
-  // 培訓日前第3天 23:59:59 為報名截止
-  // 例：10/15 培訓 → 10/12 23:59:59 截止
+  // 培訓日前第2天 23:59:59 為報名截止
+  // 例：10/2 培訓 → 9/30 23:59:59 截止（9/30當天都還能報，10/1起才截止）
   if (!dateStr) return false;
   var parts = dateStr.replace(/\//g,'-').split('-');
   if (parts.length < 3) return false;
   var trainingDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
   var deadline = new Date(trainingDate);
-  deadline.setDate(deadline.getDate() - 3);
+  deadline.setDate(deadline.getDate() - 2);
   deadline.setHours(23, 59, 59, 999);
   return new Date() > deadline;
 }
