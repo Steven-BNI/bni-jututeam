@@ -415,10 +415,12 @@ function fixHeaderRow() {
 //     2) 套用你在「人工核對」欄標記 Y 的 ATM 轉帳確認
 // ══════════════════════════════════════
 function scheduledTasks() {
-  pollPendingOrders();
-  applyManualConfirmations();
-  handlePendingPaymentFollowUp();
-  applyApprovedDeferrals();
+  // 每一項任務都獨立包 try/catch：任何一個失敗（例如黑貓PAY連線問題），
+  // 都不會拖累後面其他任務不執行，確保取消/提醒/延期套用這些關鍵自動化一定會跑到
+  try { pollPendingOrders(); } catch (err) { console.error('pollPendingOrders 失敗：', err); }
+  try { applyManualConfirmations(); } catch (err) { console.error('applyManualConfirmations 失敗：', err); }
+  try { handlePendingPaymentFollowUp(); } catch (err) { console.error('handlePendingPaymentFollowUp 失敗：', err); }
+  try { applyApprovedDeferrals(); } catch (err) { console.error('applyApprovedDeferrals 失敗：', err); }
 }
 
 // ══════════════════════════════════════
@@ -745,7 +747,13 @@ function pollPendingOrders() {
 
   console.log('輪詢 ' + pending.length + ' 筆待付款訂單：' + pending.join(', '));
 
-  const token = getPayUniToken(); // 共用同一組 Token，避免重複索取
+  let token;
+  try {
+    token = getPayUniToken(); // 共用同一組 Token，避免重複索取
+  } catch (err) {
+    console.error('取得黑貓PAY Token失敗，本次跳過刷卡輪詢（不影響其他排程任務）：', err);
+    return;
+  }
   pending.forEach(function(tradeNo) {
     try {
       verifyAndUpdateOrder(token, tradeNo);
