@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>聚盛籌備｜產業服務鏈總覽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F9FC; --card:#FFFFFF; --ink:#1A2438; --muted:#5B6780;
+  --navy:#17335E; --navy-soft:#E6ECF5; --gold:#A9822F; --gold-soft:#F5EDDB;
+  --line:#C6D0DF; --hl:#FFF4D6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1626; --card:#172036; --ink:#E7ECF5; --muted:#9AA6BD;
+    --navy:#8FB0E6; --navy-soft:#22314F; --gold:#D9B66A; --gold-soft:#3A3120;
+    --line:#3A4866; --hl:#3A3120;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1626; --card:#172036; --ink:#E7ECF5; --muted:#9AA6BD;
+  --navy:#8FB0E6; --navy-soft:#22314F; --gold:#D9B66A; --gold-soft:#3A3120;
+  --line:#3A4866; --hl:#3A3120;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1360px;margin:0 auto;padding:28px 20px 48px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;
+  border-bottom:3px solid var(--navy);padding-bottom:16px;margin-bottom:18px}
+h1{font-family:"Noto Serif TC","PMingLiU",serif;font-weight:900;font-size:clamp(26px,3.4vw,40px);
+  margin:0;letter-spacing:.04em;color:var(--navy);line-height:1.2}
+h1 small{display:block;font-size:.45em;font-weight:600;color:var(--gold);letter-spacing:.2em;margin-bottom:4px}
+.summary{color:var(--muted);margin:0;font-size:15px}
+.summary b{color:var(--ink);font-size:20px;font-weight:700;margin:0 2px}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:13px;color:var(--muted);margin:0 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:22px;height:14px;border-radius:4px}
+.sw.f{background:var(--navy)} .sw.o{border:1.5px dashed var(--line);background:var(--card)}
+
+.filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;align-items:center}
+.filter-label{font-size:13px;color:var(--muted);margin-right:4px}
+.filter button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  padding:5px 12px;border-radius:999px;cursor:pointer}
+.filter button em{font-style:normal;color:var(--muted);font-size:12px;margin-left:4px}
+.filter button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#fff}
+.filter button[aria-pressed="true"] em{color:#fff}
+.filter button:focus-visible,.chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:16px}
+@media (max-width:460px){.grid{grid-template-columns:1fr}}
+.chain{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--navy);border-radius:6px;
+  padding:16px 16px 14px;transition:opacity .2s, box-shadow .2s}
+.chain.dim{opacity:.28}
+.chain.on{box-shadow:0 0 0 2px var(--gold)}
+.chain h2{font-family:"Noto Serif TC","PMingLiU",serif;font-weight:900;font-size:20px;margin:0 0 2px;color:var(--navy);letter-spacing:.03em}
+.cust{margin:0 0 12px;color:var(--muted);font-size:13.5px}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.row + .row{margin-top:10px}
+.chip{display:inline-flex;align-items:baseline;gap:4px;font-size:13.5px;padding:3px 10px;border-radius:5px;line-height:1.5}
+.chip.f{background:var(--navy);color:#fff;font-weight:500}
+.chip.f i{font-style:normal;font-size:12px;opacity:.8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.f{color:#0F1626}}
+:root[data-theme="dark"] .chip.f{color:#0F1626}
+.chip.f.me{background:var(--gold);color:#fff}
+.chip.o{border:1.5px dashed var(--line);color:var(--ink)}
+.chip.o.rep{border-color:var(--gold);background:var(--gold-soft)}
+.count{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:12px;
+  padding-top:8px;border-top:1px solid var(--line)}
+
+section.rep{margin-top:32px}
+section.rep h3{font-family:"Noto Serif TC","PMingLiU",serif;font-weight:900;color:var(--navy);font-size:20px;margin:0 0 4px}
+section.rep p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.reptable{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);font-size:14px}
+.reptable th,.reptable td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.reptable th{background:var(--navy-soft);color:var(--navy);font-weight:700}
+.reptable td:first-child{font-weight:700;white-space:nowrap}
+.tablewrap{overflow-x:auto}
+
+@media print{
+  @page{size:A3 landscape;margin:10mm}
+  body{background:#fff;font-size:12px}
+  .filter{display:none}
+  .grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .chain{break-inside:avoid;padding:10px}
+}
+@media (prefers-reduced-motion:reduce){.chain{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p style="margin:0 0 14px;font-size:14px"><a href="/bni-jututeam/founding.html" style="color:var(--navy);text-decoration:none;font-weight:700">← 返回籌備分會進度</a></p>
+  <header>
+    <h1><small>BNI 聚盛籌備</small>產業服務鏈總覽</h1>
+    <p class="summary" id="summary"></p>
+  </header>
+
+  <div class="legend">
+    <span><i class="sw f"></i>已到位夥伴</span>
+    <span><i class="sw o"></i>待邀請的專業</span>
+    <span><i class="sw o" style="border-color:var(--gold);background:var(--gold-soft)"></i>多條服務鏈都需要的專業</span>
+  </div>
+  <div class="filter" id="filter"><span class="filter-label">看某位夥伴參與哪些服務鏈：</span></div>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="rep">
+    <h3>優先邀請：多條服務鏈都需要的專業</h3>
+    <p>邀請一位，就能同時補上好幾條服務鏈的缺口。</p>
+    <div class="tablewrap"><table class="reptable" id="reptable"><thead><tr><th>專業類別</th><th>需要的服務鏈</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</div>
+
+<script>
+const chains = [
+ {name:"新創開業服務鏈", cust:"新創企業・開業團隊",
+  filled:[["會計服務","宋恩廷"],["電腦資訊設備與維護","陳恭將"]],
+  open:["商務中心","雙北商辦仲介","風水命理","品牌設計","事務機租賃","淨水設備"]},
+ {name:"企業營運服務鏈", cust:"中小企業主・各產業公司",
+  filled:[["電腦資訊設備與維護","陳恭將"],["客製網頁系統開發","林盟凱"],["會計服務","宋恩廷"]],
+  open:["事務機租賃","淨水設備","企業律師","勞資顧問","品牌設計","政府補助顧問","企業貸款","系統開發","第三方支付系統","品牌包裝設計","大圖輸出"]},
+ {name:"企業空間建置服務鏈", cust:"需要建置辦公室、店面、機房的企業與品牌",
+  filled:[["電腦資訊設備與維護","陳恭將"],["玻璃加工","林書玄"]],
+  open:["OA辦公家具","UPS不斷電系統","企業AI系統導入","產物保險","弱電工程","企業貸款","企業顧問","商業空間設計","景觀設計","藝術品展售","精品傢俱","木作工程","水電工程","空調安裝"]},
+ {name:"營造建商服務鏈", cust:"營造公司・建商",
+  filled:[["玻璃加工","林書玄"]],
+  open:["代銷公司","磁磚工程","物業管理","停車場管理","建築師","消防工程","科技驗屋"]},
+ {name:"食品開發與代工服務鏈", cust:"食品品牌商・通路商",
+  filled:[["食品凍乾製造","黃仲睿"],["會計服務","宋恩廷"],["有機食品代理開發","凃小如"]],
+  open:["品牌包裝設計","印刷標籤與彩盒印製","法律顧問","SEO行銷","國內物流","企業顧問","有機小農","環保用品製造","食品檢驗認證","電商團購通路","GMP工廠"]},
+ {name:"品牌行銷曝光服務鏈", cust:"品牌商・電商・新創企業",
+  filled:[["食品凍乾製造","黃仲睿"],["精油沐浴用品","徐宇珩"],["客製網頁系統開發","林盟凱"]],
+  open:["電商團購代操","網紅經紀","商業攝影","跨境貿易商","社群行銷","禮贈品規劃","活動企劃","自媒體行銷","SEO關鍵字行銷","包裝印刷設計","產品責任險"]},
+ {name:"團購與員工福利服務鏈", cust:"團購消費者・企業福委會・中小企業員工",
+  filled:[["精油沐浴用品","徐宇珩"],["精品眼鏡","張嘉仁"],["食品團購批發","葉欣"]],
+  open:["咖啡濾掛包","水果批發","美容保養品","海鮮批發","茶葉批發","客製烘焙","健身房","藥局","牙醫診所","醫美診所","團服訂製","健檢中心","中醫診所"]},
+ {name:"跨境通路服務鏈", cust:"大陸、東南亞通路代理商",
+  filled:[["有機食品代理開發","凃小如"],["食品團購批發","葉欣"]],
+  open:["保健品品牌","保養品品牌","文創生活品牌","跨境電商代運營","海外網紅經紀","精緻茶葉品牌"]},
+ {name:"專業人士形象與家庭理財服務鏈", cust:"中高階主管・專業人士・家庭",
+  filled:[["理財壽險","古心瑜"],["會計服務","宋恩廷"],["精品眼鏡","張嘉仁"]],
+  open:["證券業","包租代管","國內房屋仲介","海外理財顧問","銀行貸款","海外房產投資","人像攝影","髮型設計","西服訂製","手工皮鞋","彩妝造型","服飾配件","形象顧問"]}
+];
+
+// 多條服務鏈都需要的專業（名稱完全相同才算）
+const openMap = {};
+chains.forEach(c => c.open.forEach(o => (openMap[o] = openMap[o] || []).push(c.name)));
+const repeated = Object.entries(openMap).filter(([,v]) => v.length > 1).sort((a,b)=>b[1].length-a[1].length);
+const repSet = new Set(repeated.map(r => r[0]));
+
+// 夥伴
+const members = {};
+chains.forEach(c => c.filled.forEach(([job,who]) => { members[who] = members[who] || {job, n:0}; members[who].n++; }));
+const memberList = Object.entries(members).sort((a,b)=>b[1].n-a[1].n);
+
+const totalOpen = chains.reduce((s,c)=>s+c.open.length,0);
+document.getElementById("summary").innerHTML =
+  `<b>${chains.length}</b> 條服務鏈　<b>${memberList.length}</b> 位夥伴已到位　<b>${totalOpen}</b> 個專業位置待邀請`;
+
+const esc = s => s.replace(/[&<>"]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const grid = document.getElementById("grid");
+grid.innerHTML = chains.map((c,i) => `
+  <article class="chain" data-members="${c.filled.map(f=>f[1]).join(",")}">
+    <h2>${esc(c.name)}</h2>
+    <p class="cust">服務客群：${esc(c.cust)}</p>
+    <div class="row">${c.filled.map(([j,w])=>`<span class="chip f" data-who="${w}">${esc(j)}<i>${esc(w)}</i></span>`).join("")}</div>
+    <div class="row">${c.open.map(o=>`<span class="chip o${repSet.has(o)?" rep":""}">${esc(o)}</span>`).join("")}</div>
+    <div class="count"><span>已到位 ${c.filled.length} 位</span><span>待邀請 ${c.open.length} 個</span></div>
+  </article>`).join("");
+
+const filter = document.getElementById("filter");
+memberList.forEach(([who,{job,n}]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.setAttribute("aria-pressed","false"); b.dataset.who = who;
+  b.title = job;
+  b.innerHTML = `${esc(who)}<em>${n} 條</em>`;
+  b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    filter.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed","false"));
+    if (on) b.setAttribute("aria-pressed","true");
+    document.querySelectorAll(".chain").forEach(card => {
+      const has = card.dataset.members.split(",").includes(who);
+      card.classList.toggle("dim", on && !has);
+      card.classList.toggle("on", on && has);
+      card.querySelectorAll(".chip.f").forEach(ch => ch.classList.toggle("me", on && ch.dataset.who === who));
+    });
+  });
+  filter.appendChild(b);
+});
+
+document.querySelector("#reptable tbody").innerHTML = repeated.map(([k,v]) =>
+  `<tr><td>${esc(k)}</td><td>${v.map(esc).join("、")}</td></tr>`).join("");
+</script>
+</body>
+</html>
