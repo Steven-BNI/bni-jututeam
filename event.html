@@ -123,14 +123,14 @@
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">聚團隊 區域講座 · 開放全體會員參加</div>
+    <div class="eyebrow">BNI 聚團隊 區域講座 · 開放全體會員參加</div>
     <h1>從一個人，<span class="accent">到一億元</span>。</h1>
     <p class="lede">四位年營業額破億的企業主，第一次公開講起點、講轉折、講差點撐不下去的那一刻。故事之外，現場開放提問與交流。</p>
     <dl class="vitals">
       <div><dt>日期</dt><dd>11/11（三）</dd></div>
       <div><dt>時間</dt><dd>14:00-16:30（13:30開始報到）</dd></div>
       <div><dt>地點</dt><dd>台北新板希爾頓酒店 2F 如意DE廳</dd></div>
-      <div><dt>費用</dt><dd>會員早鳥600 / 一般800（含茶水）</dd></div>
+      <div><dt>費用</dt><dd>會員早鳥600 / 一般800（含咖啡茶水）</dd></div>
     </dl>
     <a href="#register" class="cta">立即報名</a>
   </div>
@@ -219,7 +219,7 @@
       <dt>日期</dt><dd>11/11（三）</dd>
       <dt>時間</dt><dd>14:00-16:30（13:30報到）</dd>
       <dt>地點</dt><dd>台北新板希爾頓酒店 2F 如意DE廳</dd>
-      <dt>費用</dt><dd>聚團隊會員早鳥價600元（10/27 23:59前）；其他及早鳥過後800元（含茶水）</dd>
+      <dt>費用</dt><dd>聚團隊會員早鳥價 600 元（10/27 23:59 前報名）<br>一般價 800 元（非會員、訪客，或會員於早鳥期後報名）<br>皆含咖啡茶水</dd>
       <dt>名額</dt><dd>50位，依完成報名順序，額滿為止</dd>
       <dt>報名截止</dt><dd>11/6（五）23:59</dd>
       <dt>聯絡</dt><dd class="placeholder">窗口資訊確認中</dd>
@@ -254,7 +254,7 @@
         <label for="chapter">所屬分會</label>
         <select id="chapter">
           <option value="">請選擇</option>
-          <option>聚財</option><option>聚大</option><option>聚富</option><option>聚道</option><option>聚商籌備會</option>
+          <option>聚財</option><option>聚大</option><option>聚富</option><option>聚道</option><option>聚安全</option><option>聚美好</option><option>聚盛</option>
         </select>
       </div>
       <div class="field"><label for="inviter">邀請人（訪客請填）</label><input type="text" id="inviter"></div>
@@ -293,7 +293,7 @@
   </section>
 
   <footer>
-    <p>聚團隊 區域講座｜11/11（三）14:00-16:30｜台北新板希爾頓酒店｜如有問題請洽聯絡窗口（確認中）</p>
+    <p>BNI 聚團隊 區域講座｜11/11（三）14:00-16:30｜台北新板希爾頓酒店｜如有問題請洽聯絡窗口（確認中）</p>
   </footer>
 
 </div>
@@ -320,8 +320,8 @@
     if (info) {
       const p = isMember ? info.priceMember : info.priceOther;
       $("priceNote").textContent = isMember
-        ? (info.early ? "聚團隊會員早鳥價 " + p + " 元（10/27 23:59 前），含現場茶水" : "早鳥期已結束，費用 " + p + " 元，含現場茶水")
-        : "費用 " + p + " 元，含現場茶水";
+        ? (info.early ? "聚團隊會員早鳥價 " + p + " 元（10/27 23:59 前），含現場咖啡茶水" : "早鳥期已結束，費用 " + p + " 元，含現場咖啡茶水")
+        : "費用 " + p + " 元，含現場咖啡茶水";
       submitBtn.textContent = "送出報名（NT$ " + p + "）";
     }
     $("atmBox").classList.toggle("hidden", payVal() !== "atm");
