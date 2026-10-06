@@ -180,13 +180,13 @@
   <div class="plans">
     <div class="plan main"><h3>主要贊助 <span class="price">NT$ 6,000</span></h3>
       <div class="quota">限 2 家<span class="left" data-left="main"></span></div>
-      <ul><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
-    <div class="plan"><h3>一般贊助 <span class="price">NT$ 2,500</span></h3>
+      <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
+    <div class="plan"><h3>一般贊助 <span class="price">NT$ 3,000</span></h3>
       <div class="quota">限 6 家<span class="left" data-left="general"></span></div>
-      <ul><li>背板 logo</li><li>簡報中場輪播</li><li>報名網頁 logo</li><li>主持人現場口頭感謝</li></ul></div>
+      <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板 logo</li><li>簡報中場輪播</li><li>報名網頁 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>報到伴手禮贊助 <span class="price">不另收費</span></h3>
       <div class="quota">限 2 家<span class="left" data-left="gift"></span></div>
-      <ul><li>您提供伴手禮 50-60 份（請避免飲料與食品，飯店不能自帶）</li><li>報到桌贊助牌（立在報到桌、與您的伴手禮放在一起，標示贊助品牌）、簡報輪播、報名網頁 logo</li><li>禮物可附您的名片或小卡</li></ul></div>
+      <ul><li>不含講座門票</li><li>您提供伴手禮 50-60 份（請避免飲料與食品，飯店不能自帶）</li><li>報到桌贊助牌（立在報到桌、與您的伴手禮放在一起，標示贊助品牌）、簡報輪播、報名網頁 logo</li><li>禮物可附您的名片或小卡</li></ul></div>
   </div>
 </section>
 <section class="sp-sec">
@@ -219,9 +219,9 @@
   <form id="spForm" style="margin-top:16px">
     <div class="fieldset-title">贊助方案</div>
     <div class="opt-group">
-      <label class="opt"><input type="radio" name="plan" value="main"><span>主要贊助　NT$ 6,000<small>背板大 logo＋專屬易拉展＋簡報開場結尾＋網頁大 logo</small></span></label>
-      <label class="opt"><input type="radio" name="plan" value="general"><span>一般贊助　NT$ 2,500<small>背板 logo＋簡報輪播＋網頁 logo</small></span></label>
-      <label class="opt"><input type="radio" name="plan" value="gift"><span>報到伴手禮贊助　不另收費<small>提供伴手禮 50-60 份</small></span></label>
+      <label class="opt"><input type="radio" name="plan" value="main"><span>主要贊助　NT$ 6,000<small>含門票 1 張（價值 600 元）＋背板大 logo＋專屬易拉展＋簡報開場結尾＋網頁大 logo</small></span></label>
+      <label class="opt"><input type="radio" name="plan" value="general"><span>一般贊助　NT$ 3,000<small>含門票 1 張（價值 600 元）＋背板 logo＋簡報輪播＋網頁 logo</small></span></label>
+      <label class="opt"><input type="radio" name="plan" value="gift"><span>報到伴手禮贊助　不另收費<small>不含門票；提供伴手禮 50-60 份</small></span></label>
     </div>
     <div class="amount" id="amountLine"></div>
 
@@ -276,7 +276,7 @@
   const SPONSOR_ENDPOINT = "https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec";
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
-  const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:2500}, gift:{label:"報到伴手禮贊助", price:0} };
+  const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:3000}, gift:{label:"報到伴手禮贊助", price:0} };
 
   const $ = (id) => document.getElementById(id);
   const radio = (n) => (document.querySelector('input[name="'+n+'"]:checked')||{}).value;
