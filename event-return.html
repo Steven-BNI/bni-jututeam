@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>付款完成｜創業心路分享講座</title>
+<style>
+  :root{--ink:#211f1a;--soft:#4a463d;--paper:#f7f2e9;--raised:#fffdf8;--line:#ddd3bf;--gold:#9c6b26;--forest:#3c5240;}
+  @media (prefers-color-scheme: dark){:root{--ink:#f3efe4;--soft:#c9c2b0;--paper:#171512;--raised:#211e19;--line:#3a352c;--gold:#d1a25c;--forest:#9ec4a9;}}
+  *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;line-height:1.8;}
+  .wrap{max-width:560px;margin:0 auto;padding:48px 20px;}
+  h1{font-size:26px;margin:0 0 8px;} .ok{color:var(--forest)}
+  .card{background:var(--raised);border:1px solid var(--line);padding:20px;margin:24px 0;}
+  dl{display:grid;grid-template-columns:90px 1fr;gap:8px 12px;margin:0;} dt{color:var(--soft)} dd{margin:0;font-weight:700}
+  p{color:var(--soft)} a.btn{display:inline-block;margin-top:8px;color:var(--gold);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="ok">✓ 付款流程已完成</h1>
+  <p>系統確認款項後，會寄出「報名成功」信到您填寫的 Email（通常幾分鐘內）。若 30 分鐘後仍未收到，請先查看垃圾郵件匣，或聯絡主辦單位。</p>
+  <div class="card">
+    <dl>
+      <dt>活動</dt><dd>從一個人，到一億元｜創業心路分享講座</dd>
+      <dt>日期</dt><dd>2026/11/11（三）</dd>
+      <dt>時間</dt><dd>14:00-16:30（13:30 開始報到）</dd>
+      <dt>地點</dt><dd>台北新板希爾頓酒店 2F 如意DE廳</dd>
+      <dt id="amtK" style="display:none">金額</dt><dd id="amtV" style="display:none"></dd>
+      <dt id="noK" style="display:none">訂單編號</dt><dd id="noV" style="display:none"></dd>
+    </dl>
+  </div>
+  <p>發票將以 Email 寄送至您填寫的發票信箱。</p>
+</div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const amt = q.get("amount"), no = q.get("trade_no");
+  if (amt && /^\d+$/.test(amt)) { document.getElementById("amtK").style.display = ""; const v = document.getElementById("amtV"); v.style.display = ""; v.textContent = "NT$ " + amt; }
+  if (no && /^[A-Za-z0-9]+$/.test(no)) { document.getElementById("noK").style.display = ""; const v = document.getElementById("noV"); v.style.display = ""; v.textContent = no; }
+</script>
+</body>
+</html>
