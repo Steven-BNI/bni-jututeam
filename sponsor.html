@@ -258,7 +258,7 @@
   // ===== 後端串接點（由處理付款的聊天室完成）=====
   // 目前為空：表單僅作畫面與欄位檢查，送出按鈕停用。
   // 串接後請填入 Apps Script 網址，並實作 submitSponsor(payload)。
-  const SPONSOR_ENDPOINT = "";
+  const SPONSOR_ENDPOINT = "https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec";
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
   const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:2500}, gift:{label:"報到伴手禮贊助", price:0} };
@@ -302,8 +302,23 @@
   }
 
   async function submitSponsor(payload) {
-    // TODO：由後台聊天室實作（只需把資料寫進試算表，成功後顯示 #spSuccess）
-    throw new Error("尚未串接");
+    const btn = $("spSubmit");
+    btn.disabled = true; btn.textContent = "送出中，請勿重複點擊…";
+    try {
+      const res = await fetch(SPONSOR_ENDPOINT, { method: "POST", body: JSON.stringify(Object.assign({ action: "sponsorSubmit" }, payload)) });
+      const r = await res.json();
+      if (r.status !== "ok") throw new Error(r.message || "請稍後再試");
+    } catch (x) {
+      btn.disabled = false; btn.textContent = "送出贊助";
+      throw new Error(x && x.message ? x.message : "連線失敗，請稍後再試");
+    }
+    // 成功：隱藏表單、顯示 #spSuccess
+    $("spSuccessMsg").textContent = payload.plan === "gift"
+      ? "感謝您的支持！我們已收到您的伴手禮贊助資料，會再與您確認禮物細節。"
+      : "感謝您的支持！我們已收到您的贊助資料，核對款項後即完成報名，如有問題會與您聯繫。";
+    show($("spForm"), false);
+    show($("spSuccess"), true);
+    $("spSuccess").scrollIntoView({ behavior: "smooth" });
   }
 
   $("spForm").addEventListener("submit", async (e) => {
