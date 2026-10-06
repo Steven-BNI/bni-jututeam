@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>贊助夥伴徵求｜BNI 聚團隊 區域講座</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#211f1a;
+    --ink-soft:#4a463d;
+    --paper:#f7f2e9;
+    --paper-raised:#fffdf8;
+    --line:#ddd3bf;
+    --gold:#9c6b26;
+    --gold-deep:#7a5119;
+    --forest:#3c5240;
+    --forest-soft:#e8ede6;
+    --danger:#a3402f;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --ink:#f3efe4; --ink-soft:#c9c2b0; --paper:#171512; --paper-raised:#211e19;
+      --line:#3a352c; --gold:#d1a25c; --gold-deep:#e6bd7c; --forest:#9ec4a9;
+      --forest-soft:#22291f; --danger:#e0836d;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#f3efe4; --ink-soft:#c9c2b0; --paper:#171512; --paper-raised:#211e19;
+    --line:#3a352c; --gold:#d1a25c; --gold-deep:#e6bd7c; --forest:#9ec4a9;
+    --forest-soft:#22291f; --danger:#e0836d;
+  }
+  *{box-sizing:border-box;}
+  html{background:var(--paper);}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Noto Serif TC','Microsoft JhengHei',serif;font-weight:900;margin:0;letter-spacing:0.01em;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+  a{color:var(--gold-deep);}
+  .hero{background:var(--ink);color:var(--paper);padding:56px 0 44px;}
+  :root[data-theme="dark"] .hero, :root:not([data-theme="light"]) .hero{ @media (prefers-color-scheme: dark){ background:#0e0d0b; } }
+  .hero .eyebrow{font-size:14px;color:var(--gold);margin-bottom:14px;}
+  .hero h1{font-size:clamp(32px, 7vw, 48px);line-height:1.25;color:var(--paper);}
+  .hero .accent{color:var(--gold);}
+  .hero p.lede{margin-top:18px;font-size:17px;color:#d9d3c4;max-width:32em;}
+  .hero .vitals{margin-top:32px;border-top:1px solid rgba(247,242,233,0.2);padding-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;}
+  .hero .vitals dt{font-size:13px;color:#a89f8b;margin-bottom:4px;}
+  .hero .vitals dd{margin:0;font-size:16px;font-weight:500;color:var(--paper);}
+  .hero .cta{display:inline-block;margin-top:32px;background:var(--gold);color:#1c1204;font-weight:700;font-size:16px;padding:14px 28px;border-radius:2px;text-decoration:none;}
+  .intro{padding:48px 0 8px;}
+  .intro p{font-size:17px;color:var(--ink-soft);max-width:36em;}
+  .intro-points{margin-top:28px;display:grid;gap:0;border-top:1px solid var(--line);}
+  .intro-points div{padding:18px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:120px 1fr;gap:16px;}
+  .intro-points .label{color:var(--gold-deep);font-weight:700;font-size:14px;}
+  .intro-points p{margin:0;font-size:15px;color:var(--ink);}
+  .speakers{padding:56px 0 16px;}
+  .section-head{margin-bottom:32px;}
+  .section-head h2{font-size:28px;}
+  .section-head .sub{color:var(--ink-soft);font-size:15px;margin-top:8px;}
+  .speaker{display:grid;grid-template-columns:88px 1fr;gap:18px;padding:24px 0;border-bottom:1px solid var(--line);}
+  .speaker .avatar{width:88px;height:88px;border-radius:50%;background:var(--forest-soft);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-size:26px;font-weight:700;color:var(--forest);overflow:hidden;}
+  .speaker h3{font-size:19px;}
+  .speaker .role{font-size:13px;color:var(--gold-deep);margin-top:4px;font-weight:700;}
+  .speaker .hook{font-size:14.5px;color:var(--ink-soft);margin-top:8px;}
+  .speaker .avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .speaker .biz{font-size:14px;color:var(--ink);margin-top:6px;}
+  .logo-chip{display:inline-block;background:#fff;border:1px solid var(--line);padding:4px 10px;border-radius:2px;margin-top:12px;margin-right:8px;}
+  .logo-chip img{height:24px;width:auto;display:block;}
+  .speaker .tbc{display:inline-block;margin-top:8px;font-size:12px;color:var(--danger);border:1px solid var(--danger);padding:2px 8px;border-radius:2px;}
+  .agenda{padding:56px 0 16px;}
+  .agenda-item{display:grid;grid-template-columns:88px 1fr;gap:18px;padding:16px 0;border-top:1px solid var(--line);}
+  .agenda-item:last-child{border-bottom:1px solid var(--line);}
+  .agenda-item time{font-size:14px;color:var(--gold-deep);font-weight:700;}
+  .agenda-item h4{margin:0 0 4px;font-size:16px;font-family:'Noto Sans TC';font-weight:700;}
+  .agenda-item p{margin:0;font-size:14px;color:var(--ink-soft);}
+  .agenda-note{margin-top:16px;font-size:13px;color:var(--ink-soft);background:var(--forest-soft);padding:12px 16px;border-left:3px solid var(--forest);}
+  .logistics{padding:56px 0 16px;}
+  .logistics dl{display:grid;grid-template-columns:100px 1fr;row-gap:16px;column-gap:16px;border-top:1px solid var(--line);padding-top:24px;}
+  .logistics dt{font-size:13px;color:var(--ink-soft);padding-top:2px;}
+  .logistics dd{margin:0;font-size:16px;font-weight:500;}
+  .placeholder{color:var(--danger);font-weight:500;}
+  .register{padding:56px 0 64px;}
+  .counter{font-size:14px;color:var(--ink-soft);margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+  .counter strong{color:var(--gold-deep);font-size:16px;}
+  form{display:grid;gap:16px;border-top:1px solid var(--line);padding-top:28px;}
+  .field label{display:block;font-size:13.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .field input, .field select, .field textarea{width:100%;padding:12px 14px;font-size:15px;font-family:inherit;border:1px solid var(--line);border-radius:2px;background:var(--paper-raised);color:var(--ink);}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--gold);outline-offset:1px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:520px){ .row2{grid-template-columns:1fr;} }
+  .price-note{font-size:13px;color:var(--ink-soft);margin-top:-4px;}
+  button.submit{margin-top:8px;background:var(--gold);color:#1c1204;font-weight:700;font-size:16px;padding:15px 28px;border:none;border-radius:2px;cursor:pointer;}
+  button.submit:disabled{opacity:0.6;cursor:default;}
+  .form-msg{font-size:14px;margin-top:4px;}
+  .form-msg.err{color:var(--danger);}
+  .success{border-top:1px solid var(--line);padding-top:28px;}
+  .success h3{font-size:20px;margin-bottom:10px;}
+  .success p{color:var(--ink-soft);font-size:15px;}
+  .pay-btn{display:inline-block;margin-top:16px;background:var(--forest);color:#fff;font-weight:700;padding:14px 26px;border-radius:2px;text-decoration:none;}
+  footer{padding:32px 0 48px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-soft);}
+  .notice{background:var(--forest-soft);border-left:3px solid var(--forest);padding:12px 16px;font-size:14px;color:var(--ink-soft);margin-bottom:8px;}
+  .opt-group{display:grid;gap:10px;}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:2px;background:var(--paper-raised);cursor:pointer;font-size:15px;}
+  .opt input{margin-top:5px;width:auto;}
+  .opt small{display:block;color:var(--ink-soft);font-size:13px;}
+  .fieldset-title{font-size:15px;font-weight:700;margin:12px 0 -4px;color:var(--gold-deep);}
+  .box{border:1px solid var(--line);background:var(--paper-raised);padding:16px;border-radius:2px;font-size:14.5px;}
+  .box dl{display:grid;grid-template-columns:70px 1fr;gap:6px 12px;margin:0 0 8px;}
+  .box dt{color:var(--ink-soft);} .box dd{margin:0;font-weight:700;}
+  .full-note{color:var(--danger);font-weight:700;}
+  .hidden{display:none;}
+</style>
+<style id="sponsor-extra">
+  .sp-sec{padding:48px 0 8px;}
+  .plans{display:grid;gap:14px;margin-top:8px;}
+  .plan{border:1px solid var(--line);background:var(--paper-raised);padding:20px;border-radius:2px;}
+  .plan.main{border-color:var(--gold);border-width:2px;}
+  .plan h3{font-size:20px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .plan .price{font-family:'Noto Serif TC',serif;font-size:26px;color:var(--gold-deep);}
+  .plan .quota{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .plan ul{margin:14px 0 0;padding-left:20px;font-size:15px;color:var(--ink);}
+  .plan li{margin:4px 0;}
+  .plan .left:empty{display:none;}
+  .plan .left{display:inline-block;margin-left:8px;font-size:12px;color:var(--forest);border:1px solid var(--forest);padding:0 8px;border-radius:2px;}
+  .bd-wrap{margin-top:8px;}
+  .bd{position:relative;width:100%;aspect-ratio:300/220;background:#14233b;color:#fff;border-radius:2px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.25);}
+  .bd .t{position:absolute;left:0;right:0;top:0;height:56%;text-align:center;padding-top:6%;}
+  .bd .a{font-size:clamp(9px,2.2vw,14px);letter-spacing:.2em;color:#d9b36a;}
+  .bd .b{font-family:'Noto Serif TC',serif;font-weight:900;font-size:clamp(18px,5.6vw,36px);margin:2% 0;}
+  .bd .c{font-size:clamp(8px,2vw,13px);color:#e8e2d2;}
+  .bd .line{position:absolute;left:0;right:0;top:58%;border-top:1px dashed rgba(217,179,106,.5);}
+  .bd .lg{position:absolute;background:#fff;color:#14233b;display:flex;align-items:center;justify-content:center;font-size:clamp(8px,1.9vw,12px);border-radius:2px;}
+  .bd .lg.big{border:2px solid #d9b36a;font-weight:700;width:30%;height:13%;top:62%;}
+  .bd .lg.sm{width:18%;height:9%;}
+  .bd-note{font-size:13px;color:var(--ink-soft);margin-top:10px;}
+  .steps{display:grid;gap:0;border-top:1px solid var(--line);}
+  .steps div{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;}
+  .steps b{color:var(--gold-deep);font-size:14px;}
+  .amount{font-size:15px;}
+  .amount strong{font-family:'Noto Serif TC',serif;font-size:22px;color:var(--gold-deep);}
+  .opt.disabled{opacity:.5;cursor:not-allowed;}
+  .soon{background:var(--forest-soft);border-left:3px solid var(--forest);padding:12px 16px;font-size:14px;color:var(--ink-soft);}
+</style>
+<style id="desktop-scale">
+  /* 電腦版整體放大（手機、平板直式維持原樣）；調整數字即可改大小 */
+  @media (min-width:1024px){ html{ zoom:1.25; } }
+  @media (min-width:1700px){ html{ zoom:1.4; } }
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+    <div class="eyebrow">BNI 聚團隊 區域講座 · 贊助夥伴徵求</div>
+    <h1>讓你的品牌，<span class="accent">在這個現場被看見。</span></h1>
+    <p class="lede">11/11 區域講座，四位企業主分享創業心路，預計 50-60 位會員與來賓到場。我們邀請夥伴成為贊助夥伴，以背板、易拉展、簡報與報到桌，讓品牌自然曝光。</p>
+    <dl class="vitals">
+      <div><dt>日期</dt><dd>11/11（三）</dd></div>
+      <div><dt>時間</dt><dd>14:00-16:30</dd></div>
+      <div><dt>地點</dt><dd>台北新板希爾頓酒店</dd></div>
+      <div><dt>贊助報名</dt><dd>額滿為止，最晚 10/15（四）</dd></div>
+    </dl>
+    <a class="cta" href="#join">我要贊助</a>
+    <div style="margin-top:16px"><a href="event.html" style="color:var(--gold);font-size:15px">看活動介紹與講者 →</a></div>
+  </div></div>
+<div class="wrap"><section class="sp-sec">
+  <div class="section-head"><h2>贊助方案</h2><div class="sub">三種方案，依名額先到先得</div></div>
+  <div class="plans">
+    <div class="plan main"><h3>主要贊助 <span class="price">NT$ 6,000</span></h3>
+      <div class="quota">限 2 家<span class="left" data-left="main"></span></div>
+      <ul><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
+    <div class="plan"><h3>一般贊助 <span class="price">NT$ 2,500</span></h3>
+      <div class="quota">限 6 家<span class="left" data-left="general"></span></div>
+      <ul><li>背板 logo</li><li>簡報中場輪播</li><li>報名網頁 logo</li><li>主持人現場口頭感謝</li></ul></div>
+    <div class="plan"><h3>報到伴手禮贊助 <span class="price">不另收費</span></h3>
+      <div class="quota">限 2 家<span class="left" data-left="gift"></span></div>
+      <ul><li>您提供伴手禮 50-60 份（請避免飲料與食品，飯店不能自帶）</li><li>報到桌贊助牌、簡報輪播、報名網頁 logo</li><li>禮物可附您的名片或小卡</li></ul></div>
+  </div>
+</section>
+<section class="sp-sec">
+  <div class="section-head"><h2>現場露出位置</h2><div class="sub">示意圖，實際設計以最終輸出為準</div></div>
+  <div class="bd-wrap"><div class="bd">
+    <div class="t"><div class="a">BNI 聚團隊 區域講座</div><div class="b">活動主題</div><div class="c">11/11（三）14:00-16:30｜台北新板希爾頓酒店</div></div>
+    <div class="line"></div>
+    <div class="lg big" style="left:15%">主要贊助 A</div><div class="lg big" style="left:55%">主要贊助 B</div>
+    <div class="lg sm" style="left:7%;top:78%">一般 1</div><div class="lg sm" style="left:27%;top:78%">一般 2</div><div class="lg sm" style="left:47%;top:78%">一般 3</div><div class="lg sm" style="left:67%;top:78%">一般 4</div>
+    <div class="lg sm" style="left:27%;top:89%">一般 5</div><div class="lg sm" style="left:47%;top:89%">一般 6</div>
+  </div>
+  <div class="bd-note">背板 300×220 公分。入口進門即正對背板；報到桌在面對會場的右手邊，伴手禮與贊助牌放在報到桌。</div></div>
+</section>
+<section class="sp-sec">
+  <div class="section-head"><h2>時程</h2></div>
+  <div class="steps">
+    <div><b>最晚 10/15（四）</b><span>贊助報名與匯款（額滿為止）</span></div>
+    <div><b>10/20（二）</b><span>提供 logo 檔案（AI 或 PDF 向量檔，以 Email 寄給區域辦公室）</span></div>
+    <div><b>11/4（三）</b><span>伴手禮贊助：交付禮物</span></div>
+    <div><b>11/11（三）</b><span>活動當天</span></div>
+  </div>
+</section></div>
+<div class="wrap"><section class="register" id="join">
+  <div class="section-head"><h2>我要贊助</h2><div class="sub">銀行轉帳後填寫資料即可，不需另外聯絡｜最晚 10/15（四）</div></div>
+  <div class="soon" id="soon">贊助報名即將開放，請稍候。</div>
+  <form id="spForm" style="margin-top:16px">
+    <div class="fieldset-title">贊助方案</div>
+    <div class="opt-group">
+      <label class="opt"><input type="radio" name="plan" value="main"><span>主要贊助　NT$ 6,000<small>背板大 logo＋專屬易拉展＋簡報開場結尾＋網頁大 logo</small></span></label>
+      <label class="opt"><input type="radio" name="plan" value="general"><span>一般贊助　NT$ 2,500<small>背板 logo＋簡報輪播＋網頁 logo</small></span></label>
+      <label class="opt"><input type="radio" name="plan" value="gift"><span>報到伴手禮贊助　不另收費<small>提供伴手禮 50-60 份</small></span></label>
+    </div>
+    <div class="amount" id="amountLine"></div>
+
+    <div class="fieldset-title">贊助夥伴資料</div>
+    <div class="row2">
+      <div class="field"><label for="spName">姓名</label><input type="text" id="spName" required></div>
+      <div class="field"><label for="spPhone">手機</label><input type="tel" id="spPhone" inputmode="numeric" placeholder="09xxxxxxxx" required></div>
+    </div>
+    <div class="field"><label for="spEmail">Email（確認信寄送）</label><input type="email" id="spEmail" required></div>
+    <div class="field"><label for="spCompany">公司 / 品牌名稱（logo 上呈現的名稱）</label><input type="text" id="spCompany" required></div>
+    <div class="field"><label for="spChapter">所屬分會</label>
+      <select id="spChapter"><option value="">請選擇</option><option>聚財</option><option>聚大</option><option>聚富</option><option>聚道</option><option>聚安全</option><option>聚美好</option><option>聚盛</option><option>其他</option></select></div>
+
+    <div id="giftBox" class="hidden">
+      <div class="fieldset-title">伴手禮資料</div>
+      <div class="field"><label for="giftDesc">禮物內容</label><input type="text" id="giftDesc" placeholder="例：品牌小包面膜＋名片"></div>
+      <div class="field"><label for="giftQty">數量（至少 50 份）</label><input type="text" id="giftQty" inputmode="numeric" placeholder="例：60"></div>
+      <div class="price-note">11/4（三）前交付；請避免飲料與食品。</div>
+    </div>
+
+    <div id="payBox" class="hidden">
+      <div class="fieldset-title">付款方式：銀行轉帳</div>
+      <div class="box">
+        <dl><dt>銀行</dt><dd id="spBank">-</dd><dt>帳號</dt><dd id="spAcc">-</dd><dt>戶名</dt><dd id="spBankName">-</dd></dl>
+        <div class="price-note">請先轉帳，再填下方帳號末五碼並送出。我們核對款項後即完成報名，如有問題會與您聯繫。</div>
+      </div>
+      <div class="field"><label for="spLast5">您轉帳所用帳號的末五碼（核對用）</label><input type="text" id="spLast5" inputmode="numeric" maxlength="5" placeholder="例：12345"></div>
+
+      <div class="fieldset-title">發票（以 Email 寄送）</div>
+      <div class="opt-group">
+        <label class="opt"><input type="radio" name="spInv" value="personal" checked><span>個人電子發票</span></label>
+        <label class="opt"><input type="radio" name="spInv" value="company"><span>三聯式發票（公司戶，需統一編號）</span></label>
+      </div>
+      <div class="row2 hidden" id="spCompanyBox">
+        <div class="field"><label for="spInvTitle">發票抬頭（公司名稱）</label><input type="text" id="spInvTitle"></div>
+        <div class="field"><label for="spTaxId">統一編號（8碼）</label><input type="text" id="spTaxId" inputmode="numeric" maxlength="8"></div>
+      </div>
+      <div class="field"><label for="spInvEmail">發票收件 Email（空白則同上方 Email）</label><input type="email" id="spInvEmail"></div>
+    </div>
+
+    <div class="field"><label for="spNote">備註</label><textarea id="spNote" rows="2"></textarea></div>
+    <button type="submit" class="submit" id="spSubmit" disabled>報名即將開放</button>
+    <div class="form-msg err hidden" id="spErr"></div>
+  </form>
+  <div class="success hidden" id="spSuccess"><h3>贊助資料已收到</h3><p id="spSuccessMsg"></p></div>
+</section></div>
+<footer><div class="wrap"><p>BNI 聚團隊 區域講座贊助｜11/11（三）14:00-16:30｜台北新板希爾頓酒店｜<a href="event.html">活動介紹</a>｜如有問題請洽區域辦公室秘書 許小姐（<a href="mailto:uj111990@gmail.com">uj111990@gmail.com</a>）</p></div></footer>
+<script>
+  // ===== 後端串接點（由處理付款的聊天室完成）=====
+  // 目前為空：表單僅作畫面與欄位檢查，送出按鈕停用。
+  // 串接後請填入 Apps Script 網址，並實作 submitSponsor(payload)。
+  const SPONSOR_ENDPOINT = "";
+  // 收款資料
+  const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
+  const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:2500}, gift:{label:"報到伴手禮贊助", price:0} };
+
+  const $ = (id) => document.getElementById(id);
+  const radio = (n) => (document.querySelector('input[name="'+n+'"]:checked')||{}).value;
+  const show = (el, on) => el.classList.toggle("hidden", !on);
+
+  function refresh() {
+    const plan = radio("plan");
+    const isGift = plan === "gift";
+    show($("giftBox"), isGift);
+    show($("payBox"), !!plan && !isGift);
+    $("amountLine").innerHTML = plan
+      ? (isGift ? "此方案不需付款，送出後我們會與您確認禮物細節。" : "應付金額：<strong>NT$ " + PLANS[plan].price.toLocaleString() + "</strong>")
+      : "";
+    show($("spCompanyBox"), radio("spInv") === "company");
+  }
+  document.querySelectorAll('input[name="plan"],input[name="spInv"]').forEach(e => e.addEventListener("change", refresh));
+  $("spBank").textContent = BANK.bank || "（待填）"; $("spAcc").textContent = BANK.acc || "（待填）"; $("spBankName").textContent = BANK.name || "（待填）";
+  refresh();
+
+  function validate() {
+    const plan = radio("plan");
+    if (!plan) return "請選擇贊助方案";
+    if (!$("spName").value.trim()) return "請填姓名";
+    if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("spEmail").value.trim())) return "請填正確的 Email";
+    if (!$("spCompany").value.trim()) return "請填公司 / 品牌名稱";
+    if (plan === "gift") {
+      if (!$("giftDesc").value.trim()) return "請填禮物內容";
+      if (!(parseInt($("giftQty").value, 10) >= 50)) return "伴手禮數量至少 50 份";
+      return "";
+    }
+    if (!/^\d{5}$/.test($("spLast5").value.trim())) return "請填轉帳帳號末五碼（5 碼數字）";
+    if (radio("spInv") === "company") {
+      if (!$("spInvTitle").value.trim()) return "請填發票抬頭";
+      if (!/^\d{8}$/.test($("spTaxId").value.trim())) return "統一編號請填 8 碼數字";
+    }
+    return "";
+  }
+
+  async function submitSponsor(payload) {
+    // TODO：由後台聊天室實作（只需把資料寫進試算表，成功後顯示 #spSuccess）
+    throw new Error("尚未串接");
+  }
+
+  $("spForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = validate();
+    const box = $("spErr");
+    if (err) { box.textContent = err; show(box, true); return; }
+    show(box, false);
+    if (!SPONSOR_ENDPOINT) return;
+    const plan = radio("plan");
+    const payload = {
+      plan, planLabel: PLANS[plan].label, amount: PLANS[plan].price,
+      name: $("spName").value.trim(), phone: $("spPhone").value.trim(), email: $("spEmail").value.trim(),
+      company: $("spCompany").value.trim(), chapter: $("spChapter").value, note: $("spNote").value.trim(),
+      giftDesc: $("giftDesc").value.trim(), giftQty: $("giftQty").value.trim(),
+      pay: plan === "gift" ? "" : "transfer", last5: $("spLast5").value.trim(),
+      invoice: plan === "gift" ? "" : radio("spInv"), invTitle: $("spInvTitle").value.trim(), taxId: $("spTaxId").value.trim(),
+      invEmail: ($("spInvEmail").value.trim() || $("spEmail").value.trim())
+    };
+    try { await submitSponsor(payload); } catch (x) { box.textContent = "送出失敗：" + x.message; show(box, true); }
+  });
+
+  // 串接完成後：把 SPONSOR_ENDPOINT 填上，並移除下面這兩行即可開放
+  if (SPONSOR_ENDPOINT) { $("spSubmit").disabled = false; $("spSubmit").textContent = "送出贊助"; show($("soon"), false); }
+</script>
+</body>
+</html>
