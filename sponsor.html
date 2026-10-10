@@ -126,6 +126,11 @@
   .plan ul{margin:14px 0 0;padding-left:20px;font-size:15px;color:var(--ink);}
   .plan li{margin:4px 0;}
   .plan .left:empty{display:none;}
+  .plan .quota b{font-family:'Noto Serif TC',serif;font-size:16px;color:var(--ink);margin:0 2px;}
+  .plan .quota .full-badge{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;color:#fff;background:var(--danger);padding:1px 8px;border-radius:2px;}
+  .plan.full{background:#f1ece1;border-color:var(--line);}
+  .plan.full h3,.plan.full ul{opacity:.55;}
+  .opt.is-full{opacity:.5;cursor:not-allowed;}
   .plan .left{display:inline-block;margin-left:8px;font-size:12px;color:var(--forest);border:1px solid var(--forest);padding:0 8px;border-radius:2px;}
   .bd-wrap{margin-top:8px;}
   .bd{position:relative;width:100%;aspect-ratio:300/220;background:#14233b;color:#fff;border-radius:2px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.25);}
@@ -179,13 +184,13 @@
   <div class="section-head"><h2>贊助方案</h2><div class="sub">三種方案，依名額先到先得</div></div>
   <div class="plans">
     <div class="plan main"><h3>主要贊助 <span class="price">NT$ 6,000</span></h3>
-      <div class="quota">限 2 家<span class="left" data-left="main"></span></div>
+      <div class="quota" data-plan="main">限 2 家</div>
       <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>一般贊助 <span class="price">NT$ 3,000</span></h3>
-      <div class="quota">限 6 家<span class="left" data-left="general"></span></div>
+      <div class="quota" data-plan="general">限 6 家</div>
       <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板 logo</li><li>簡報中場輪播</li><li>報名網頁 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>報到伴手禮贊助 <span class="price">不另收費</span></h3>
-      <div class="quota">限 2 家<span class="left" data-left="gift"></span></div>
+      <div class="quota" data-plan="gift">限 2 家</div>
       <ul><li>不含講座門票</li><li>您提供伴手禮 50-60 份（請避免飲料與食品，飯店不能自帶）</li><li>報到桌贊助牌（立在報到桌、與您的伴手禮放在一起，標示贊助品牌）、簡報輪播、報名網頁 logo</li><li>禮物可附您的名片或小卡</li></ul></div>
   </div>
 </section>
@@ -276,6 +281,9 @@
   const SPONSOR_ENDPOINT = "https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec";
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
+  // 名額（手動更新：taken＝已贊助家數，total＝總名額；taken 等於 total 即顯示額滿並停用該方案）
+  const SLOTS = { main:{total:2, taken:2}, general:{total:6, taken:0}, gift:{total:2, taken:0} };
+  const isFull = (p) => SLOTS[p] && SLOTS[p].taken >= SLOTS[p].total;
   const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:3000}, gift:{label:"報到伴手禮贊助", price:0} };
 
   const $ = (id) => document.getElementById(id);
@@ -295,9 +303,20 @@
   document.querySelectorAll('input[name="plan"],input[name="spInv"]').forEach(e => e.addEventListener("change", refresh));
   $("spBank").textContent = BANK.bank || "（待填）"; $("spAcc").textContent = BANK.acc || "（待填）"; $("spBankName").textContent = BANK.name || "（待填）";
   refresh();
+  // 名額顯示與額滿處理
+  Object.keys(SLOTS).forEach(function (p) {
+    const s = SLOTS[p], full = isFull(p);
+    const q = document.querySelector('.quota[data-plan="' + p + '"]');
+    if (q) q.innerHTML = '已贊助 <b>' + Math.min(s.taken, s.total) + ' / ' + s.total + '</b> 家' + (full ? '<span class="full-badge">已額滿</span>' : '');
+    if (q && full) q.parentElement.classList.add("full");
+    const r = document.querySelector('input[name="plan"][value="' + p + '"]');
+    if (r && full) { r.disabled = true; r.checked = false; r.closest(".opt").classList.add("is-full"); const sp = r.closest(".opt").querySelector("span"); sp.insertAdjacentHTML("afterbegin", '<strong style="color:var(--danger)">【已額滿】</strong>'); }
+  });
+  refresh();
 
   function validate() {
     const plan = radio("plan");
+    if (plan && isFull(plan)) return "此方案名額已滿，請選擇其他方案";
     if (!plan) return "請選擇贊助方案";
     if (!$("spName").value.trim()) return "請填姓名";
     if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼";
