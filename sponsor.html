@@ -282,7 +282,7 @@
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
   // 名額（手動更新：taken＝已贊助家數，total＝總名額；taken 等於 total 即顯示額滿並停用該方案）
-  const SLOTS = { main:{total:2, taken:2}, general:{total:6, taken:0}, gift:{total:2, taken:0} };
+  const SLOTS = { main:{total:2, taken:2}, general:{total:6, taken:2}, gift:{total:2, taken:1} };
   const isFull = (p) => SLOTS[p] && SLOTS[p].taken >= SLOTS[p].total;
   const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:3000}, gift:{label:"報到伴手禮贊助", price:0} };
 
@@ -303,16 +303,34 @@
   document.querySelectorAll('input[name="plan"],input[name="spInv"]').forEach(e => e.addEventListener("change", refresh));
   $("spBank").textContent = BANK.bank || "（待填）"; $("spAcc").textContent = BANK.acc || "（待填）"; $("spBankName").textContent = BANK.name || "（待填）";
   refresh();
-  // 名額顯示與額滿處理
-  Object.keys(SLOTS).forEach(function (p) {
-    const s = SLOTS[p], full = isFull(p);
-    const q = document.querySelector('.quota[data-plan="' + p + '"]');
-    if (q) q.innerHTML = '已贊助 <b>' + Math.min(s.taken, s.total) + ' / ' + s.total + '</b> 家' + (full ? '<span class="full-badge">已額滿</span>' : '');
-    if (q && full) q.parentElement.classList.add("full");
-    const r = document.querySelector('input[name="plan"][value="' + p + '"]');
-    if (r && full) { r.disabled = true; r.checked = false; r.closest(".opt").classList.add("is-full"); const sp = r.closest(".opt").querySelector("span"); sp.insertAdjacentHTML("afterbegin", '<strong style="color:var(--danger)">【已額滿】</strong>'); }
-  });
-  refresh();
+  // 名額顯示與額滿處理（可重複呼叫）
+  function renderSlots() {
+    Object.keys(SLOTS).forEach(function (p) {
+      const s = SLOTS[p], full = isFull(p);
+      const q = document.querySelector('.quota[data-plan="' + p + '"]');
+      if (q) { q.innerHTML = '已贊助 <b>' + Math.min(s.taken, s.total) + ' / ' + s.total + '</b> 家' + (full ? '<span class="full-badge">已額滿</span>' : ''); q.parentElement.classList.toggle("full", full); }
+      const r = document.querySelector('input[name="plan"][value="' + p + '"]');
+      if (r) {
+        const opt = r.closest(".opt"), sp = opt.querySelector("span");
+        const tag = sp.querySelector(".full-tag"); if (tag) tag.remove();
+        r.disabled = full; opt.classList.toggle("is-full", full);
+        if (full) { r.checked = false; sp.insertAdjacentHTML("afterbegin", '<strong class="full-tag" style="color:var(--danger)">【已額滿】</strong>'); }
+      }
+    });
+    refresh();
+  }
+  renderSlots();
+  // 向後台讀取實際已贊助家數；以「頁面上的數字」為最低值（讀取失敗時維持原數字）
+  (function loadCounts() {
+    if (!SPONSOR_ENDPOINT) return;
+    fetch(SPONSOR_ENDPOINT, { method: "POST", body: JSON.stringify({ action: "sponsorCount" }) })
+      .then(function (res) { return res.json(); })
+      .then(function (r) {
+        if (!r || r.status !== "ok" || !r.counts) return;
+        Object.keys(SLOTS).forEach(function (p) { const n = parseInt(r.counts[p], 10); if (n > SLOTS[p].taken) SLOTS[p].taken = n; });
+        renderSlots();
+      }).catch(function () {});
+  })();
 
   function validate() {
     const plan = radio("plan");
