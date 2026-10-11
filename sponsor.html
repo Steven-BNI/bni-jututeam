@@ -319,12 +319,14 @@
     if (plan && isFull(plan)) return "此方案名額已滿，請選擇其他方案";
     if (!plan) return "請選擇贊助方案";
     if (!$("spName").value.trim()) return "請填姓名";
-    if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼";
+    $("spPhone").value = $("spPhone").value.replace(/[\s\-－()（）]/g, "");
+    if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼（例：0912345678）";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("spEmail").value.trim())) return "請填正確的 Email";
     if (!$("spCompany").value.trim()) return "請填公司 / 品牌名稱";
     if (plan === "gift") {
       if (!$("giftDesc").value.trim()) return "請填禮物內容";
-      if (!(parseInt($("giftQty").value, 10) >= 50)) return "伴手禮數量至少 50 份";
+      $("giftQty").value = ($("giftQty").value.match(/\d+/) || [""])[0];
+      if (!(parseInt($("giftQty").value, 10) >= 50)) return "伴手禮數量至少 50 份（請只填數字，例：60）";
       return "";
     }
     if (!/^\d{5}$/.test($("spLast5").value.trim())) return "請填轉帳帳號末五碼（5 碼數字）";
@@ -359,7 +361,7 @@
     e.preventDefault();
     const err = validate();
     const box = $("spErr");
-    if (err) { box.textContent = err; show(box, true); return; }
+    if (err) { box.textContent = err; show(box, true); box.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
     show(box, false);
     if (!SPONSOR_ENDPOINT) return;
     const plan = radio("plan");
@@ -372,7 +374,7 @@
       invoice: plan === "gift" ? "" : radio("spInv"), invTitle: $("spInvTitle").value.trim(), taxId: $("spTaxId").value.trim(),
       invEmail: ($("spInvEmail").value.trim() || $("spEmail").value.trim())
     };
-    try { await submitSponsor(payload); } catch (x) { box.textContent = "送出失敗：" + x.message; show(box, true); }
+    try { await submitSponsor(payload); } catch (x) { box.textContent = "送出失敗：" + x.message; show(box, true); box.scrollIntoView({ behavior: "smooth", block: "center" }); }
   });
 
   // 串接完成後：把 SPONSOR_ENDPOINT 填上，並移除下面這兩行即可開放
