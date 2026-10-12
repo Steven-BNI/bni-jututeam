@@ -184,7 +184,7 @@
   <div class="section-head"><h2>贊助方案</h2><div class="sub">三種方案，依名額先到先得</div></div>
   <div class="plans">
     <div class="plan main"><h3>主要贊助 <span class="price">NT$ 6,000</span></h3>
-      <div class="quota" data-plan="main">限 2 家</div>
+      <div class="quota" data-plan="main">限 3 家</div>
       <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>一般贊助 <span class="price">NT$ 3,000</span></h3>
       <div class="quota" data-plan="general">限 6 家</div>
@@ -199,7 +199,7 @@
   <div class="bd-wrap"><div class="bd">
     <div class="t"><div class="a">BNI 聚團隊 區域講座</div><div class="b">你的生意，下一個突破在哪裡？</div><div class="c">11/11（三）14:00-16:30｜台北新板希爾頓酒店</div></div>
     <div class="line"></div>
-    <div class="lg big" style="left:15%">主要贊助 A</div><div class="lg big" style="left:55%">主要贊助 B</div>
+    <div class="lg big" style="left:2.5%;width:30%">主要贊助 A</div><div class="lg big" style="left:35%;width:30%">主要贊助 B</div><div class="lg big" style="left:67.5%;width:30%">主要贊助 C</div>
     <div class="lg sm" style="left:7%;top:78%">一般 1</div><div class="lg sm" style="left:27%;top:78%">一般 2</div><div class="lg sm" style="left:47%;top:78%">一般 3</div><div class="lg sm" style="left:67%;top:78%">一般 4</div>
     <div class="lg sm" style="left:27%;top:89%">一般 5</div><div class="lg sm" style="left:47%;top:89%">一般 6</div>
   </div>
@@ -282,7 +282,7 @@
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
   // 名額（手動更新：taken＝已贊助家數，total＝總名額；taken 等於 total 即顯示額滿並停用該方案）
-  const SLOTS = { main:{total:2, taken:2}, general:{total:6, taken:2}, gift:{total:2, taken:1} };
+  const SLOTS = { main:{total:3, taken:2}, general:{total:6, taken:2}, gift:{total:2, taken:1} };
   const isFull = (p) => SLOTS[p] && SLOTS[p].taken >= SLOTS[p].total;
   const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:3000}, gift:{label:"報到伴手禮贊助", price:0} };
 
