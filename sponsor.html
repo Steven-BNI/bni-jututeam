@@ -184,7 +184,7 @@
   <div class="section-head"><h2>贊助方案</h2><div class="sub">三種方案，依名額先到先得</div></div>
   <div class="plans">
     <div class="plan main"><h3>主要贊助 <span class="price">NT$ 6,000</span></h3>
-      <div class="quota" data-plan="main">限 3 家</div>
+      <div class="quota" data-plan="main">限 3 家（最後 1 個名額為指定夥伴保留）</div>
       <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>一般贊助 <span class="price">NT$ 3,000</span></h3>
       <div class="quota" data-plan="general">限 6 家</div>
@@ -284,6 +284,8 @@
   // 名額（手動更新：taken＝已贊助家數，total＝總名額；taken 等於 total 即顯示額滿並停用該方案）
   const SLOTS = { main:{total:3, taken:2}, general:{total:6, taken:2}, gift:{total:2, taken:1} };
   const isFull = (p) => SLOTS[p] && SLOTS[p].taken >= SLOTS[p].total;
+  // 主要贊助最後 1 個名額保留給指定夥伴（姓名＋分會需相符）
+  const RESERVED = { name:"林瑞營", chapter:"聚財" };
   const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:3000}, gift:{label:"報到伴手禮贊助", price:0} };
 
   const $ = (id) => document.getElementById(id);
@@ -337,6 +339,7 @@
     if (plan && isFull(plan)) return "此方案名額已滿，請選擇其他方案";
     if (!plan) return "請選擇贊助方案";
     if (!$("spName").value.trim()) return "請填姓名";
+    if (plan === "main" && SLOTS.main.taken >= SLOTS.main.total - 1 && ($("spName").value.trim() !== RESERVED.name || $("spChapter").value !== RESERVED.chapter)) return "主要贊助最後 1 個名額已為指定夥伴保留，請選擇其他方案，謝謝";
     $("spPhone").value = $("spPhone").value.replace(/[\s\-－()（）]/g, "");
     if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼（例：0912345678）";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("spEmail").value.trim())) return "請填正確的 Email";
