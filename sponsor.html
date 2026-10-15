@@ -282,7 +282,7 @@
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
   // 名額（手動更新：taken＝已贊助家數，total＝總名額；taken 等於 total 即顯示額滿並停用該方案）
-  const SLOTS = { main:{total:3, taken:3}, general:{total:6, taken:2}, gift:{total:2, taken:1} };
+  const SLOTS = { main:{total:3, taken:3}, general:{total:6, taken:3}, gift:{total:2, taken:1} };
   const isFull = (p) => SLOTS[p] && SLOTS[p].taken >= SLOTS[p].total;
   // 主要贊助最後 1 個名額保留給指定夥伴（姓名＋分會需相符）
   const RESERVED = { name:"林瑞營", chapter:"聚財" };
