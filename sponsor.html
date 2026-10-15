@@ -126,6 +126,11 @@
   .plan ul{margin:14px 0 0;padding-left:20px;font-size:15px;color:var(--ink);}
   .plan li{margin:4px 0;}
   .plan .left:empty{display:none;}
+  .plan .quota b{font-family:'Noto Serif TC',serif;font-size:16px;color:var(--ink);margin:0 2px;}
+  .plan .quota .full-badge{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;color:#fff;background:var(--danger);padding:1px 8px;border-radius:2px;}
+  .plan.full{background:#f1ece1;border-color:var(--line);}
+  .plan.full h3,.plan.full ul{opacity:.55;}
+  .opt.is-full{opacity:.5;cursor:not-allowed;}
   .plan .left{display:inline-block;margin-left:8px;font-size:12px;color:var(--forest);border:1px solid var(--forest);padding:0 8px;border-radius:2px;}
   .bd-wrap{margin-top:8px;}
   .bd{position:relative;width:100%;aspect-ratio:300/220;background:#14233b;color:#fff;border-radius:2px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.25);}
@@ -179,22 +184,22 @@
   <div class="section-head"><h2>贊助方案</h2><div class="sub">三種方案，依名額先到先得</div></div>
   <div class="plans">
     <div class="plan main"><h3>主要贊助 <span class="price">NT$ 6,000</span></h3>
-      <div class="quota">限 2 家<span class="left" data-left="main"></span></div>
+      <div class="quota" data-plan="main">限 3 家（最後 1 個名額為指定夥伴保留）</div>
       <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板大 logo</li><li>專屬易拉展 1 座（內容由您提供，我們負責製作）</li><li>簡報開場與結尾露出</li><li>報名網頁大 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>一般贊助 <span class="price">NT$ 3,000</span></h3>
-      <div class="quota">限 6 家<span class="left" data-left="general"></span></div>
+      <div class="quota" data-plan="general">限 6 家</div>
       <ul><li>含講座門票 1 張（價值 600 元）</li><li>背板 logo</li><li>簡報中場輪播</li><li>報名網頁 logo</li><li>主持人現場口頭感謝</li></ul></div>
     <div class="plan"><h3>報到伴手禮贊助 <span class="price">不另收費</span></h3>
-      <div class="quota">限 2 家<span class="left" data-left="gift"></span></div>
+      <div class="quota" data-plan="gift">限 2 家</div>
       <ul><li>不含講座門票</li><li>您提供伴手禮 50-60 份（請避免飲料與食品，飯店不能自帶）</li><li>報到桌贊助牌（立在報到桌、與您的伴手禮放在一起，標示贊助品牌）、簡報輪播、報名網頁 logo</li><li>禮物可附您的名片或小卡</li></ul></div>
   </div>
 </section>
 <section class="sp-sec">
   <div class="section-head"><h2>現場露出位置</h2><div class="sub">示意圖，實際設計以最終輸出為準</div></div>
   <div class="bd-wrap"><div class="bd">
-    <div class="t"><div class="a">BNI 聚團隊 區域講座</div><div class="b">活動主題</div><div class="c">11/11（三）14:00-16:30｜台北新板希爾頓酒店</div></div>
+    <div class="t"><div class="a">BNI 聚團隊 區域講座</div><div class="b">你的生意，下一個突破在哪裡？</div><div class="c">11/11（三）14:00-16:30｜台北新板希爾頓酒店</div></div>
     <div class="line"></div>
-    <div class="lg big" style="left:15%">主要贊助 A</div><div class="lg big" style="left:55%">主要贊助 B</div>
+    <div class="lg big" style="left:2.5%;width:30%">主要贊助 A</div><div class="lg big" style="left:35%;width:30%">主要贊助 B</div><div class="lg big" style="left:67.5%;width:30%">主要贊助 C</div>
     <div class="lg sm" style="left:7%;top:78%">一般 1</div><div class="lg sm" style="left:27%;top:78%">一般 2</div><div class="lg sm" style="left:47%;top:78%">一般 3</div><div class="lg sm" style="left:67%;top:78%">一般 4</div>
     <div class="lg sm" style="left:27%;top:89%">一般 5</div><div class="lg sm" style="left:47%;top:89%">一般 6</div>
   </div>
@@ -276,6 +281,11 @@
   const SPONSOR_ENDPOINT = "https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec";
   // 收款資料
   const BANK = { bank:"台灣銀行 淡水分行", acc:"148001016921", name:"迅合有限公司" };
+  // 名額（手動更新：taken＝已贊助家數，total＝總名額；taken 等於 total 即顯示額滿並停用該方案）
+  const SLOTS = { main:{total:3, taken:2}, general:{total:6, taken:2}, gift:{total:2, taken:1} };
+  const isFull = (p) => SLOTS[p] && SLOTS[p].taken >= SLOTS[p].total;
+  // 主要贊助最後 1 個名額保留給指定夥伴（姓名＋分會需相符）
+  const RESERVED = { name:"林瑞營", chapter:"聚財" };
   const PLANS = { main:{label:"主要贊助", price:6000}, general:{label:"一般贊助", price:3000}, gift:{label:"報到伴手禮贊助", price:0} };
 
   const $ = (id) => document.getElementById(id);
@@ -295,17 +305,49 @@
   document.querySelectorAll('input[name="plan"],input[name="spInv"]').forEach(e => e.addEventListener("change", refresh));
   $("spBank").textContent = BANK.bank || "（待填）"; $("spAcc").textContent = BANK.acc || "（待填）"; $("spBankName").textContent = BANK.name || "（待填）";
   refresh();
+  // 名額顯示與額滿處理（可重複呼叫）
+  function renderSlots() {
+    Object.keys(SLOTS).forEach(function (p) {
+      const s = SLOTS[p], full = isFull(p);
+      const q = document.querySelector('.quota[data-plan="' + p + '"]');
+      if (q) { q.innerHTML = '已贊助 <b>' + Math.min(s.taken, s.total) + ' / ' + s.total + '</b> 家' + (full ? '<span class="full-badge">已額滿</span>' : ''); q.parentElement.classList.toggle("full", full); }
+      const r = document.querySelector('input[name="plan"][value="' + p + '"]');
+      if (r) {
+        const opt = r.closest(".opt"), sp = opt.querySelector("span");
+        const tag = sp.querySelector(".full-tag"); if (tag) tag.remove();
+        r.disabled = full; opt.classList.toggle("is-full", full);
+        if (full) { r.checked = false; sp.insertAdjacentHTML("afterbegin", '<strong class="full-tag" style="color:var(--danger)">【已額滿】</strong>'); }
+      }
+    });
+    refresh();
+  }
+  renderSlots();
+  // 向後台讀取實際已贊助家數；以「頁面上的數字」為最低值（讀取失敗時維持原數字）
+  (function loadCounts() {
+    if (!SPONSOR_ENDPOINT) return;
+    fetch(SPONSOR_ENDPOINT, { method: "POST", body: JSON.stringify({ action: "sponsorCount" }) })
+      .then(function (res) { return res.json(); })
+      .then(function (r) {
+        if (!r || r.status !== "ok" || !r.counts) return;
+        Object.keys(SLOTS).forEach(function (p) { const n = parseInt(r.counts[p], 10); if (n > SLOTS[p].taken) SLOTS[p].taken = n; });
+        renderSlots();
+      }).catch(function () {});
+  })();
 
   function validate() {
     const plan = radio("plan");
+    if (plan && isFull(plan)) return "此方案名額已滿，請選擇其他方案";
     if (!plan) return "請選擇贊助方案";
     if (!$("spName").value.trim()) return "請填姓名";
-    if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼";
+    if (plan === "main" && SLOTS.main.taken >= SLOTS.main.total - 1 && ($("spName").value.trim() !== RESERVED.name || $("spChapter").value !== RESERVED.chapter)) return "主要贊助最後 1 個名額已為指定夥伴保留，請選擇其他方案，謝謝";
+    $("spPhone").value = $("spPhone").value.replace(/[\s\-－()（）]/g, "");
+    if (!/^09\d{8}$/.test($("spPhone").value.trim())) return "手機格式請填 09 開頭共 10 碼（例：0912345678）";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("spEmail").value.trim())) return "請填正確的 Email";
     if (!$("spCompany").value.trim()) return "請填公司 / 品牌名稱";
     if (plan === "gift") {
       if (!$("giftDesc").value.trim()) return "請填禮物內容";
-      if (!(parseInt($("giftQty").value, 10) >= 50)) return "伴手禮數量至少 50 份";
+      $("giftQty").value = ($("giftQty").value.match(/\d+/) || [""])[0];
+      if (!(parseInt($("giftQty").value, 10) >= 50)) return "伴手禮數量至少 50 份（請只填數字，例：60）";
       return "";
     }
     if (!/^\d{5}$/.test($("spLast5").value.trim())) return "請填轉帳帳號末五碼（5 碼數字）";
@@ -340,7 +382,7 @@
     e.preventDefault();
     const err = validate();
     const box = $("spErr");
-    if (err) { box.textContent = err; show(box, true); return; }
+    if (err) { box.textContent = err; show(box, true); box.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
     show(box, false);
     if (!SPONSOR_ENDPOINT) return;
     const plan = radio("plan");
@@ -353,7 +395,7 @@
       invoice: plan === "gift" ? "" : radio("spInv"), invTitle: $("spInvTitle").value.trim(), taxId: $("spTaxId").value.trim(),
       invEmail: ($("spInvEmail").value.trim() || $("spEmail").value.trim())
     };
-    try { await submitSponsor(payload); } catch (x) { box.textContent = "送出失敗：" + x.message; show(box, true); }
+    try { await submitSponsor(payload); } catch (x) { box.textContent = "送出失敗：" + x.message; show(box, true); box.scrollIntoView({ behavior: "smooth", block: "center" }); }
   });
 
   // 串接完成後：把 SPONSOR_ENDPOINT 填上，並移除下面這兩行即可開放
