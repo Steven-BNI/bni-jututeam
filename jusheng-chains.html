@@ -127,10 +127,10 @@ const chains = [
   filled:[["電腦資訊設備與維護","陳恭將"],["客製網頁系統開發","林盟凱"],["會計服務","宋恩廷"]],
   open:["事務機租賃","淨水設備","企業律師","勞資顧問","品牌設計","政府補助顧問","企業貸款","系統開發","第三方支付系統","品牌包裝設計","大圖輸出"]},
  {name:"企業空間建置服務鏈", cust:"需要建置辦公室、店面、機房的企業與品牌",
-  filled:[["電腦資訊設備與維護","陳恭將"],["玻璃加工","林書玄"]],
+  filled:[["電腦資訊設備與維護","陳恭將"],["玻璃加工","林書玄"],["北區系統櫃工程","游尚勳"]],
   open:["OA辦公家具","UPS不斷電系統","企業AI系統導入","產物保險","弱電工程","企業貸款","企業顧問","商業空間設計","景觀設計","藝術品展售","精品傢俱","木作工程","水電工程","空調安裝"]},
  {name:"營造建商服務鏈", cust:"營造公司・建商",
-  filled:[["玻璃加工","林書玄"]],
+  filled:[["玻璃加工","林書玄"],["北區系統櫃工程","游尚勳"]],
   open:["代銷公司","磁磚工程","物業管理","停車場管理","建築師","消防工程","科技驗屋"]},
  {name:"食品開發與代工服務鏈", cust:"食品品牌商・通路商",
   filled:[["食品凍乾製造","黃仲睿"],["會計服務","宋恩廷"],["有機食品代理開發","凃秀菊"]],
@@ -146,7 +146,13 @@ const chains = [
   open:["保健品品牌","保養品品牌","文創生活品牌","跨境電商代運營","海外網紅經紀","精緻茶葉品牌"]},
  {name:"專業人士形象與家庭理財服務鏈", cust:"中高階主管・專業人士・家庭",
   filled:[["理財壽險","古心瑜"],["會計服務","宋恩廷"],["精品眼鏡","張嘉仁"]],
-  open:["證券業","包租代管","國內房屋仲介","海外理財顧問","銀行貸款","海外房產投資","人像攝影","髮型設計","西服訂製","手工皮鞋","彩妝造型","服飾配件","形象顧問"]}
+  open:["證券業","包租代管","國內房屋仲介","海外理財顧問","銀行貸款","海外房產投資","人像攝影","髮型設計","西服訂製","手工皮鞋","彩妝造型","服飾配件","形象顧問"]} ,
+ {name:"住家修繕服務鏈", cust:"屋主・租屋房東・搬家換屋的家庭", note:"北區夥伴自動延伸服務中區、南區（同一位夥伴）",
+  filled:[["北區系統櫃工程","游尚勳"],["中區系統櫃工程","游尚勳"],["南區系統櫃工程","游尚勳"]],
+  open:["北區水電工程","中區水電工程","南區水電工程","北區空調工程","中區空調工程","南區空調工程","北區家電清潔","中區家電清潔","南區家電清潔","北區居家清潔","中區居家清潔","南區居家清潔","搬遷服務"]},
+ {name:"房產投資服務鏈", cust:"房東・包租代管業主・房產投資人・買賣屋客戶",
+  filled:[["包租代管平台","陳遵傑"]],
+  open:["雙北包租代管","桃園包租代管","新竹包租代管","中區包租代管","南區包租代管","海外不動產投資","雙北房仲","桃園房仲","新竹房仲","中區房仲","南區房仲"]}
 ];
 
 // 多條服務鏈都需要的專業（名稱完全相同才算）
@@ -157,7 +163,7 @@ const repSet = new Set(repeated.map(r => r[0]));
 
 // 夥伴
 const members = {};
-chains.forEach(c => c.filled.forEach(([job,who]) => { members[who] = members[who] || {job, n:0}; members[who].n++; }));
+chains.forEach(c => { const seen = new Set(); c.filled.forEach(([job,who]) => { members[who] = members[who] || {job, n:0}; if(!seen.has(who)){ members[who].n++; seen.add(who); } }); });
 const memberList = Object.entries(members).sort((a,b)=>b[1].n-a[1].n);
 
 const totalOpen = chains.reduce((s,c)=>s+c.open.length,0);
@@ -169,10 +175,10 @@ const grid = document.getElementById("grid");
 grid.innerHTML = chains.map((c,i) => `
   <article class="chain" data-members="${c.filled.map(f=>f[1]).join(",")}">
     <h2>${esc(c.name)}</h2>
-    <p class="cust">服務客群：${esc(c.cust)}</p>
+    <p class="cust">服務客群：${esc(c.cust)}${c.note?`<br><b style="color:var(--gold)">★ ${esc(c.note)}</b>`:""}</p>
     <div class="row">${c.filled.map(([j,w])=>`<span class="chip f" data-who="${w}">${esc(j)}<i>${esc(w)}</i></span>`).join("")}</div>
     <div class="row">${c.open.map(o=>`<span class="chip o${repSet.has(o)?" rep":""}">${esc(o)}</span>`).join("")}</div>
-    <div class="count"><span>已到位 ${c.filled.length} 位</span><span>待邀請 ${c.open.length} 個</span></div>
+    <div class="count"><span>已到位 ${new Set(c.filled.map(f=>f[1])).size} 位</span><span>待邀請 ${c.open.length} 個</span></div>
   </article>`).join("");
 
 const filter = document.getElementById("filter");
