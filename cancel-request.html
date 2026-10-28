@@ -168,7 +168,6 @@ const training = {
   loc:  params.get('loc')  || '',
 };
 
-const SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
 
 function parseCSV(text) {
   const rows = [];
@@ -253,7 +252,7 @@ async function loadDeferOptions(paidFee, identity) {
   const select = document.getElementById('input-defer-target');
   const isMentor = identity === '認證導師';
   try {
-    const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('培訓公告');
+    const url = CONFIG.GAS_URL + '?action=publicSheet&sheet=' + encodeURIComponent('培訓公告');
     const res  = await fetch(url);
     const text = await res.text();
     const rows = parseCSV(text);

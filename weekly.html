@@ -132,7 +132,7 @@ h1 em { color:var(--red); font-style:normal; }
 <div id="mainContent"><div class="loading">載入中...</div></div>
 <script>
 var WEEKLY_SHEET_ID = '1Z6ZUPXNRtmQrE-xMNXoKGrJctz5qzWcI-kdGrtJU1tU';
-var LIGHTS_SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
 var BRANCHES = [
   { name:'聚財', targets:{
     '202604':{people:63,ref:519,guest:30},'202605':{people:67,ref:553,guest:32},
@@ -233,7 +233,7 @@ async function loadAll(){
   try{
     var now=new Date();
     var thisMonth=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0');
-    var lightsUrl='https://docs.google.com/spreadsheets/d/'+LIGHTS_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('會員紅綠燈');
+    var lightsUrl=GAS_URL+'?action=publicSheet&sheet='+encodeURIComponent('會員紅綠燈');
     var weeklyUrl='https://docs.google.com/spreadsheets/d/'+WEEKLY_SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('表單回覆 1');
     var results=await Promise.all([fetch(lightsUrl),fetch(weeklyUrl)]);
     render(parseCSV(await results[0].text()),parseCSV(await results[1].text()),thisMonth);

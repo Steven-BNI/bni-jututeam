@@ -228,7 +228,6 @@ h1 em { color:var(--red); font-style:normal; }
 <div id="mainContent"><div class="loading">載入中...</div></div>
 
 <script>
-var SHEET_ID = '1JKHpemlHQd_iCp1FpRwyolwL1oL3LNNKtvd5AVEZ-eI';
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbx4RlPROgjqOPWaI76XZ6Lh4kZIQMww5IeiDTIUM2y8VuBGf9OCPWoQHT4JNTl6OOWPYw/exec';
 
 function toggleMyReg() {
@@ -334,7 +333,7 @@ function isMSP(name) {
 async function loadTraining() {
   setSyncStatus('loading', '載入資料中...');
   try {
-    var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent('培訓公告');
+    var url = GAS_URL + '?action=publicSheet&sheet=' + encodeURIComponent('培訓公告');
     var r = await fetch(url);
     var text = await r.text();
     var rows = parseCSV(text);
