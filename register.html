@@ -870,51 +870,9 @@ const CONFIG = {
   ADVANCED_MSP_KEYWORDS: ['進階MSP'],
   LTRT_TRAINING_KEYWORDS: ['LTRT'],
 
-  // 統籌名單（依培訓類型，每類固定一位）
-  STAFF_BY_TYPE: {
-    primaryMSP:  [{ name:'陳顗淋', chapter:'聚大分會' }],
-    advancedMSP: [{ name:'陳虹君', chapter:'聚財分會' }],
-    ltrt:        [{ name:'陳虹君', chapter:'聚財分會' }],
-  },
-  // 講師名單（依培訓類型，固定名單）
-  LECTURERS_BY_TYPE: {
-    primaryMSP:  [{ name:'林綉蓉', chapter:'聚財分會' }, { name:'李佩玲', chapter:'聚財分會' }],
-    advancedMSP: [{ name:'林綉蓉', chapter:'聚財分會' }],
-  },
-  // 認證導師名單（有效名單，年度考核制，需 Steven 更新維護）
-  MENTORS: [
-    { name:'張于娟', chapter:'聚財分會' }, { name:'余明興', chapter:'聚財分會' },
-    { name:'吳宗憲', chapter:'聚財分會' }, { name:'陳力銓', chapter:'聚財分會' },
-    { name:'李佩玲', chapter:'聚財分會' }, { name:'李維軒', chapter:'聚財分會' },
-    { name:'林綉蓉', chapter:'聚財分會' }, { name:'洪世遑', chapter:'聚財分會' },
-    { name:'邱立翰', chapter:'聚財分會' }, { name:'陳臣勝', chapter:'聚財分會' },
-    { name:'陳虹君', chapter:'聚財分會' }, { name:'黃于彤', chapter:'聚財分會' },
-    { name:'李易靜', chapter:'聚道分會' }, { name:'張剛寧', chapter:'聚道分會' },
-    { name:'周柏廷', chapter:'聚道分會' }, { name:'詹蕎瑀', chapter:'聚道分會' },
-    { name:'萬翎甄', chapter:'聚道分會' }, { name:'廖灝明', chapter:'聚道分會' },
-    { name:'楊凱雯', chapter:'聚富分會' },
-    { name:'陳顗淋', chapter:'聚大分會' }, { name:'曾映傑', chapter:'聚大分會' },
-    { name:'周虹邑', chapter:'聚大分會' }, { name:'張道芃', chapter:'聚大分會' },
-    { name:'林道然', chapter:'聚大分會' }, { name:'柯建宇', chapter:'聚大分會' },
-    { name:'賴俞諺', chapter:'聚大分會' }, { name:'陳柏翰', chapter:'聚大分會' },
-  ],
-  // 金質獎章得主名單（僅 MSP 類免費，需比對姓名+分會）
-  GOLD_MEMBERS: [
-    { name:'林綉蓉', chapter:'聚財分會' }, { name:'林碧蝦', chapter:'聚財分會' },
-    { name:'陳虹君', chapter:'聚財分會' },
-    { name:'吳舜豪', chapter:'聚財分會' }, { name:'詹蕎瑀', chapter:'聚道分會' },
-    { name:'吳宗憲', chapter:'聚財分會' }, { name:'羅畯宸', chapter:'聚富分會' },
-    { name:'林佳靜', chapter:'聚財分會' }, { name:'柯建宇', chapter:'聚大分會' },
-    { name:'張道芃', chapter:'聚大分會' },
-  ],
-  // 區域培訓大使（所有場次免費，需比對姓名+分會）
-  REGIONAL_AMBASSADOR: { name:'陳虹君', chapter:'聚財分會' },
+  // 統籌／講師／導師／金質獎章／培訓大使名單已移到後台核對，網頁不再存放
 };
 
-// 姓名+分會比對工具
-function matchNameChapter(list, name, chapter) {
-  return list.some(p => p.name === name && p.chapter === chapter);
-}
 
 // ═══════════════════════════════════════
 // 狀態
@@ -993,8 +951,8 @@ function init() {
 
   // 決定本場對應的統籌/講師固定名單（無對應類型則為 null，卡片直接隱藏）
   const trainingTypeKey = isPrimaryMSP ? 'primaryMSP' : (isAdvancedMSP ? 'advancedMSP' : (isLTRT ? 'ltrt' : null));
-  state.training.staffList     = trainingTypeKey ? (CONFIG.STAFF_BY_TYPE[trainingTypeKey] || null) : null;
-  state.training.lecturerList  = trainingTypeKey ? (CONFIG.LECTURERS_BY_TYPE[trainingTypeKey] || null) : null;
+  state.training.hasStaff      = !!trainingTypeKey;
+  state.training.hasLecturer   = (isPrimaryMSP || isAdvancedMSP);
 
   // 認證導師：僅 MSP 顯示，優惠價（有效名單另於送出時核對）
   if (isMSP && state.training.feeMentor > 0) {
@@ -1003,17 +961,15 @@ function init() {
   }
 
   // 統籌：僅本場有固定名單時顯示（免費，核對姓名+分會）
-  if (state.training.staffList) {
+  if (state.training.hasStaff) {
     document.getElementById('staff-card').style.display = 'flex';
-    const names = state.training.staffList.map(p => `${p.name}（${p.chapter}）`).join('、');
-    document.getElementById('staff-desc').textContent = `限本場總統籌選擇，將於下一步核對姓名（${names}）`;
+    document.getElementById('staff-desc').textContent = '限本場總統籌選擇，將於下一步核對姓名';
   }
 
   // 講師：僅本場有固定名單時顯示（免費，核對姓名+分會）
-  if (state.training.lecturerList) {
+  if (state.training.hasLecturer) {
     document.getElementById('lecturer-card').style.display = 'flex';
-    const names = state.training.lecturerList.map(p => `${p.name}（${p.chapter}）`).join('、');
-    document.getElementById('lecturer-desc').textContent = `限本場講師選擇，將於下一步核對姓名（${names}）`;
+    document.getElementById('lecturer-desc').textContent = '限本場講師選擇，將於下一步核對姓名';
   }
 
   // 金質獎章得主：僅 MSP 場次顯示（免費）
@@ -1069,7 +1025,7 @@ function goToForm() {
 // ═══════════════════════════════════════
 // 表單驗證 → 進入確認頁
 // ═══════════════════════════════════════
-function goToConfirm() {
+async function goToConfirm() {
   const name    = document.getElementById('input-name').value.trim();
   const chapter = document.getElementById('input-chapter').value.trim();
   const phone   = document.getElementById('input-phone').value.trim();
@@ -1107,32 +1063,38 @@ function goToConfirm() {
   }
   nameNote.textContent = '';
 
-  if (valid) {  // 姓名/分會本身格式已通過才進一步核對名單
-    if (state.identity === 'mentor' && !matchNameChapter(CONFIG.MENTORS, name, chapter)) {
-      nameEl.classList.add('error');
-      nameNote.textContent = '此姓名＋分會不在目前有效認證導師名單內，請確認或改選其他身份';
+  if (valid) {  // 格式通過後，由後台核對身份資格與應付金額
+    const nextBtn = document.querySelector('#section-form .btn-primary');
+    nextBtn.disabled = true;
+    const oldText = nextBtn.textContent;
+    nextBtn.textContent = '核對中…';
+    try {
+      const res = await fetch(CONFIG.GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'checkIdentity',
+          trainingName: state.training.name,
+          trainingDate: state.training.date,
+          name, chapter, phone, email,
+          identity: state.identity,
+          payMethod: state.payMethod || 'card',
+        }),
+      });
+      const r = await res.json();
+      if (r.status !== 'ok') {
+        nameEl.classList.add('error');
+        nameNote.textContent = r.message || '資格核對未通過，請確認或改選其他身份';
+        valid = false;
+      } else {
+        state.fee = r.fee;   // 以後台算出的金額為準
+      }
+    } catch (err) {
+      nameNote.textContent = '連線失敗，請稍後再試';
       valid = false;
     }
-    if (state.identity === 'staff' && !matchNameChapter(state.training.staffList || [], name, chapter)) {
-      nameEl.classList.add('error');
-      nameNote.textContent = '此姓名＋分會不是本場總統籌，請確認或改選其他身份';
-      valid = false;
-    }
-    if (state.identity === 'lecturer' && !matchNameChapter(state.training.lecturerList || [], name, chapter)) {
-      nameEl.classList.add('error');
-      nameNote.textContent = '此姓名＋分會不是本場講師，請確認或改選其他身份';
-      valid = false;
-    }
-    if (state.identity === 'gold' && !matchNameChapter(CONFIG.GOLD_MEMBERS, name, chapter)) {
-      nameEl.classList.add('error');
-      nameNote.textContent = '此姓名＋分會不在金質獎章榮耀牆名單內，請確認或改選其他身份';
-      valid = false;
-    }
-    if (state.identity === 'ambassador' && !(name === CONFIG.REGIONAL_AMBASSADOR.name && chapter === CONFIG.REGIONAL_AMBASSADOR.chapter)) {
-      nameEl.classList.add('error');
-      nameNote.textContent = '區域培訓大使身份僅限本人選擇，請確認姓名＋分會或改選其他身份';
-      valid = false;
-    }
+    nextBtn.disabled = false;
+    nextBtn.textContent = oldText;
   }
 
   if (!valid) {
