@@ -452,13 +452,19 @@ function renderTraining(rows) {
   var selectHtml = '<div class="month-selector-wrap"><label>📅 月份</label><div class="custom-select" id="customSelect"><div class="custom-select-btn" id="customSelectBtn">--</div><div class="custom-select-dropdown" id="customSelectDropdown">';
   menuOrder.forEach(function(mk) {
     var mp = mk.split('/');
-    var mlabel = mp.length >= 2 ? parseInt(mp[1]) + ' 月' : mk;
+    var mlabel = mp.length >= 2 ? ((parseInt(mp[0]) !== new Date().getFullYear() ? parseInt(mp[0]) + ' 年 ' : '') + parseInt(mp[1]) + ' 月') : mk;
     var mExpired = months[mk].every(function(r){ return isEffectivelyDone(r); });
     var cls = 'custom-select-option' + (mk === defaultMk ? ' selected' : '') + (mExpired ? ' expired' : '');
     var displayLabel = mExpired ? mlabel + '（已結束）' : mlabel;
     // 第一個已結束月份前加分隔線
     var isFirstExpired = mExpired && !menuOrder.slice(0, menuOrder.indexOf(mk)).some(function(pmk){ return months[pmk].every(function(r){ return isEffectivelyDone(r); }); });
-    if (isFirstExpired) selectHtml += '<div style="border-top:1px solid rgba(255,255,255,0.08);margin:4px 0"></div>';
+    // 跨年分隔：每個年份開頭加一行年份標題
+    var prevMk = menuOrder[menuOrder.indexOf(mk) - 1];
+    if (mp.length >= 2 && (!prevMk || prevMk.split('/')[0] !== mp[0])) {
+      selectHtml += '<div style="padding:8px 14px 4px;font-size:12px;font-weight:700;letter-spacing:2px;color:#C9A84C;font-family:Oswald,sans-serif;'
+        + (prevMk ? 'border-top:1px solid rgba(255,255,255,0.15);margin-top:4px;' : '') + '">── ' + mp[0] + ' 年 ──</div>';
+    }
+    if (isFirstExpired && prevMk && prevMk.split('/')[0] === mp[0]) selectHtml += '<div style="border-top:1px solid rgba(255,255,255,0.08);margin:4px 0"></div>';
     if (mk === defaultMk) curLabel = mlabel;
     selectHtml += '<div class="' + cls + '" data-value="' + mk + '" onclick="selectMonth(\'' + mk + '\', \'' + mlabel + '\')">'
       + displayLabel + '</div>';
