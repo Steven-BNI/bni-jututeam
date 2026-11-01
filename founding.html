@@ -63,7 +63,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 .progress-meta { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:18px; }
 
 .member-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
-.member-row { background:#1a1a26; border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; font-size:14px; gap:8px; }
+.member-row { background:#1a1a26; border-radius:8px; padding:10px 12px; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; font-size:14px; gap:2px; min-width:0; }
 .member-row.is-new { background:#15332a; }
 .member-name { font-weight:700; }
 .member-name.new { color:var(--green); }
@@ -74,7 +74,8 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
 .dna-chip { border:1.5px solid var(--blue); color:var(--blue); border-radius:8px; padding:9px 6px; text-align:center; font-size:13px; font-weight:700; }
 
 @media(max-width:600px){
-  .member-grid { grid-template-columns:1fr; }
+  .member-grid { grid-template-columns:1fr 1fr; }
+  .member-row { padding:9px 10px; }
   .branch-roles { text-align:left; }
   .card-head { flex-direction:column; }
   .dna-grid { grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); }
@@ -92,7 +93,7 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
   .stats-row { gap:14px; margin-bottom:36px; }
   .stat-pill { font-size:15px; padding:9px 20px; }
 
-  #cardsWrap { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:start; }
+  #cardsWrap { display:grid; grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); gap:24px; align-items:start; }
   .branch-card { margin-bottom:0; padding:28px 26px; }
 
   .branch-name { font-size:30px; }
@@ -102,8 +103,8 @@ body { background:var(--bg); color:var(--text); font-family:'Noto Sans TC',sans-
   .progress-num { font-size:42px; }
   .progress-denom { font-size:20px; }
 
-  .member-grid { grid-template-columns:1fr; }
-  .member-row { font-size:15px; padding:12px 16px; }
+  .member-grid { grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+  .member-row { font-size:15px; padding:10px 14px; }
   .member-role { font-size:13px; }
 
   .dna-grid { grid-template-columns:repeat(2,1fr); }
@@ -168,7 +169,7 @@ const chapters = [
       ["劉彥彤","幹細胞外泌體"],   ["吳依凡","舞蹈表演與教學"],
       ["謝樹人","營養保健品"],
     ],
-    dna: ["余明興","陳臣勝","江宜真","林瑞營","林裕珵"],
+    dna: ["余明興","陳臣勝","江宜真","林煜珵"],
   },
   {
     name: "聚盛", tag: "線上分會",
