@@ -96,7 +96,7 @@ section.rep p{margin:0 0 12px;color:var(--muted);font-size:14px}
 </head>
 <body>
 <div class="wrap">
-  <p style="margin:0 0 14px;font-size:14px"><a href="/bni-jututeam/founding.html" style="color:var(--navy);text-decoration:none;font-weight:700">← 返回籌備分會進度</a></p>
+  <p id="backLink" style="display:none;margin:0 0 14px;font-size:14px"><a href="/bni-jututeam/founding.html" style="color:var(--navy);text-decoration:none;font-weight:700">← 返回籌備分會進度</a></p>
   <header>
     <h1><small>BNI 聚盛籌備</small>產業服務鏈總覽</h1>
     <p class="summary" id="summary"></p>
@@ -139,13 +139,13 @@ const chains = [
   filled:[["食品凍乾製造","黃仲睿"],["精油沐浴用品","徐宇珩"],["客製網頁系統開發","林盟凱"],["產物保險","鄧皓昇"],["馬來電視購物上架","鄭淯勻"]],
   open:["電商團購代操","網紅經紀","商業攝影","跨境貿易商","社群行銷","禮贈品規劃","活動企劃","自媒體行銷","SEO關鍵字行銷","包裝印刷設計"]},
  {name:"團購與員工福利服務鏈", cust:"團購消費者・企業福委會・中小企業員工",
-  filled:[["精油沐浴用品","徐宇珩"],["精品眼鏡","張嘉仁"],["食品團購批發","葉欣"]],
+  filled:[["精油沐浴用品","徐宇珩"],["精品眼鏡","張嘉仁"],["食品團購批發","葉欣"],["塔羅占卜師","朱冠和"]],
   open:["咖啡濾掛包","水果批發","美容保養品","海鮮批發","茶葉批發","客製烘焙","健身房","藥局","牙醫診所","醫美診所","團服訂製","健檢中心","中醫診所","團體旅遊"]},
  {name:"跨境通路服務鏈", cust:"大陸、東南亞通路代理商",
   filled:[["有機食品開發與代理","凃秀菊"],["食品團購批發","葉欣"],["包租代管平台","陳遵傑"],["產物保險","鄧皓昇"],["馬來電視購物上架","鄭淯勻"],["滴雞精外銷","王健行"]],
   open:["保健品品牌","保養品品牌","文創生活品牌","跨境電商代運營","海外網紅經紀","精緻茶葉品牌"]},
  {name:"專業人士形象與家庭理財服務鏈", cust:"中高階主管・專業人士・家庭",
-  filled:[["理財壽險","古心瑜"],["會計服務","宋恩廷"],["精品眼鏡","張嘉仁"]],
+  filled:[["理財壽險","古心瑜"],["會計服務","宋恩廷"],["精品眼鏡","張嘉仁"],["塔羅占卜師","朱冠和"]],
   open:["證券業","包租代管","國內房屋仲介","海外理財顧問","銀行貸款","海外房產投資","人像攝影","髮型設計","西服訂製","手工皮鞋","彩妝造型","服飾配件","形象顧問"]} ,
  {name:"住家修繕服務鏈", cust:"全省修繕需求的企業、連鎖據點、屋主與房東", note:"每個北區專業別，都對應有中區、南區的位置待邀請",
   filled:[["北區系統櫃工程","游尚勳"]],
@@ -206,6 +206,10 @@ memberList.forEach(([who,{job,n}]) => {
 
 document.querySelector("#reptable tbody").innerHTML = repeated.map(([k,v]) =>
   `<tr><td>${esc(k)}</td><td>${v.map(esc).join("、")}</td></tr>`).join("");
+</script>
+<script>
+// 只有從「籌備分會進度」點進來的人才顯示返回連結；來賓直接開連結則看不到，也就不會被帶到其他頁面
+try { if (document.referrer.indexOf('/bni-jututeam/founding') !== -1) document.getElementById('backLink').style.display = 'block'; } catch (e) {}
 </script>
 </body>
 </html>
