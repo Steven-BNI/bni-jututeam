@@ -175,7 +175,7 @@
       <div><dt>日期</dt><dd>11/11（三）</dd></div>
       <div><dt>時間</dt><dd>14:00-16:30</dd></div>
       <div><dt>地點</dt><dd>台北新板希爾頓酒店</dd></div>
-      <div><dt>贊助報名</dt><dd>額滿為止，最晚 10/15（四）</dd></div>
+      <div><dt>贊助報名</dt><dd>11/6（五）23:59 截止</dd></div>
     </dl>
     <a class="cta" href="#join">我要贊助</a>
     <div style="margin-top:16px"><a href="event.html" style="color:var(--gold);font-size:15px">看活動介紹與講者 →</a></div>
@@ -212,15 +212,16 @@
 <section class="sp-sec">
   <div class="section-head"><h2>時程</h2></div>
   <div class="steps">
-    <div><b>最晚 10/15（四）</b><span>贊助報名與匯款（額滿為止）</span></div>
+    <div><b>11/6（五）23:59</b><span>贊助報名截止</span></div>
     <div><b>10/20（二）</b><span>提供 logo 檔案（AI 或 PDF 向量檔，以 Email 寄給區域辦公室）</span></div>
     <div><b>11/4（三）</b><span>伴手禮贊助：交付禮物</span></div>
     <div><b>11/11（三）</b><span>活動當天</span></div>
   </div>
 </section></div>
 <div class="wrap"><section class="register" id="join">
-  <div class="section-head"><h2>我要贊助</h2><div class="sub">銀行轉帳後填寫資料即可，不需另外聯絡｜最晚 10/15（四）</div></div>
+  <div class="section-head"><h2>我要贊助</h2><div class="sub">銀行轉帳後填寫資料即可，不需另外聯絡｜11/6（五）23:59 截止</div></div>
   <div class="soon" id="soon">贊助報名即將開放，請稍候。</div>
+  <div class="soon hidden" id="spClosed"><b>贊助報名已截止</b>（11/6 23:59）。感謝各位夥伴的支持，11/11 現場見！</div>
   <form id="spForm" style="margin-top:16px">
     <div class="fieldset-title">贊助方案</div>
     <div class="opt-group">
@@ -400,6 +401,17 @@
 
   // 串接完成後：把 SPONSOR_ENDPOINT 填上，並移除下面這兩行即可開放
   if (SPONSOR_ENDPOINT) { $("spSubmit").disabled = false; $("spSubmit").textContent = "送出贊助"; show($("soon"), false); }
+
+  // 贊助報名截止：2026/11/6 23:59（台灣時間）後自動關閉
+  const DEADLINE = new Date("2026-11-06T23:59:59+08:00").getTime();
+  let closedDone = false;
+  function applyClosed() {
+    if (closedDone || Date.now() <= DEADLINE) return;
+    closedDone = true;
+    show($("spForm"), false); show($("soon"), false); show($("spClosed"), true);
+    document.querySelectorAll("a.cta").forEach(function (a) { a.textContent = "贊助報名已截止"; a.removeAttribute("href"); a.style.opacity = ".6"; a.style.pointerEvents = "none"; });
+  }
+  applyClosed(); setInterval(applyClosed, 30000);
 </script>
 </body>
 </html>
