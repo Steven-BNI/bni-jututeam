@@ -91,6 +91,14 @@ button.submit:disabled { opacity: .6; cursor: wait; }
 .cell .tx { font-size: max(8px, 2.4cqw); color: var(--paper-mute); flex: 1; min-height: 0; overflow: hidden; line-height: 1.45; }
 .cell .bt { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5cqw; font-size: max(8px, 2.4cqw); line-height: 1.4; }
 .cell .bt .qr { width: 9cqw; height: 9cqw; font-size: max(6px, 2cqw); }
+.tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tier { border: 2px solid var(--line); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 2px; background: var(--bg); }
+.tier b { font-size: 18px; }
+.tier span { font-size: 16px; color: var(--muted); font-weight: 700; }
+.tier.on { border-color: var(--red); background: var(--red-soft); }
+.tier.on span { color: var(--red); }
+.now { font-size: 19px; }
+.now b { color: var(--red); font-size: 24px; font-variant-numeric: tabular-nums; }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -102,11 +110,23 @@ button.submit:disabled { opacity: .6; cursor: wait; }
     <h1>廣東年會 夥伴手冊<br>曝光登記表</h1>
     <p>手冊由出團夥伴統一帶到 BNI 廣東首屆國際年會,現場發送給海外與大陸夥伴交流,全部發完。</p>
     <div class="facts">
-      <div class="fact"><b>印製</b>A5 直式 · 500 本</div>
+      <div class="fact"><b>印製份數</b>依參與人數,300 / 500 / 700 本</div>
       <div class="fact"><b>登記與轉帳截止</b>11/18(三)</div>
       <div class="fact"><b>年會日期</b>2026/12/15–16</div>
     </div>
   </header>
+
+  <section class="card" id="printInfo">
+    <h2>印製份數依參與人數決定</h2>
+    <p class="sub">手冊全部帶到廣東年會發送。參與的人越多,印得越多,現場被看到的機會越大。11/18 截止後,依最後確認收款的人數決定份數。</p>
+    <div class="tiers">
+      <div class="tier" data-tier="0"><b>30–49 人</b><span>印 300 份</span></div>
+      <div class="tier" data-tier="1"><b>50–79 人</b><span>印 500 份</span></div>
+      <div class="tier" data-tier="2"><b>80 人以上</b><span>印 700 份</span></div>
+    </div>
+    <div class="now">目前已確認收款 <b id="nowCount">—</b> 人 · 預計印製 <b id="nowCopies">—</b></div>
+    <span class="hint">未滿 30 人時,由區域另行公告。人數以區域確認入帳後才計入,含一頁式與一格曝光,不含本次不曝光。</span>
+  </section>
 
   <form id="f" novalidate>
   <div class="stack">
@@ -212,6 +232,15 @@ button.submit:disabled { opacity: .6; cursor: wait; }
         <div class="field"><label for="paydate">轉帳日期<span class="req">*</span></label><input id="paydate" type="text" placeholder="例:11/15"></div>
       </div>
       <span class="hint">請先轉帳,再回來填後五碼與日期。區域核對入帳後,才會排進手冊。</span>
+      <div class="field"><span class="lbl">發票<span class="req">*</span></span>
+        <label class="check"><input type="radio" name="inv" value="2" checked><span>二聯式(個人,不需統一編號)</span></label>
+        <label class="check"><input type="radio" name="inv" value="3"><span>三聯式(公司,需統一編號與抬頭)</span></label>
+      </div>
+      <div class="grid2" id="invCompany" hidden>
+        <div class="field"><label for="taxId">統一編號<span class="req">*</span></label><input id="taxId" type="text" inputmode="numeric" maxlength="8" placeholder="8 碼數字"></div>
+        <div class="field"><label for="invTitle">發票抬頭(公司全名)<span class="req">*</span></label><input id="invTitle" type="text"></div>
+      </div>
+      <div class="field"><label for="invEmail">發票寄送 Email<span class="req">*</span></label><input id="invEmail" type="email" placeholder="發票會寄到這個信箱"><span class="hint">發票開立後寄到這個信箱,開立後無法更改,請確認統一編號與抬頭正確。</span></div>
     </section>
 
     <section class="card">
@@ -281,9 +310,18 @@ button.submit:disabled { opacity: .6; cursor: wait; }
   }
   $('cells').innerHTML = cells;
 
+  function showTotal(n) {
+    var copies = n >= 80 ? 700 : n >= 50 ? 500 : n >= 30 ? 300 : 0;
+    var idx = n >= 80 ? 2 : n >= 50 ? 1 : n >= 30 ? 0 : -1;
+    $('nowCount').textContent = n;
+    $('nowCopies').textContent = copies ? copies + ' 份' : '未滿 30 人,另行公告';
+    document.querySelectorAll('.tier').forEach(function (t) { t.classList.toggle('on', Number(t.getAttribute('data-tier')) === idx); });
+  }
+
   // 一頁式剩餘名額
   if (GAS_URL) {
     fetch(GAS_URL + '?action=slots').then(function (r) { return r.json(); }).then(function (d) {
+      if (typeof d.total === 'number') showTotal(d.total);
       if (typeof d.featureLeft !== 'number') return;
       if (d.featureLeft <= 0) {
         $('planFeature').classList.add('off');
@@ -354,6 +392,12 @@ button.submit:disabled { opacity: .6; cursor: wait; }
     if (v === 'feature') needFile('logo', '公司 LOGO');
     if (mark('last5', !/^\d{5}$/.test($('last5').value.trim()))) bad.push('轉帳後五碼(5 位數字)');
     need('paydate', '轉帳日期');
+    var inv = f.querySelector('input[name=inv]:checked').value;
+    if (mark('invEmail', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('invEmail').value.trim()))) bad.push('發票寄送 Email');
+    if (inv === '3') {
+      if (mark('taxId', !/^\d{8}$/.test($('taxId').value.trim()))) bad.push('統一編號(8 位數字)');
+      need('invTitle', '發票抬頭');
+    } else { mark('taxId', false); mark('invTitle', false); }
     if (!Array.from(f.querySelectorAll('.agree')).every(function (c) { return c.checked; })) bad.push('確認事項需全部勾選');
     if (bad.length) { showMsg('還缺:' + bad.join('、') + '。'); return; }
 
@@ -379,6 +423,8 @@ button.submit:disabled { opacity: .6; cursor: wait; }
         qrType: f.querySelector('input[name=qr]:checked').value,
         slogan: v === 'feature' ? $('slogan').value.trim() : '', offer: v === 'feature' ? $('offer').value.trim() : '',
         last5: $('last5').value.trim(), payDate: $('paydate').value.trim(),
+        invType: inv, taxId: inv === '3' ? $('taxId').value.trim() : '', invTitle: inv === '3' ? $('invTitle').value.trim() : '',
+        invEmail: $('invEmail').value.trim(),
         files: files
       };
       var res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
@@ -386,7 +432,7 @@ button.submit:disabled { opacity: .6; cursor: wait; }
       if (d.status !== 'ok') throw new Error(d.message || '送出失敗');
       f.hidden = true; $('done').hidden = false;
       $('doneId').textContent = d.id;
-      $('doneText').textContent = '應付 NT$ ' + Number(d.amount).toLocaleString('en-US') + '。區域核對入帳後,會排進手冊。';
+      $('doneText').textContent = '應付 NT$ ' + Number(d.amount).toLocaleString('en-US') + '。區域核對入帳後,會排進手冊。發票會寄到 ' + $('invEmail').value.trim() + '。';
       window.scrollTo(0, 0);
     } catch (err) {
       showMsg((err && err.message ? err.message : '送出失敗') + '。資料還在畫面上,請檢查網路後再按一次;若多次失敗,請在群組聯繫區域窗口。');
@@ -394,6 +440,11 @@ button.submit:disabled { opacity: .6; cursor: wait; }
     }
     busy = false;
   });
+
+  function invRefresh() { $('invCompany').hidden = f.querySelector('input[name=inv]:checked').value !== '3'; }
+  f.querySelectorAll('input[name=inv]').forEach(function (r) { r.addEventListener('change', invRefresh); });
+  invRefresh();
+  $('email').addEventListener('blur', function () { if (!$('invEmail').value.trim()) $('invEmail').value = $('email').value.trim(); });
 
   refresh();
 })();
