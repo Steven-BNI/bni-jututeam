@@ -117,10 +117,10 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
   <section class="card" id="auth">
     <h2><span class="tag">1</span>確認身分</h2>
     <div class="grid2">
-      <div class="field"><label for="aid">登記編號<span class="req">*</span></label><input id="aid" type="text" placeholder="例:HB-001" autocapitalize="characters"></div>
+      <div class="field"><label for="aem">登記時填的 Email<span class="req">*</span></label><input id="aem" type="email" placeholder="發票寄送的那個 Email" autocapitalize="off"></div>
       <div class="field"><label for="aph">手機末四碼<span class="req">*</span></label><input id="aph" type="text" inputmode="numeric" maxlength="4" placeholder="例:5678"></div>
     </div>
-    <span class="hint">登記編號在你完成登記後的畫面上。忘記請在群組詢問區域窗口。</span>
+    <span class="hint">請用登記時填的「發票寄送 Email」與手機末四碼。忘記請在群組詢問區域窗口。</span>
     <button type="button" class="submit" id="lookupBtn">確認並開始填寫</button>
     <div class="msg" id="amsg" hidden></div>
   </section>
@@ -208,8 +208,8 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
 
   var cur = null; // { id, phone4, plan, has }
   var busy = false;
-  var qid = new URLSearchParams(location.search).get('id');
-  if (qid) $('aid').value = qid;
+  var qem = new URLSearchParams(location.search).get('e');
+  if (qem) $('aem').value = qem;
 
   document.querySelectorAll('[data-count]').forEach(function (el) {
     var out = $(el.getAttribute('data-count')), max = Number(el.getAttribute('maxlength'));
@@ -219,16 +219,16 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
   });
 
   $('lookupBtn').addEventListener('click', async function () {
-    var id = $('aid').value.trim().toUpperCase(), p4 = $('aph').value.trim();
+    var em = $('aem').value.trim(), p4 = $('aph').value.trim();
     var m = $('amsg');
-    if (!id || !/^\d{4}$/.test(p4)) { m.hidden = false; m.textContent = '請填登記編號與 4 位數字的手機末四碼。'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em) || !/^\d{4}$/.test(p4)) { m.hidden = false; m.textContent = '請填正確的 Email 與 4 位數字的手機末四碼。'; return; }
     this.disabled = true; this.textContent = '確認中…';
     try {
-      var d = await post({ action: 'lookup', id: id, phone4: p4 });
+      var d = await post({ action: 'lookup', email: em, phone4: p4 });
       if (d.status !== 'ok') throw new Error(d.message || '確認失敗');
-      cur = { id: id, phone4: p4, plan: d.plan, has: d.has };
+      cur = { id: d.id, email: em, phone4: p4, plan: d.plan, has: d.has };
       $('who').textContent = d.name + ' · ' + d.chapter;
-      $('whoSub').textContent = id + ' · ' + (d.plan === 'feature' ? '一頁式曝光' : '一格曝光') + ' · ' + d.company + (d.done ? ' · 已補過資料,可修改後重新送出' : '');
+      $('whoSub').textContent = d.id + ' · ' + (d.plan === 'feature' ? '一頁式曝光' : '一格曝光') + ' · ' + d.company + (d.done ? ' · 已補過資料,可修改後重新送出' : '');
       var x = d.data || {};
       ['trade', 'service', 'have', 'want', 'line', 'wechat', 'wa', 'slogan', 'offer'].forEach(function (k) {
         $(k).value = x[k] || ''; if ($(k)._upd) $(k)._upd();
@@ -308,7 +308,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
         files.ad = $('ad').files.length ? await prep($('ad').files[0], 2600, false) : null;
       }
       var d = await post({
-        action: 'materials', id: cur.id, phone4: cur.phone4,
+        action: 'materials', email: cur.email, phone4: cur.phone4,
         trade: $('trade').value.trim(), service: $('service').value.trim(), have: $('have').value.trim(), want: $('want').value.trim(),
         line: $('line').value.trim(), wechat: $('wechat').value.trim(), wa: $('wa').value.trim(),
         qrType: document.querySelector('input[name=qr]:checked').value,

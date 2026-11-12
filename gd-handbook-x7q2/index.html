@@ -175,7 +175,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
           <select id="chapter"><option value="">請選擇</option><option>聚財</option><option>聚道</option><option>聚大</option><option>聚富</option><option>聚美好</option><option>聚盛</option><option>其他</option></select></div>
         <div class="field"><label for="company">公司名稱(中英文)<span class="req">*</span></label><input id="company" type="text" placeholder="例:佳達國際 Jiada International"></div>
       </div>
-      <div class="field"><label for="phone">手機<span class="req">*</span></label><input id="phone" type="tel" placeholder="0912 345 678"><span class="hint">補資料時,需要用「登記編號」加「手機末四碼」確認身分。</span></div>
+      <div class="field"><label for="phone">手機<span class="req">*</span></label><input id="phone" type="tel" placeholder="0912 345 678"><span class="hint">補資料時,用「發票寄送 Email」加「手機末四碼」確認身分。</span></div>
     </section>
 
     <section class="card">
@@ -223,7 +223,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
     <div class="id" id="doneId"></div>
     <p id="doneText"></p>
     <a class="btn" id="nextBtn" href="upload.html" hidden>接著補齊手冊資料</a>
-    <p class="hint" id="nextHint" hidden>請截圖保存登記編號。11/25 前都可以回來補資料,補資料時要用「登記編號」和「手機末四碼」。</p>
+    <p class="hint" id="nextHint" hidden>登記編號請截圖保存。11/25 前都可以回來補資料,補資料時用你填的 Email 加手機末四碼確認身分。</p>
   </section>
 
   <p class="foot">BNI 新北市西A區 · 聚團隊 · Givers Gain®</p>
@@ -327,7 +327,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
       f.hidden = true; $('done').hidden = false;
       $('doneId').textContent = d.id;
       $('doneText').textContent = '應付 NT$ ' + Number(d.amount).toLocaleString('en-US') + '。區域核對入帳後,會計入印製人數。發票會寄到 ' + $('invEmail').value.trim() + '。';
-      $('nextBtn').href = 'upload.html?id=' + encodeURIComponent(d.id);
+      $('nextBtn').href = 'upload.html?e=' + encodeURIComponent($('invEmail').value.trim());
       $('nextBtn').hidden = false; $('nextHint').hidden = false;
       window.scrollTo(0, 0);
     } catch (err) {
