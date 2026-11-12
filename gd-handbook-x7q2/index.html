@@ -191,7 +191,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
         <div class="field"><label for="last5">你的轉出帳號後五碼<span class="req">*</span></label><input id="last5" type="text" inputmode="numeric" maxlength="5" placeholder="12345"></div>
         <div class="field"><label for="paydate">轉帳日期<span class="req">*</span></label><input id="paydate" type="text" placeholder="例:11/15"></div>
       </div>
-      <span class="hint">請先轉帳,再回來填後五碼與日期。區域核對入帳後,才會計入印製人數與排進手冊。</span>
+      <span class="hint">請先轉帳,再回來填後五碼與日期。區域核對入帳後,才會計入印製人數與排進手冊。 區域是人工對帳,登記隔天 23:59 前核對不到款項,名額會自動取消,需要重新登記。</span>
       <div class="field"><span class="lbl">發票<span class="req">*</span></span>
         <label class="check"><input type="radio" name="inv" value="2" checked><span>二聯式(個人,不需統一編號)</span></label>
         <label class="check"><input type="radio" name="inv" value="3"><span>三聯式(公司,需統一編號與抬頭)</span></label>
@@ -327,7 +327,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
       if (d.status !== 'ok') throw new Error(d.message || '送出失敗');
       f.hidden = true; $('done').hidden = false;
       $('doneId').textContent = d.id;
-      $('doneText').textContent = '應付 NT$ ' + Number(d.amount).toLocaleString('en-US') + '。區域核對入帳後,會計入印製人數。發票會寄到 ' + $('invEmail').value.trim() + '。';
+      $('doneText').textContent = '應付 NT$ ' + Number(d.amount).toLocaleString('en-US') + '。區域是人工對帳,核對到款項後會另外 Email 通知你,發票會寄到 ' + $('invEmail').value.trim() + '。登記隔天 23:59 前核對不到款項,名額會自動取消,需要重新登記。';
       $('nextBtn').href = 'upload.html?e=' + encodeURIComponent($('invEmail').value.trim());
       $('nextBtn').hidden = false; $('nextHint').hidden = false;
       window.scrollTo(0, 0);
