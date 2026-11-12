@@ -1,195 +1,345 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6R66G555ZY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-6R66G555ZY");
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BNI 聚團隊｜當責 · 連結 · 成效</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>廣東年會夥伴手冊 曝光登記｜BNI 新北市西A區 聚團隊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <style>
 :root {
-  --red: #E8001D;
-  --bg: #0d0d14;
-  --surface: #16161f;
-  --border: rgba(255,255,255,0.08);
-  --muted: #7a7a99;
-  --green: #00d97e;
-  --yellow: #ffd94a;
+  --bg: #F5F6F9; --surface: #FFFFFF; --fg: #12203A; --muted: #5A6478; --line: #D5D9E2;
+  --red: #C8102E; --red-soft: #FBE9EC; --navy: #12203A; --ok: #1E7A4C;
+  --paper: #FFFFFF; --ink: #12203A; --paper-line: #D5D9E2; --paper-fill: #E5E7EB; --paper-mute: #5A6478;
+  --font: 'Noto Sans TC', system-ui, -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:#fff; font-family:'Noto Sans TC',sans-serif; min-height:100vh; }
-
-/* Header */
-.header { background:linear-gradient(135deg,#0d0d14 0%,#1a0a0f 100%); padding:40px 24px 36px; border-bottom:2px solid var(--red); position:relative; overflow:hidden; text-align:center; }
-.header::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:radial-gradient(ellipse at 50% 0%, rgba(232,0,29,0.08) 0%, transparent 70%); }
-.header::after { content:'BNI'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:'Oswald',sans-serif; font-size:200px; font-weight:900; color:rgba(232,0,29,0.04); letter-spacing:-4px; white-space:nowrap; pointer-events:none; }
-.header-eyebrow { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:6px; color:var(--red); margin-bottom:12px; position:relative; }
-.header-title { font-family:'Oswald',sans-serif; font-size:42px; font-weight:700; color:#fff; line-height:1.1; margin-bottom:8px; position:relative; }
-.header-title em { color:var(--red); font-style:normal; }
-.header-sub { font-size:15px; color:var(--muted); position:relative; letter-spacing:2px; }
-
-/* Main content */
-.main { padding:24px 16px 40px; max-width:600px; margin:0 auto; }
-
-/* Section label */
-.section-label { font-size:13px; color:var(--muted); letter-spacing:3px; margin:24px 0 12px; }
-
-/* Menu cards */
-.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px; }
-.menu-card { background:var(--surface); border-radius:14px; padding:22px 18px; text-decoration:none; color:#fff; display:flex; flex-direction:column; gap:10px; border:1px solid var(--border); transition:all 0.2s; position:relative; overflow:hidden; }
-.menu-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent,var(--border)); transition:opacity 0.2s; }
-.menu-card:hover { border-color:var(--accent,var(--red)); transform:translateY(-2px); }
-.menu-icon { font-size:32px; }
-.menu-name { font-size:17px; font-weight:700; color:#fff; }
-.menu-desc { font-size:13px; color:var(--muted); line-height:1.6; }
-
-/* Card accent colors */
-.card-weekly { --accent: #00d97e; }
-.card-training { --accent: #ffd94a; }
-.card-calendar { --accent: #7c7cff; }
-.card-members { --accent: #ff9f40; }
-
-/* Full width card */
-.menu-card-full { grid-column: 1 / -1; flex-direction:row; align-items:center; gap:16px; }
-.menu-card-full .menu-icon { font-size:32px; flex-shrink:0; }
-.menu-card-full .menu-info { flex:1; }
-.menu-card-full .menu-arrow { color:var(--muted); font-size:20px; flex-shrink:0; }
-
-/* DNA section */
-.dna-card { background:#13131a; border:1px solid rgba(232,0,29,0.3); border-radius:14px; padding:20px 16px; text-decoration:none; color:#fff; display:flex; align-items:center; gap:16px; transition:all 0.2s; margin-top:8px; }
-.dna-card:hover { border-color:var(--red); background:#1a0a0f; }
-.dna-icon { font-size:28px; flex-shrink:0; }
-.dna-info { flex:1; }
-.dna-name { font-size:17px; font-weight:700; color:var(--red); margin-bottom:4px; }
-.dna-desc { font-size:13px; color:var(--muted); line-height:1.6; }
-.dna-arrow { color:var(--red); font-size:20px; flex-shrink:0; }
-
-/* Footer */
-.footer { text-align:center; padding:24px 16px; color:var(--muted); font-size:13px; letter-spacing:2px; border-top:1px solid var(--border); }
-
-/* ── 電腦版優化 ── */
-@media (min-width: 768px) {
-  .main { max-width: 900px; padding: 40px 32px; }
-  .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  .menu-card { padding: 28px 24px; }
-  .menu-icon { font-size: 40px; }
-  .menu-name { font-size: 19px; }
-  .menu-desc { font-size: 14px; }
-  .header { padding: 60px 40px 50px; }
-  .header-title { font-size: 64px; }
-  .header-sub { font-size: 18px; letter-spacing: 4px; }
-  .dna-card { padding: 28px 24px; }
-  .dna-name { font-size: 20px; }
-  .dna-desc { font-size: 14px; }
-  .section-label { font-size: 15px; margin: 36px 0 16px; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0E1626; --surface: #16213A; --fg: #E8ECF4; --muted: #9AA5BC; --line: #2B3957; --red: #FF5470; --red-soft: #3A1B26; --navy: #0A1120; --ok: #55C38A; color-scheme: dark; }
 }
-@media (min-width: 1100px) {
-  .main { max-width: 1100px; }
-  .menu-grid { grid-template-columns: repeat(4, 1fr); }
-}
-/* ── 統一導覽列 ── */
-.nav-bar {
-  background: #13131a;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 10px 16px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  overflow-x: auto;
-  scrollbar-width: none;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.nav-bar::-webkit-scrollbar { display: none; }
-.nav-btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: transparent;
-  color: #7a7a99;
-  font-size: 13px;
-  font-family: 'Noto Sans TC', sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.nav-btn:hover { border-color: #E8001D; color: #E8001D; }
-.nav-btn.active { background: #E8001D; border-color: #E8001D; color: #fff; }
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); line-height: 1.65; font-size: 17px; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 56px; display: flex; flex-direction: column; gap: 20px; }
+header.head { background: var(--navy); color: #fff; border-radius: 6px; padding: 30px 28px; display: flex; flex-direction: column; gap: 12px; border-top: 6px solid var(--red); }
+.kicker { font-size: 14px; letter-spacing: 2px; font-weight: 700; color: #F1C9D0; }
+.head h1 { font-size: 34px; font-weight: 900; line-height: 1.3; text-wrap: balance; }
+.head p { font-size: 17px; color: #D7DDEB; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 6px; }
+.fact { background: rgba(255,255,255,.08); padding: 10px 12px; border-radius: 4px; font-size: 16px; }
+.fact b { display: block; font-size: 13px; letter-spacing: 1px; color: #F1C9D0; }
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+.stack { display: flex; flex-direction: column; gap: 20px; }
+.card h2 { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+.tag { background: var(--red); color: #fff; font-size: 14px; font-weight: 700; padding: 2px 10px; border-radius: 3px; }
+.sub { margin-top: -10px; color: var(--muted); font-size: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label, .lbl { font-size: 17px; font-weight: 700; }
+.req { color: var(--red); margin-left: 2px; }
+.hint { font-size: 14px; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+input[type=text], input[type=email], input[type=tel], select, textarea { width: 100%; font: inherit; font-size: 18px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 13px 14px; }
+textarea { resize: vertical; min-height: 110px; }
+.bad { border-color: var(--red) !important; background: var(--red-soft) !important; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, .plan:focus-within, button:focus-visible { outline: 3px solid var(--red); outline-offset: 1px; }
+.count { align-self: flex-end; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.count.over { color: var(--red); font-weight: 700; }
+.plans { display: grid; gap: 10px; }
+.plan { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; border: 2px solid var(--line); border-radius: 6px; padding: 18px; cursor: pointer; background: var(--bg); }
+.plan input { width: 22px; height: 22px; accent-color: var(--red); }
+.plan .name { font-weight: 900; font-size: 20px; }
+.plan .desc { font-size: 16px; color: var(--muted); }
+.plan .price { font-weight: 900; font-size: 24px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.plan:has(input:checked) { border-color: var(--red); background: var(--red-soft); }
+.plan.off { opacity: .5; cursor: not-allowed; }
+.file { border: 1.5px dashed var(--muted); border-radius: 6px; padding: 18px; display: flex; flex-direction: column; gap: 8px; background: var(--bg); }
+.file input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
+.spec { padding-left: 20px; font-size: 14px; color: var(--muted); }
+.check { display: flex; gap: 12px; align-items: flex-start; font-size: 17px; }
+.check input { width: 22px; height: 22px; margin-top: 3px; accent-color: var(--red); flex-shrink: 0; }
+.pay { display: grid; gap: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 18px; }
+.pay .row { display: flex; justify-content: space-between; gap: 12px; font-size: 17px; flex-wrap: wrap; }
+.pay .row b { font-variant-numeric: tabular-nums; }
+.total { font-size: 34px; font-weight: 900; color: var(--red); font-variant-numeric: tabular-nums; }
+button.submit { font: inherit; font-weight: 900; font-size: 20px; background: var(--red); color: #fff; border: 0; border-radius: 6px; padding: 18px; cursor: pointer; width: 100%; }
+button.submit:disabled { opacity: .6; cursor: wait; }
+.msg { padding: 12px 14px; border-radius: 6px; background: var(--red-soft); border: 1px solid var(--red); font-size: 16px; margin-top: 12px; }
+.done { text-align: center; gap: 12px; align-items: center; }
+.done h2 { justify-content: center; font-size: 28px; }
+.done .id { font-size: 28px; font-weight: 900; color: var(--red); letter-spacing: 2px; }
+.foot { font-size: 14px; color: var(--muted); text-align: center; }
+.mocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.mock { container-type: inline-size; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mock figcaption { font-size: 18px; font-weight: 700; }
+.mock figcaption span { display: block; font-weight: 400; color: var(--muted); font-size: 15px; }
+.sheet { aspect-ratio: 148 / 210; width: 100%; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-top: 5px solid var(--red); padding: 4cqw; display: flex; flex-direction: column; gap: 3cqw; font-size: max(9px, 3.4cqw); line-height: 1.4; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.sheet .ph { background: var(--paper-fill); color: var(--paper-mute); display: flex; align-items: center; justify-content: center; text-align: center; }
+.sheet .qr { width: 14cqw; height: 14cqw; border: 1px dashed var(--paper-mute); color: var(--paper-mute); font-size: max(7px, 2.6cqw); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.f-top { display: flex; align-items: center; gap: 3cqw; color: var(--paper-mute); }
+.f-top .ph { width: 22cqw; height: 12cqw; flex-shrink: 0; }
+.f-head { font-size: max(15px, 8cqw); font-weight: 900; line-height: 1.25; }
+.f-img { flex: 1; min-height: 0; }
+.f-bot { display: flex; justify-content: space-between; align-items: flex-end; gap: 3cqw; }
+.sheet.six { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); gap: 2.5cqw; }
+.cell { border: 1px solid var(--paper-line); padding: 2.2cqw; display: flex; flex-direction: column; justify-content: space-between; gap: 1.2cqw; min-height: 0; overflow: hidden; }
+.cell .top { display: flex; gap: 2cqw; }
+.cell .top .ph { width: 11.5cqw; height: 15cqw; flex-shrink: 0; font-size: max(7px, 2.4cqw); }
+.cell .top > div { min-width: 0; display: flex; flex-direction: column; gap: .4cqw; }
+.cell .nm { font-weight: 900; font-size: max(11px, 4cqw); line-height: 1.2; }
+.cell .co { font-size: max(8px, 2.6cqw); font-weight: 500; }
+.cell .chip { background: var(--red); color: #fff; font-size: max(7px, 2.2cqw); padding: 0 1.2cqw; margin-right: 1cqw; }
+.cell .tx { font-size: max(8px, 2.4cqw); color: var(--paper-mute); flex: 1; min-height: 0; overflow: hidden; line-height: 1.45; }
+.cell .bt { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5cqw; font-size: max(8px, 2.4cqw); line-height: 1.4; }
+.cell .bt .qr { width: 9cqw; height: 9cqw; font-size: max(6px, 2cqw); }
+.tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tier { border: 2px solid var(--line); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 2px; background: var(--bg); }
+.tier b { font-size: 18px; }
+.tier span { font-size: 16px; color: var(--muted); font-weight: 700; }
+.tier.on { border-color: var(--red); background: var(--red-soft); }
+.tier.on span { color: var(--red); }
+.now { font-size: 19px; }
+.now b { color: var(--red); font-size: 24px; font-variant-numeric: tabular-nums; }
+a.btn { display: block; text-align: center; text-decoration: none; font-weight: 900; font-size: 20px; background: var(--red); color: #fff; border-radius: 6px; padding: 18px; }
+.stepper { display: flex; gap: 10px; flex-wrap: wrap; font-size: 15px; }
+.stepper span { background: rgba(255,255,255,.12); padding: 4px 10px; border-radius: 3px; }
+.stepper span.now { background: #fff; color: #12203A; font-weight: 700; }
+[hidden] { display: none !important; }
 </style>
-</head>
 <body>
+<div class="wrap">
 
-<div class="header">
-  <div class="header-eyebrow">新北市西A區</div>
-  <div class="header-title">BNI <em>聚團隊</em></div>
-  <div class="header-sub">當責 · 連結 · 成效</div>
-</div>
+  <header class="head">
+    <div class="kicker">BNI 新北市西A區 · 聚團隊</div>
+    <h1>廣東年會 夥伴手冊<br>曝光登記表</h1>
+    <div class="stepper"><span class="now">① 選方案、填基本資料、付款</span><span>② 補齊手冊資料與照片(11/25 前)</span></div>
+    <p>已經登記過、要補資料?<a href="upload.html" style="color:#fff;font-weight:700;text-underline-offset:3px">按這裡補齊手冊資料</a></p>
+    <p>手冊由出團夥伴統一帶到 BNI 廣東首屆國際年會,現場發送給海外與大陸夥伴交流,全部發完。</p>
+    <div class="facts">
+      <div class="fact"><b>印製份數</b>依參與人數,300 / 500 / 700 本</div>
+      <div class="fact"><b>登記與轉帳截止</b>11/18(三)</div>
+      <div class="fact"><b>補齊資料截止</b>11/25(三)</div>
+      <div class="fact"><b>年會日期</b>2026/12/15–16</div>
+    </div>
+  </header>
 
-<div class="main">
+  <section class="card" id="printInfo">
+    <h2>印製份數依參與人數決定</h2>
+    <p class="sub">手冊全部帶到廣東年會發送。參與的人越多,印得越多,現場被看到的機會越大。11/18 截止後,依最後確認收款的人數決定份數。</p>
+    <div class="tiers">
+      <div class="tier" data-tier="0"><b>30–49 人</b><span>印 300 份</span></div>
+      <div class="tier" data-tier="1"><b>50–79 人</b><span>印 500 份</span></div>
+      <div class="tier" data-tier="2"><b>80 人以上</b><span>印 700 份</span></div>
+    </div>
+    <div class="now">目前已確認收款 <b id="nowCount">—</b> 人 · 預計印製 <b id="nowCopies">—</b></div>
+    <span class="hint">未滿 30 人時,由區域另行公告。人數以區域確認入帳後才計入,含一頁式與一格曝光,不含本次不曝光。</span>
+  </section>
 
-  <div class="section-label">功能選單</div>
+  <form id="f" novalidate>
+  <div class="stack">
 
-  <div class="menu-grid">
-    <a href="/bni-jututeam/dna-home.html" class="menu-card" style="--accent:#E8001D">
-      <div class="menu-icon">🔒</div>
-      <div class="menu-name">DnA 專區</div>
-      <div class="menu-desc">董事顧問・大使<br>需要密碼才能進入</div>
-    </a>
+    <section class="card">
+      <h2><span class="tag">1</span>選擇曝光方案</h2>
+      <p class="sub">選「本次不曝光」不用填其他資料。下面是兩種版面在手冊裡的樣子(A5 直式)。</p>
+      <div class="mocks">
+        <figure class="mock"><div class="sheet">
+          <div class="f-top"><span class="ph">LOGO</span><span>公司名稱 · 專業別</span></div>
+          <div class="f-head">你的主標語<br>最多兩行</div>
+          <div class="f-img ph">產品 / 服務形象圖</div>
+          <div class="f-bot"><div><b>年會限定優惠或服務內容</b><br>電話 · LINE · WeChat</div><span class="qr">QR</span></div>
+        </div><figcaption>一頁式曝光<span>整頁都是你,另含夥伴頁一格</span></figcaption></figure>
+        <figure class="mock"><div class="sheet six" id="cells"></div><figcaption>一頁六格<span>夥伴頁每頁 6 位,2 欄 × 3 排</span></figcaption></figure>
+      </div>
+      <div class="plans" role="radiogroup" aria-label="曝光方案">
+        <label class="plan" id="planFeature"><input type="radio" name="plan" value="feature" data-price="3600">
+          <span><span class="name">一頁式曝光</span><br><span class="desc" id="featureDesc">整頁屬於你,含一格夥伴頁。限 6 位,依登記時間先後。</span></span>
+          <span class="price">NT$ 3,600</span></label>
+        <label class="plan"><input type="radio" name="plan" value="cell" data-price="700" checked>
+          <span><span class="name">一格曝光</span><br><span class="desc">夥伴頁一格:照片、介紹、資源、QR code。</span></span>
+          <span class="price">NT$ 700</span></label>
+        <label class="plan"><input type="radio" name="plan" value="none" data-price="0">
+          <span><span class="name">本次不曝光</span><br><span class="desc">不需填寫其他資料。</span></span>
+          <span class="price">NT$ 0</span></label>
+      </div>
+    </section>
 
-    <a href="/bni-jututeam/founding.html" class="menu-card" style="--accent:#00d97e">
-      <div class="menu-icon">🚀</div>
-      <div class="menu-name">籌備分會進度</div>
-      <div class="menu-desc">用夢想組建團隊<br>用團隊實現夢想</div>
-    </a>
+    <div id="detail" class="stack">
 
-    <a href="/bni-jututeam/training.html" class="menu-card card-training">
-      <div class="menu-icon">🎓</div>
-      <div class="menu-name">培訓公告</div>
-      <div class="menu-desc">近期培訓場次<br>報名進度・嘉賓介紹</div>
-    </a>
+    <section class="card">
+      <h2><span class="tag">2</span>基本資料</h2>
+      <p class="sub">先填基本資料並付款,手冊上要放的介紹、照片、QR code,登記完成後再補。</p>
+      <div class="grid2">
+        <div class="field"><label for="nameZh">中文全名<span class="req">*</span></label><input id="nameZh" type="text" placeholder="例:周令璿"></div>
+        <div class="field"><label for="nameEn">英文名<span class="req">*</span></label><input id="nameEn" type="text" placeholder="例:Steven Chou"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="chapter">所屬分會<span class="req">*</span></label>
+          <select id="chapter"><option value="">請選擇</option><option>聚財</option><option>聚道</option><option>聚大</option><option>聚富</option><option>聚美好</option><option>聚盛</option><option>其他</option></select></div>
+        <div class="field"><label for="company">公司名稱(中英文)<span class="req">*</span></label><input id="company" type="text" placeholder="例:佳達國際 Jiada International"></div>
+      </div>
+      <div class="field"><label for="phone">手機<span class="req">*</span></label><input id="phone" type="tel" placeholder="0912 345 678"><span class="hint">補資料時,用「發票寄送 Email」加「手機末四碼」確認身分。</span></div>
+    </section>
 
-    <a href="/bni-jututeam/calendar.html" class="menu-card card-calendar">
-      <div class="menu-icon">📅</div>
-      <div class="menu-name">區域行事曆</div>
-      <div class="menu-desc">區域培訓・總部活動<br>各分會大型活動</div>
-    </a>
+    <section class="card">
+      <h2><span class="tag">3</span>費用與轉帳</h2>
+      <div class="pay">
+        <div class="row"><span>應付金額</span><span class="total" id="total">NT$ 700</span></div>
+        <div class="row"><span>銀行</span><b>國泰世華銀行(013)</b></div>
+        <div class="row"><span>帳號</span><b>265035002662</b></div>
+        <div class="row"><span>戶名</span><b>佳訊達國際開發有限公司</b></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="last5">你的轉出帳號後五碼<span class="req">*</span></label><input id="last5" type="text" inputmode="numeric" maxlength="5" placeholder="12345"></div>
+        <div class="field"><label for="paydate">轉帳日期<span class="req">*</span></label><input id="paydate" type="text" placeholder="例:11/15"></div>
+      </div>
+      <span class="hint">請先轉帳,再回來填後五碼與日期。區域核對入帳後,才會計入印製人數與排進手冊。 區域是人工對帳,登記隔天 23:59 前核對不到款項,名額會自動取消,需要重新登記。</span>
+      <div class="field"><span class="lbl">發票<span class="req">*</span></span>
+        <label class="check"><input type="radio" name="inv" value="2" checked><span>二聯式(個人,不需統一編號)</span></label>
+        <label class="check"><input type="radio" name="inv" value="3"><span>三聯式(公司,需統一編號與抬頭)</span></label>
+      </div>
+      <div class="grid2" id="invCompany" hidden>
+        <div class="field"><label for="taxId">統一編號<span class="req">*</span></label><input id="taxId" type="text" inputmode="numeric" maxlength="8" placeholder="8 碼數字"></div>
+        <div class="field"><label for="invTitle">發票抬頭(公司全名)<span class="req">*</span></label><input id="invTitle" type="text"></div>
+      </div>
+      <div class="field"><label for="invEmail">發票寄送 Email<span class="req">*</span></label><input id="invEmail" type="email" placeholder="發票會寄到這個信箱"><span class="hint">發票開立後寄到這個信箱,開立後無法更改,請確認統一編號與抬頭正確。</span></div>
+    </section>
 
-    <a href="/bni-jututeam/gold.html" class="menu-card" style="--accent:#C9A84C">
-      <div class="menu-icon">🥇</div>
-      <div class="menu-name">金質獎章榮耀牆</div>
-      <div class="menu-desc">雙金質・金質<br>獎章得主</div>
-    </a>
+    <section class="card">
+      <h2><span class="tag">4</span>確認事項</h2>
+      <label class="check"><input type="checkbox" class="agree"><span>我了解手冊印製後費用不退。</span></label>
+      <label class="check"><input type="checkbox" class="agree"><span>我會在 11/25 前補齊手冊資料與照片,逾期未補齊,將以現有資料或佔位符處理。</span></label>
+      <label class="check"><input type="checkbox" class="agree"><span>我同意區域使用我提供的照片與資料,印製於手冊,並製作電子檔。</span></label>
+    </section>
 
-    <a href="/bni-jututeam/members.html" class="menu-card card-members">
-      <div class="menu-icon">👥</div>
-      <div class="menu-name">成員介紹</div>
-      <div class="menu-desc">聚團隊成員資料<br>專業別・聯絡資訊</div>
-    </a>
+    </div>
+
+    <div>
+      <button type="submit" class="submit" id="submitBtn">送出登記</button>
+      <div class="msg" id="msg" hidden></div>
+    </div>
   </div>
+  </form>
 
+  <section class="card done" id="done" hidden>
+    <h2>已收到登記</h2>
+    <div class="id" id="doneId"></div>
+    <p id="doneText"></p>
+    <a class="btn" id="nextBtn" href="upload.html" hidden>接著補齊手冊資料</a>
+    <p class="hint" id="nextHint" hidden>登記編號請截圖保存。11/25 前都可以回來補資料,補資料時用你填的 Email 加手機末四碼確認身分。</p>
+  </section>
+
+  <p class="foot">BNI 新北市西A區 · 聚團隊 · Givers Gain®</p>
 </div>
-
-<div class="footer">BNI 聚團隊 · 新北市西A區</div>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var nav = document.querySelector('.nav-bar');
-  var active = document.querySelector('.nav-btn.active');
-  if (nav && active) {
-    nav.scrollLeft = active.offsetLeft - (nav.offsetWidth/2) + (active.offsetWidth/2);
+(function () {
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbym_ZJ9nRHSmIKFyNCaaooXWVDgJomRv16KDI-I1qGMnX8deKXkAQN8uJeuruz53qXOcA/exec';
+
+  var f = document.getElementById('f');
+  var detail = document.getElementById('detail');
+  var totalEl = document.getElementById('total');
+  var msg = document.getElementById('msg');
+  var btn = document.getElementById('submitBtn');
+  var busy = false;
+
+  function $(id) { return document.getElementById(id); }
+  function plan() { return f.querySelector('input[name=plan]:checked'); }
+  function showMsg(t) { msg.hidden = false; msg.textContent = t; }
+  function mark(id, bad) { var el = $(id); if (el) el.classList.toggle('bad', !!bad); return bad; }
+
+  function refresh() {
+    var p = plan(), v = p.value, price = Number(p.getAttribute('data-price'));
+    detail.hidden = (v === 'none');
+    totalEl.textContent = 'NT$ ' + price.toLocaleString('en-US');
+    btn.textContent = v === 'none' ? '本次不曝光,關閉' : '送出登記';
+    msg.hidden = true;
   }
-});
+  f.querySelectorAll('input[name=plan]').forEach(function (r) { r.addEventListener('change', refresh); });
+
+  var cells = '';
+  for (var i = 0; i < 6; i++) {
+    cells += '<div class="cell"><div class="top"><span class="ph">照片</span><div><div class="nm">中文全名</div><div class="co"><span class="chip">分會</span>公司名稱</div><div class="co">專業別</div></div></div><div class="tx">產品或服務介紹,最多 50 字,約三行,放得下一段完整的說明,讓海外夥伴一眼看懂。</div><div class="bt"><span><b>有</b> 可提供的資源<br><b>要</b> 想認識的資源</span><span class="qr">QR</span></div></div>';
+  }
+  $('cells').innerHTML = cells;
+
+  function showTotal(n) {
+    var copies = n >= 80 ? 700 : n >= 50 ? 500 : n >= 30 ? 300 : 0;
+    var idx = n >= 80 ? 2 : n >= 50 ? 1 : n >= 30 ? 0 : -1;
+    $('nowCount').textContent = n;
+    $('nowCopies').textContent = copies ? copies + ' 份' : '未滿 30 人,另行公告';
+    document.querySelectorAll('.tier').forEach(function (t) { t.classList.toggle('on', Number(t.getAttribute('data-tier')) === idx); });
+  }
+
+  if (GAS_URL) {
+    fetch(GAS_URL + '?action=slots').then(function (r) { return r.json(); }).then(function (d) {
+      if (typeof d.total === 'number') showTotal(d.total);
+      if (typeof d.featureLeft !== 'number') return;
+      if (d.featureLeft <= 0) {
+        $('planFeature').classList.add('off');
+        $('planFeature').querySelector('input').disabled = true;
+        $('featureDesc').textContent = '6 個名額已額滿。';
+      } else {
+        $('featureDesc').textContent = '整頁屬於你,含一格夥伴頁。限 6 位,目前剩 ' + d.featureLeft + ' 位。';
+      }
+    }).catch(function () {});
+  }
+
+  function invRefresh() { $('invCompany').hidden = f.querySelector('input[name=inv]:checked').value !== '3'; }
+  f.querySelectorAll('input[name=inv]').forEach(function (r) { r.addEventListener('change', invRefresh); });
+  invRefresh();
+
+  f.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (busy) return;
+    var v = plan().value;
+    if (v === 'none') {
+      f.hidden = true; $('done').hidden = false;
+      $('doneId').textContent = '';
+      $('doneText').textContent = '已記錄為本次不曝光,謝謝你的支持。';
+      window.scrollTo(0, 0);
+      return;
+    }
+    var bad = [];
+    function need(id, label) { if (mark(id, !$(id).value.trim())) bad.push(label); }
+    need('nameZh', '中文全名'); need('nameEn', '英文名'); need('chapter', '所屬分會'); need('company', '公司名稱');
+    if (mark('phone', $('phone').value.replace(/\D/g, '').length < 8)) bad.push('手機');
+    if (mark('last5', !/^\d{5}$/.test($('last5').value.trim()))) bad.push('轉帳後五碼(5 位數字)');
+    need('paydate', '轉帳日期');
+    var inv = f.querySelector('input[name=inv]:checked').value;
+    if (mark('invEmail', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('invEmail').value.trim()))) bad.push('發票寄送 Email');
+    if (inv === '3') {
+      if (mark('taxId', !/^\d{8}$/.test($('taxId').value.trim()))) bad.push('統一編號(8 位數字)');
+      need('invTitle', '發票抬頭');
+    } else { mark('taxId', false); mark('invTitle', false); }
+    if (!Array.from(f.querySelectorAll('.agree')).every(function (c) { return c.checked; })) bad.push('確認事項需全部勾選');
+    if (bad.length) { showMsg('還缺:' + bad.join('、') + '。'); return; }
+
+    busy = true; btn.disabled = true; btn.textContent = '送出中…';
+    try {
+      var payload = {
+        action: 'register', plan: v,
+        nameZh: $('nameZh').value.trim(), nameEn: $('nameEn').value.trim(), chapter: $('chapter').value,
+        company: $('company').value.trim(), phone: $('phone').value.trim(),
+        last5: $('last5').value.trim(), payDate: $('paydate').value.trim(),
+        invType: inv, taxId: inv === '3' ? $('taxId').value.trim() : '', invTitle: inv === '3' ? $('invTitle').value.trim() : '',
+        invEmail: $('invEmail').value.trim()
+      };
+      var res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      var d = await res.json();
+      if (d.status !== 'ok') throw new Error(d.message || '送出失敗');
+      f.hidden = true; $('done').hidden = false;
+      $('doneId').textContent = d.id;
+      $('doneText').textContent = '應付 NT$ ' + Number(d.amount).toLocaleString('en-US') + '。區域是人工對帳,核對到款項後會另外 Email 通知你,發票會寄到 ' + $('invEmail').value.trim() + '。登記隔天 23:59 前核對不到款項,名額會自動取消,需要重新登記。';
+      $('nextBtn').href = 'upload.html?e=' + encodeURIComponent($('invEmail').value.trim());
+      $('nextBtn').hidden = false; $('nextHint').hidden = false;
+      window.scrollTo(0, 0);
+    } catch (err) {
+      showMsg((err && err.message ? err.message : '送出失敗') + '。資料還在畫面上,請檢查網路後再按一次;若多次失敗,請在群組聯繫區域窗口。');
+      btn.disabled = false; btn.textContent = '送出登記';
+    }
+    busy = false;
+  });
+
+  refresh();
+})();
 </script>
 </body>
 </html>
