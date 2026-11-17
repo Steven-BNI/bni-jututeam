@@ -269,7 +269,14 @@ async function loadDeferOptions(paidFee, identity) {
       if (!r || !r[idx('培訓名稱')]) continue;
       const name        = (r[idx('培訓名稱')] || '').trim();
       const date        = (r[idx('培訓日期')] || '').trim();
-      const feeGeneral  = parseFloat(r[idx('報名費用')]) || 0;
+      let feeGeneral    = parseFloat(r[idx('報名費用')]) || 0;
+      // 以「今天報名實際要付的價格」比對：早鳥期內用早鳥價，過了早鳥截止日用一般價
+      const feeEarly    = idx('早鳥價') >= 0 ? (parseFloat(r[idx('早鳥價')]) || 0) : 0;
+      const earlyDLStr  = idx('早鳥截止日') >= 0 ? (r[idx('早鳥截止日')] || '').trim() : '';
+      if (feeEarly > 0 && earlyDLStr) {
+        const dl = parseDate(earlyDLStr);
+        if (dl) { dl.setHours(23, 59, 59, 999); if (today <= dl) feeGeneral = feeEarly; }
+      }
       const feeMentor   = parseFloat(r[idx('認證導師費用')]) || 0;
       if (!name || !date) continue;
       if (name.includes('已取消')) continue;
