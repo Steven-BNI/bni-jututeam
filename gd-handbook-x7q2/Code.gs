@@ -2,7 +2,7 @@
 // 流程:先登記(基本資料+轉帳+發票),之後再用「登記時填的 Email + 手機末四碼」補齊手冊資料與檔案。
 var SHEET_NAME = '登記';
 var FOLDER_NAME = '廣東年會手冊資料';
-var FEATURE_LIMIT = 6;
+var FEATURE_LIMIT = 12;
 var PRICES = { feature: 3600, cell: 700 };
 var PLAN_LABEL = { feature: '一頁式曝光', cell: '一格曝光' };
 var PAID = '已收款(請手動填 Y)';
@@ -99,7 +99,7 @@ function doGet(e) {
   var action = e && e.parameter && e.parameter.action;
   if (action === 'slots') {
     var rows = rows_(sheet_());
-    return json_({ status: 'ok', featureLeft: Math.max(0, FEATURE_LIMIT - featureCount_(rows)), total: totalCount_(rows) });
+    return json_({ status: 'ok', featureLimit: FEATURE_LIMIT, featureLeft: Math.max(0, FEATURE_LIMIT - featureCount_(rows)), total: totalCount_(rows) });
   }
   return json_({ status: 'ok' });
 }

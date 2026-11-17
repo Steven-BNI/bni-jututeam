@@ -151,7 +151,7 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
       </div>
       <div class="plans" role="radiogroup" aria-label="曝光方案">
         <label class="plan" id="planFeature"><input type="radio" name="plan" value="feature" data-price="3600">
-          <span><span class="name">一頁式曝光</span><br><span class="desc" id="featureDesc">整頁屬於你,含一格夥伴頁。限 6 位,依登記時間先後。</span></span>
+          <span><span class="name">一頁式曝光</span><br><span class="desc" id="featureDesc">整頁屬於你,含一格夥伴頁。名額有限,依登記時間先後。</span></span>
           <span class="price">NT$ 3,600</span></label>
         <label class="plan"><input type="radio" name="plan" value="cell" data-price="700" checked>
           <span><span class="name">一格曝光</span><br><span class="desc">夥伴頁一格:照片、介紹、資源、QR code。</span></span>
@@ -275,9 +275,9 @@ a.btn { display: block; text-align: center; text-decoration: none; font-weight: 
       if (d.featureLeft <= 0) {
         $('planFeature').classList.add('off');
         $('planFeature').querySelector('input').disabled = true;
-        $('featureDesc').textContent = '6 個名額已額滿。';
+        $('featureDesc').textContent = (typeof d.featureLimit === 'number' ? d.featureLimit + ' 個' : '') + '名額已額滿。';
       } else {
-        $('featureDesc').textContent = '整頁屬於你,含一格夥伴頁。限 6 位,目前剩 ' + d.featureLeft + ' 位。';
+        $('featureDesc').textContent = '整頁屬於你,含一格夥伴頁。' + (typeof d.featureLimit === 'number' ? '限 ' + d.featureLimit + ' 位,' : '') + '目前剩 ' + d.featureLeft + ' 位。';
       }
     }).catch(function () {});
   }
